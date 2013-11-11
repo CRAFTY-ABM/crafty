@@ -1,0 +1,1 @@
+<cellInitialiser class="org.volante.abm.serialization.CellCSVReader" csvFile="csv/%r.csv" />

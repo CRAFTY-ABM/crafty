@@ -1,0 +1,246 @@
+package org.volante.abm.institution;
+
+import static java.lang.Math.abs;
+import static org.junit.Assert.*;
+
+import java.util.*;
+import java.util.Map.Entry;
+
+import org.junit.Test;
+import org.volante.abm.agent.*;
+import org.volante.abm.data.*;
+import org.volante.abm.example.*;
+import org.volante.abm.institutions.*;
+
+import com.moseph.modelutils.fastdata.*;
+
+public class InstitutionsTest extends BasicTests
+{
+
+	@Test
+	public void testBasicIntegration() throws Exception
+	{
+		DefaultInstitution a = getTestInstitution( 1, 1 );
+		c11 = new Cell( 1, 1 );
+		c12 = new Cell( 1, 2 );
+		c21 = new Cell( 2, 1 );
+		c22 = new Cell( 2, 2 );
+		runInfo.setUseInstitutions( true );
+		assertFalse( c11.isInitialised() );
+		
+		Region r = setupBasicWorld( c11, c12, c21, c22 );
+		Institutions institutions = new Institutions();
+		setupInstitutions( institutions, r );
+
+		institutions.addInstitution( a );
+		
+		
+		c11.setBaseCapitals( capitals(1,0,0,0,0,0,0) );
+		c12.setBaseCapitals( capitals(2,0,0,0,0,0,0) );
+		c21.setBaseCapitals( capitals(3,0,0,0,0,0,0) );
+		c22.setBaseCapitals( capitals(4,0,0,0,0,0,0) );
+		
+		runInfo.getSchedule().tick();
+		assertEqualMaps( capitals(1,0,0,0,0,0,0), c11.getBaseCapitals() );
+		assertEqualMaps( capitals(2,0,0,0,0,0,0), c12.getBaseCapitals() );
+		assertEqualMaps( capitals(3,0,0,0,0,0,0), c21.getBaseCapitals() );
+		assertEqualMaps( capitals(4,0,0,0,0,0,0), c22.getBaseCapitals() );
+		assertEqualMaps( capitals(2,1,1,1,1,1,1), c11.getEffectiveCapitals() );
+		assertEqualMaps( capitals(3,1,1,1,1,1,1), c12.getEffectiveCapitals() );
+		assertEqualMaps( capitals(4,1,1,1,1,1,1), c21.getEffectiveCapitals() );
+		assertEqualMaps( capitals(5,1,1,1,1,1,1), c22.getEffectiveCapitals() );
+	}
+	
+	@Test
+	public void testCompetitivenessChanges() throws Exception
+	{
+		DefaultInstitution a = getTestInstitution( 1, 1 );
+		Region r = setupBasicWorld( c11 );
+		RegionalDemandModel dem = (RegionalDemandModel) r.getDemandModel();
+		dem.setDemand( services(1,1,1,1) );
+		c11.setBaseCapitals( cellCapitalsA );
+		c11.initEffectiveCapitals();
+		double farmComp = r.getCompetitiveness( farming, c11 ); //Get the initial competitiveness
+		double forestComp = r.getCompetitiveness( forestry, c11 ); //Get the initial competitiveness
+		assertTrue( abs( farmComp ) > 0.001 ); //And make sure that its not zero, just to be sure
+		
+		Institutions inst = new Institutions();
+		inst.addInstitution( a );
+		setupInstitutions( inst, r );
+		assertTrue( r.hasInstitutions() );
+		assertEquals( farmComp + 1, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted
+		assertEquals( forestComp + 1, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+		
+		a.setSubsidy( farming, 3 );
+		assertEquals( farmComp + 3, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted per agent
+		assertEquals( forestComp + 1, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+	}
+	
+	@Test
+	public void testServiceValuationChanges() throws Exception
+	{
+		Region r = setupBasicWorld( c11 );
+		RegionalDemandModel dem = (RegionalDemandModel) r.getDemandModel();
+		dem.setDemand( services(1,1,1,1) );
+		c11.setBaseCapitals( cellCapitalsA );
+		c11.initEffectiveCapitals();
+		double farmComp = r.getCompetitiveness( farming, c11 ); //Get the initial competitiveness
+		double forestComp = r.getCompetitiveness( forestry, c11 ); //Get the initial competitiveness
+		assertTrue( abs( farmComp ) > 0.001 ); //And make sure that its not zero, just to be sure
+		DoubleMap<Service> farmSupply = farming.getPotentialSupply( c11 );
+		DoubleMap<Service> forestSupply = forestry.getPotentialSupply( c11 );
+		@SuppressWarnings("deprecation")
+		double baseComp = r.getCompetitionModel().getCompetitveness( r.getDemandModel(), farmSupply );
+		assertEquals( farmComp, baseComp, 0.0001 );
+		
+		Institutions inst = new Institutions();
+		DefaultInstitution a = getTestInstitution( 0, 0 );
+		inst.addInstitution( a );
+		setupInstitutions( inst, r );
+		assertTrue( r.hasInstitutions() );
+		
+		assertEquals( farmComp, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted
+		assertEquals( forestComp, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+		
+		DoubleMap<Service> subsidies = services(2,2,2,2);
+		double farmSubsidy = farmSupply.dotProduct( subsidies );
+		double forestSubsidy = forestSupply.dotProduct( subsidies );
+		assertTrue( farmSubsidy > 0 );
+		assertTrue( forestSubsidy > 0 );
+		assertTrue( abs(forestSubsidy-farmSubsidy) > 0 );
+		a.setSubsidies( subsidies );
+		assertEquals( farmComp + farmSubsidy, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted based on production
+		assertEquals( forestComp + forestSubsidy, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+	}
+	
+	@Test
+	public void testSerialisedInstitution() throws Exception
+	{
+		c11 =  new Cell(1,1);
+		runInfo.setUseInstitutions( true );
+		Region r = setupBasicWorld( c11 );
+		r.addPotentialAgents( Arrays.asList( new PotentialAgent[] {forestry, farming }) );
+		RegionalDemandModel dem = (RegionalDemandModel) r.getDemandModel();
+		dem.setDemand( services(1,1,1,1) );
+		c11.setBaseCapitals( cellCapitalsA );
+		c11.initEffectiveCapitals();
+		double farmComp = r.getCompetitiveness( farming, c11 ); //Get the initial competitiveness
+		double forestComp = r.getCompetitiveness( forestry, c11 ); //Get the initial competitiveness
+		assertTrue( abs( farmComp ) > 0.001 ); //And make sure that its not zero, just to be sure
+		DoubleMap<Service> farmSupply = farming.getPotentialSupply( c11 );
+		DoubleMap<Service> forestSupply = forestry.getPotentialSupply( c11 );
+		@SuppressWarnings("deprecation")
+		double baseComp = r.getCompetitionModel().getCompetitveness( r.getDemandModel(), farmSupply );
+		assertEquals( farmComp, baseComp, 0.0001 );
+		
+		assertEquals( farmComp, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted
+		assertEquals( forestComp, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+		
+		Institutions inst = new Institutions();
+		DefaultInstitution a = persister.readXML( DefaultInstitution.class, "xml/TestInstitution.xml" );
+		inst.addInstitution( a );
+		setupInstitutions( inst, r );
+		assertTrue( r.hasInstitutions() );
+		
+		
+		//Subsidy levels set in the XML file
+		DoubleMap<Service> subsidies = services(0,0.7,1.2,0);
+		double farmSubsidy = farmSupply.dotProduct( subsidies );
+		double forestSubsidy = forestSupply.dotProduct( subsidies );
+		assertTrue( farmSubsidy > 0 );
+		assertTrue( forestSubsidy > 0 );
+		assertTrue( abs(forestSubsidy-farmSubsidy) > 0 );
+		//Farming subsidy set in the XML file
+		assertEquals( farmComp + farmSubsidy + 3.2, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted based on production
+		assertEquals( forestComp + forestSubsidy, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
+		
+		//Capital sub set in XML file
+		DoubleMap<Capital> capitals = capitals(0,0,0.2,0,0,0,0);
+		cellCapitalsA.addInto( capitals );
+		runInfo.getSchedule().tick();
+		assertEqualMaps( cellCapitalsA, c11.getBaseCapitals() );
+		assertEqualMaps( capitals, c11.getEffectiveCapitals() );
+		
+		//Figure out expected production with altered capital levels
+		DoubleMap<Service> expected = services(0,0,0,0);
+		farmingProduction.production( capitals, expected );
+		//And check against potential supply
+		assertEqualMaps( expected, farming.getPotentialSupply( c11 ));
+		
+		//And check they're used by the agent
+		DefaultAgent agent = (DefaultAgent) farming.createAgent( r, c11 );
+		agent.initialise(modelData);
+		agent.supply( c11 );
+		assertEqualMaps( expected, c11.getSupply() );
+	}
+	
+	void setupInstitutions( Institutions i, Region r ) throws Exception
+	{
+		runInfo.getSchedule().register( i );
+		i.initialise( modelData, runInfo, r );
+		r.setInstitutions( i );
+	}
+	
+	DefaultInstitution getTestInstitution( double cap, double comp ) throws Exception
+	{
+		DefaultInstitution i = new DefaultInstitution();
+		i.initialise( modelData, runInfo, r1 );
+		i.setAdjustment( capitals(cap,cap,cap,cap,cap,cap,cap) );
+		i.setSubsidy( farming, comp );
+		i.setSubsidy( forestry, comp );
+		return i;
+	}
+
+	/*
+	class TestInstitution extends AbstractInstitution
+	{
+		double capAdjust = 0.1;
+		double compAdjust = 0.1;
+		Map<PotentialAgent, Double> perAgentAdjust = new HashMap<PotentialAgent, Double>();
+		DoubleMap<Service> subsidies = services( 0, 0, 0, 0 );
+		public TestInstitution( double cap, double comp )
+		{
+			this.capAdjust = cap;
+			this.compAdjust = comp;
+		}
+		
+		public TestInstitution( double cap, double comp, Map<PotentialAgent,Double> perAgent )
+		{
+			this( cap, comp );
+			perAgentAdjust.putAll( perAgent );
+		}
+		public void adjustCapitals( Cell c )
+		{
+			DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals();
+			for( Capital cap : adjusted.getKeys() ) adjusted.add( cap, capAdjust );
+			System.out.println("Adjusting capitals. \n\t" + c.getBaseCapitals().prettyPrint() + " \n=>\t" + adjusted.prettyPrint() );
+		}
+
+		public double adjustCompetitiveness( PotentialAgent agent, Cell location, UnmodifiableNumberMap<Service> provision, double competitiveness )
+		{
+			double subsidy = provision.dotProduct( subsidies );
+			competitiveness += subsidy;
+			if( perAgentAdjust.containsKey( agent ) )
+				return competitiveness + perAgentAdjust.get( agent );
+			return competitiveness + compAdjust; 
+		}
+		
+		public void setBonus( PotentialAgent a, double l )
+		{
+			perAgentAdjust.put( a, l );
+		}
+		
+		public void setSubsidy( Service s, double level )
+		{
+			subsidies.put( s, level );
+		}
+		
+		public void setSubsidies( DoubleMap<Service> levels )
+		{
+			subsidies.copyFrom( levels );
+		}
+		
+		
+	};
+	*/
+}

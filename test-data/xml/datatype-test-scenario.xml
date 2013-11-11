@@ -1,0 +1,5 @@
+<scenario startTick="2001" endTick="2009" world="TestWorld" runID="1" scenario="TestScen">
+	<capitals class="org.volante.abm.serialization.CSVCapitalLoader" file="csv/TestCapitals.csv" indexed="true"/>
+	<services class="org.volante.abm.serialization.CSVServiceLoader" file="csv/TestServices.csv" indexed="true"/>
+	<landUses class="org.volante.abm.serialization.CSVLandUseLoader" file="csv/TestLandUses.csv" indexed="true"/>
+</scenario>

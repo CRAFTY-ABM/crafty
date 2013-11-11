@@ -1,0 +1,8 @@
+<agentList>
+	<agent class="org.volante.abm.example.SimplePotentialAgent" givingUp="0.5" givingIn="1" id="HighIntensityArable" serialID="2">
+		<production class="org.volante.abm.example.SimpleProductionModel" csvFile="csv/HighIntensityArable.csv" />
+	</agent>
+	<agent class="org.volante.abm.example.SimplePotentialAgent" givingUp="0.1" givingIn="3" id="CommercialForestry" serialID="3">
+		<production class="org.volante.abm.example.SimpleProductionModel" csvFile="csv/CommercialForestry.csv" />
+	</agent>
+</agentList>

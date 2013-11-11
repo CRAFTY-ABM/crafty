@@ -1,0 +1,3 @@
+"ID", "Competition", "Allocation", "Demand", "Agents", "Cell Initialisers", "Agent Initialisers"
+Region1, xml/DefaultCompetition.xml, xml/DefaultAllocation.xml, xml/DefaultDemand.xml, xml/MediumWorldAgents.xml, xml/CSVCells.xml, "Agents not implemented"
+Region2, xml/DefaultCompetition.xml, xml/DefaultAllocation.xml, xml/DefaultDemand.xml, xml/MediumWorldAgents.xml, xml/CSVCells.xml, "Agents not implemented"

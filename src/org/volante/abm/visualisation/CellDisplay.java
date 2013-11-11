@@ -1,0 +1,285 @@
+package org.volante.abm.visualisation;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+
+import javax.swing.*;
+
+import org.apache.log4j.Logger;
+import org.simpleframework.xml.Attribute;
+import org.volante.abm.data.*;
+import org.volante.abm.schedule.RunInfo;
+
+import com.google.common.collect.Table;
+import com.moseph.modelutils.fastdata.*;
+
+public abstract class CellDisplay extends AbstractDisplay implements KeyListener, MouseListener
+{
+	BufferedImage image;
+	Extent extent;
+	Color background = Color.white;
+	int height = 0;
+	int width = 0;
+	Cell[][] cells;
+	Cell selected = null;
+	CellInfoDisplay cellInfo = new CellInfoDisplay();
+	int selectedX = 0;
+	int selectedY = 0;
+	@Attribute(required=false)
+	int legendSize = 100;
+	@Attribute(required=false)
+	int legendSquares = 3;
+	Logger log = Logger.getLogger( getClass() );
+	
+	
+	@Attribute(required=false)
+	boolean drawLegend = true;
+	
+	public CellDisplay()
+	{
+	}
+	
+	public void initialise( ModelData data, RunInfo info, Regions region ) throws Exception
+	{
+		super.initialise( data, info, region );
+		this.extent = region.getExtent();
+		width = extent.getWidth();
+		height = extent.getHeight();
+		image = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB );
+		cells = new Cell[width][height];
+		setBackground( Color.magenta );
+		setFocusable( true );
+		addKeyListener( this );
+		addMouseListener( this );
+	}
+	
+	public void paint( Graphics g )
+	{
+		g.drawImage( image, 0, 0, getWidth(), getHeight(), 0, 0, width, height, this );
+		int x = cXtoPX( selectedX );
+		int y = cYtoPY(selectedY);
+		int w = cellPX();
+		int h = cellPY();
+		if( selected != null )
+		{
+			g.setColor( Color.gray );
+			g.drawRect( x-1, y-1, w+2, h+2 );
+			g.setColor( Color.black );
+			g.drawRect( x-2, y-2, w+4, h+4 );
+			g.setColor( Color.red );
+			g.drawRect( x-3, y-3, w+6, h+6 );
+		}
+		else
+		{
+			g.setColor( Color.green );
+			g.drawRect( x-2, y-2, w+4, h+4 );
+		}
+		if( drawLegend )
+		{
+			int zx = cXtoIX( selectedX );
+			int zy = cYtoIY( selectedY );
+			g.setColor( Color.black );
+			g.fillRect( 0, 0, legendSize+9, legendSize+9 );
+			g.setColor( Color.lightGray );
+			g.fillRect( 0, 0, legendSize+7, legendSize+7 );
+			g.drawImage( image, 0, 0, legendSize, legendSize, zx-legendSquares, zy-legendSquares, zx+legendSquares+1, zy+legendSquares+1, null );
+			int bo = (int)((double)legendSquares / (legendSquares*2+1) * legendSize)-1;
+			int bw = (int)(1.0/ (legendSquares*2+1) * legendSize);
+			g.setColor( Color.black );
+			g.drawRect( bo, bo, bw+1, bw+1 );
+			g.setColor( Color.gray );
+			g.drawRect( bo-1, bo-1, bw+3, bw+3 );
+		}
+	}
+	
+	public void update()
+	{
+		super.update();
+		Graphics g = image.getGraphics();
+		g.setColor( Color.black );
+		g.fillRect( 0, 0, width, height );
+		for( Cell c : region.getAllCells() )
+		{
+			cells[extent.xInd(c.getX())][extent.yInd( c.getY() )] = c;
+			int x = cXtoIX( c.getX() );
+			int y = cYtoIY( c.getY() );
+			try{
+			image.setRGB(  x, y, getColourForCell( c ) );
+			} catch( ArrayIndexOutOfBoundsException e )
+			{
+				log.fatal("Extent: " + extent );
+				log.fatal( "Couldn't set cell: " + x + ", " + y + ": " + c.getX() + ", " + c.getY() );
+				throw e;
+			}
+		}
+		super.postUpdate();
+	}
+	
+	public void setSelectedCell( Cell c )
+	{
+		selected = c;
+		cellInfo.setCell( c );
+		if( selected != null ) 
+		{
+			selectedX = c.getX();
+			selectedY = c.getY();
+		}
+		else
+			cellInfo.setCellXY( selectedX, selectedY );
+		repaint();
+	}
+	
+	//Takes image coordinates and gets the relevant cell
+	public void setSelectedCell( int x, int y )
+	{
+		if( x >= 0 && x < width && y >= 0 && y < height ) 
+		{
+			setSelectedCell( cells[x][y] );
+			if( selected == null ) log.error("No cell found for " + x + ", " + y);
+			selectedX = selected.getX();
+			selectedY = selected.getY();
+		}
+		else
+			log.warn( "Tried to set cell " + x + "," +y + ", with width=" + width + ", height=" + height  );
+	}
+	
+	public void moveSelection( int dx, int dy )
+	{
+		int x = extent.xInd( selectedX + dx );
+		int y = extent.yInd( selectedY  + dy );
+		setSelectedCell( x, y );
+		fireCellChanged( selected );
+		
+	}
+	
+	public JComponent getPanel() 
+	{ 
+		return cellInfo; 
+	}
+
+	
+	//Turn cell pixels into image pixels. 
+	public int cXtoIX( int x ) { return x - extent.getMinX(); }
+	public int cYtoIY( int y ) { return height - 1 - y + extent.getMinY(); }
+	
+	//Turn cell address into screen pixels
+	public int cXtoPX( int x ) { return (int)((double)cXtoIX(x)*getWidth()/(double)width)+1; }
+	public int cYtoPY( int y ) { return (int)((double)cYtoIY(y)*getHeight()/(double)height); }
+	
+	public int cellPX() { return (int)((double)getWidth()/width); }
+	public int cellPY() { return (int)((double)getHeight()/height); }
+	
+	//Turn pixels into cells
+	public int pxToC( int x ) { return (int)((double)x/getWidth() * width ); }
+	public int pyToC( int y ) { return (int)((1.0-(double)y/getHeight()) * height ); }
+	//public int cYtoPY( int y ) { return 0; }
+
+	/**
+	 * Returns an int representing the colour for the given cell
+	 * @param c
+	 * @return
+	 */
+	public abstract int getColourForCell( Cell c );
+	
+
+	
+	public static int floatsToARGB( double a, double r, double g, double b )
+	{
+		return (((int)(a*255) & 0xFF) << 24) | //alpha
+	            (((int)(r*255) & 0xFF) << 16) | //red
+	            (((int)(g*255) & 0xFF) << 8)  | //green
+	            (((int)(b*255) & 0xFF) << 0); //blue
+	}
+	
+	public <T extends Named & Indexed> double  getDoubleForString( String name, UnmodifiableNumberMap<T> map )
+	{
+		@SuppressWarnings("unchecked")
+		NamedIndexSet<T> n = (NamedIndexSet<T>) map.getKeys();
+		if( ! n.contains( name ))
+		{
+			log.warn("Bad value asked for: " + name + " got: " + n.names() );
+			return 0;
+		}
+		return map.getDouble( n.forName( name ) );
+	}
+
+	public void keyPressed( KeyEvent e ) { }
+	public void keyTyped( KeyEvent e ) { }
+	
+	public void keyReleased( KeyEvent e ) 
+	{ 
+		  int key = e.getKeyCode();
+          if (key == KeyEvent.VK_KP_LEFT || key == KeyEvent.VK_LEFT)
+              moveSelection(-1,0);
+          else if (key == KeyEvent.VK_KP_RIGHT || key == KeyEvent.VK_RIGHT)
+              moveSelection(1,0);
+          else if (key == KeyEvent.VK_KP_UP || key == KeyEvent.VK_UP)
+              moveSelection(0,1);
+          else if (key == KeyEvent.VK_KP_DOWN || key == KeyEvent.VK_DOWN)
+              moveSelection(0,-1);
+          else if (e.getKeyChar() == 'u')
+          {
+        	  log.debug("Update");
+        	  update();
+          }
+	} 
+	
+
+	public void mouseClicked( MouseEvent e )
+	{
+		requestFocusInWindow();
+		int x = pxToC( e.getX() );
+		int y = pyToC( e.getY() );
+		setSelectedCell( x, y );
+		fireCellChanged( selected );
+	}
+	
+	public void cellChanged( Cell c ) 
+	{
+		setSelectedCell( c );
+	}
+
+	public void mouseEntered( MouseEvent e ) { }
+	public void mouseExited( MouseEvent e ) { }
+	public void mousePressed( MouseEvent e ) { }
+	public void mouseReleased( MouseEvent e ) { }
+	
+	public static void main( String[] args ) throws Exception
+	{
+		Region r = new Region();
+		ModelData data = new ModelData();
+		Cell sel = new Cell();
+		for( int x = 0; x < 50; x++ )
+		{
+			for( int y = 0; y < 50; y++ )
+			{
+				Cell c = new Cell(x,y);
+				c.initialise( data, null, r );
+				if( x==1 && y==2) sel = c;
+				r.addCell( c );
+			}
+		}
+			Cell c = new Cell(55,55);
+			c.initialise( data, null, r );
+				r.addCell( c );
+		
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+		
+		CellDisplay  ce = new CellDisplay()
+		{
+			public int getColourForCell( Cell c )
+			{
+				return floatsToARGB( 1d, c.getX()%10/10.0, c.getY()%10/10.0, 0d );
+			}
+		};
+		ce.initialise( null, null, r );
+		ce.setSelectedCell( sel );
+		ce.update();
+		
+		frame.add( ce.getDisplay() );
+		frame.setSize( new Dimension(500, 600 ) );
+		frame.setVisible( true  );
+	}
+}

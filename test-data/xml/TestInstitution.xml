@@ -1,0 +1,6 @@
+<institution class="org.volante.abm.institutions.DefaultInstitution">
+	<subsidy service="FOOD">1.2</subsidy>
+	<subsidy service="TIMBER">0.7</subsidy>
+	<adjustment capital="ECONOMIC">0.2</adjustment>
+	<agentSubsidy agent="Farming">3.2</agentSubsidy>
+</institution>

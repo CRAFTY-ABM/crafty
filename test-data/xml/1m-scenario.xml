@@ -1,0 +1,9 @@
+<scenario startTick="2001" endTick="2009" world="1kWorld" runID="1" scenario="TestScen">
+	<worldLoaderFile>xml/1kWorld.xml</worldLoaderFile>
+	<outputs outputDirectory="output/%n-%i" filePattern="%n-%i-%o" tickPattern="%n-%i-%o-%t" >
+		<output class="org.volante.abm.output.CapitalRasterOutput" capital="HUMAN"/>
+		<output class="org.volante.abm.output.CapitalRasterOutput" capital="NATURE_VALUE"/>
+		<output class="org.volante.abm.output.CellTable" addTick="true" addRegion="true" addCellRegion="true"
+				addServices="true" addCapitals="true" addLandUse="true" addAgent="true" doubleFormat="0.000" />
+	</outputs>
+</scenario>

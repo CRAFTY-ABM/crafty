@@ -1,0 +1,4 @@
+<world>
+<regionFile>xml/SmallWorldRegion1.xml</regionFile>
+<!-- <regionCSV>csv/MediumWorld.csv</regionCSV>-->
+</world>

@@ -1,0 +1,28 @@
+<region id="Region">
+  <!-- Initialise cells from a CSV file -->
+	<cellInitialiser class="org.volante.abm.serialization.CellCSVReader" csvFile="csv/SmallWorldRegion1.csv" />
+	
+	<!--  all the models use default settings, an are inline -->
+	<competition class="org.volante.abm.example.SimpleCompetitivenessModel" />
+	<allocation class="org.volante.abm.optimization.GeneticAlgorithmAllocationModel" 
+		convergenceProportion="0.001" convergenceGenerations="10" numGenerations="1000"/>
+	<demand class="org.volante.abm.example.RegionalDemandModel" demandCSV="csv/Region1Demand.csv"/>
+
+	<!--  Some potential agents inline -->
+	<potentialAgents>
+		<agent class="org.volante.abm.example.SimplePotentialAgent" givingUp="0.5" givingIn="1" id="LowIntensityArable"
+			serialID="1">
+			<production class="org.volante.abm.example.SimpleProductionModel" csvFile="csv/LowIntensityArable.csv" />
+		</agent>
+	</potentialAgents>
+	<!--  Some potential agents in another file -->
+	<agentFile>xml/OtherSmallWorldAgents.xml</agentFile>
+	
+	<!-- Have an updater that uses CSV files to update capitals -->
+	<!-- 
+	<updater class ="org.volante.abm.update.CSVCapitalUpdater" X_COL="x" Y_COL="y" yearInFilename="false" reapplyPreviousFile="false">
+	   <csvFile year="2000">csv/Region1-2000.csv</csvFile>
+	   <csvFile year="2001">csv/Region1-2001.csv</csvFile>
+	</updater>
+	 -->
+</region>

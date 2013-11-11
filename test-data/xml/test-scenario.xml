@@ -1,0 +1,25 @@
+<scenario startTick="2001" endTick="2009" world="TestWorld" scenario="TestScen">
+	<worldLoaderFile>xml/MediumWorld.xml</worldLoaderFile>
+	<outputs outputDirectory="output/%s-%w/%i" filePattern="%s-%i-%o" tickPattern="%s-%i-%o-%y" >
+		<output class="org.volante.abm.output.CapitalRasterOutput" capital="HUMAN"/>
+		<output class="org.volante.abm.output.CapitalRasterOutput" capital="NATURE_VALUE"/>
+		<output class="org.volante.abm.output.CellTable" addTick="true" addRegion="true" addCellRegion="true"
+				addServices="true" addCapitals="true" addLandUse="true" addAgent="true" doubleFormat="0.000" />
+		<output class="org.volante.abm.output.DisplayVideoWriter" includeSurroundings="true" imagesPerFrame="3" height="1000" width="800">
+			<display class="org.volante.abm.visualisation.AgentTypeDisplay" title="AgentTypesVideo"/>
+		</output>
+		<output class="org.volante.abm.output.DisplayVideoWriter" includeSurroundings="true">
+			<display class="org.volante.abm.visualisation.CapitalDisplay" initial="ECONOMIC" title="Economic"/>
+		</output>
+		<output class="org.volante.abm.output.DisplayVideoWriter" includeSurroundings="true">
+			<display class="org.volante.abm.visualisation.CapitalDisplay" initial="NATURAL_CROPS" title="NaturalCapitals"/>
+		</output>
+	</outputs>
+	<displays>
+		<display class="org.volante.abm.visualisation.CapitalDisplay" initial="NATURAL_CROPS" title="Capitals"/>
+		<display class="org.volante.abm.visualisation.ProductionDisplay" initial="FOOD" title="Production"/>
+		<display class="org.volante.abm.visualisation.CompetitivenessDisplay" initial="ScotCrops" title="Competitiveness"/>
+		<display class="org.volante.abm.visualisation.AgentTypeDisplay" title="AgentTypes"/>
+		<display class="org.volante.abm.visualisation.SubmodelDisplays" title="Submodels"/>
+	</displays>
+</scenario>
