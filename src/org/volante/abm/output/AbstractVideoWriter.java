@@ -1,21 +1,53 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.output;
 
-import static org.monte.media.FormatKeys.*;
-import static org.monte.media.VideoFormatKeys.*;
+import static org.monte.media.FormatKeys.EncodingKey;
+import static org.monte.media.FormatKeys.FrameRateKey;
+import static org.monte.media.FormatKeys.MediaTypeKey;
+import static org.monte.media.VideoFormatKeys.DepthKey;
+import static org.monte.media.VideoFormatKeys.ENCODING_AVI_PNG;
+import static org.monte.media.VideoFormatKeys.HeightKey;
+import static org.monte.media.VideoFormatKeys.WidthKey;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.text.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import org.apache.log4j.Logger;
-import org.monte.media.*;
 import org.monte.media.Format;
 import org.monte.media.FormatKeys.MediaType;
 import org.monte.media.avi.AVIWriter;
 import org.monte.media.math.Rational;
 import org.simpleframework.xml.Attribute;
-import org.volante.abm.data.*;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Regions;
 import org.volante.abm.output.Outputs.CloseableOutput;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
@@ -67,6 +99,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	protected RunInfo info;
 	protected ModelData data;
 
+	@Override
 	public void open()
 	{
 		try
@@ -80,7 +113,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 					HeightKey, height,//
 					DepthKey, 24 );
 			out = new AVIWriter( file );
-			log.info( "Starting video file: " + fn + " using " + out + " on file: " + file + ", w:" + width + ",h:" + height);
+			log.info( "Starting video file: " + fn + " using " + out + " on file: " + file + ", w:" + width + ",p_rest:" + height);
 			BufferedImage image = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB );
 			out.addTrack( format );
 			out.setPalette( 0, image.getColorModel() );
@@ -91,9 +124,12 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 		}
 	}
 	
+	@Override
 	public void doOutput( Regions r )
 	{
-		if( out == null ) return;
+		if( out == null ) {
+			return;
+		}
 		try
 		{
 			for( int i = 0; i < imagesPerFrame; i++ )
@@ -118,9 +154,12 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	
 	abstract BufferedImage getImage( Regions r );
 
+	@Override
 	public void close()
 	{
-		if( out == null ) return;
+		if( out == null ) {
+			return;
+		}
 		try
 		{
 			out.close();
@@ -132,6 +171,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 		}
 	}
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		outputs = info.getOutputs();
@@ -140,7 +180,33 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 		this.data = data;
 	}
 
+	@Override
 	public void initialise() throws Exception { } //Do it all in the real initialise
+	@Override
 	public void setOutputManager( Outputs outputs ) { this.outputs = outputs; }
+
+	/**
+	 * @see org.volante.abm.output.Outputter#getStartYear()
+	 */
+	@Override
+	public int getStartYear() {
+		return this.getStartYear();
+	}
+
+	/**
+	 * @see org.volante.abm.output.Outputter#getEndYear()
+	 */
+	@Override
+	public int getEndYear() {
+		return this.getEndYear();
+	}
+
+	/**
+	 * @see org.volante.abm.output.Outputter#getEveryNYears()
+	 */
+	@Override
+	public int getEveryNYears() {
+		return this.getEveryNYears();
+	}
 
 }

@@ -1,18 +1,47 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.update;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.simpleframework.xml.*;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementMap;
 import org.volante.abm.agent.PotentialAgent;
-import org.volante.abm.data.*;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
 import org.volante.abm.schedule.RunInfo;
-import org.volante.abm.serialization.*;
-import org.volante.abm.update.AgentTypeUpdater.CapitalUpdateFunction;
+import org.volante.abm.serialization.ABMPersister;
+import org.volante.abm.serialization.Initialisable;
 
 import com.csvreader.CsvReader;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Updates the capitals on a cell using a function for each agent
@@ -24,7 +53,7 @@ public class AgentTypeUpdater extends AbstractUpdater
 	Multimap<PotentialAgent, CapitalUpdateFunction> functions = HashMultimap.create();
 	
 	@ElementMap(inline=true,required=false,attribute=true,key="agent",entry="agentUpdate",value="function")
-	Map<String, CapitalUpdateFunction> serialFunctions = new HashMap<String, AgentTypeUpdater.CapitalUpdateFunction>();
+	Map<String, CapitalUpdateFunction>				serialFunctions	= new LinkedHashMap<String, AgentTypeUpdater.CapitalUpdateFunction>();
 	
 	/**
 	 * Points to a csv file with capitals along the top and agents down the side
@@ -37,29 +66,41 @@ public class AgentTypeUpdater extends AbstractUpdater
 	String agentColumn = "Agent";
 	
 	//Used internally to get agents by name
-	Map<String, PotentialAgent> agents = new HashMap<String, PotentialAgent>();
+	Map<String, PotentialAgent>						agents			= new LinkedHashMap<String, PotentialAgent>();
 
+	@Override
 	public void preTick()
 	{
-		for( Cell cell : region.getAllCells() )
-			for( CapitalUpdateFunction f : functions.get( cell.getOwner().getType() ) )
+		for( Cell cell : region.getAllCells() ) {
+			for( CapitalUpdateFunction f : functions.get( cell.getOwner().getType() ) ) {
 				f.apply( cell );
+			}
+		}
 	}
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		super.initialise( data, info, extent );
-		for( PotentialAgent a : extent.getAllPotentialAgents() ) agents.put( a.getID(), a );
+		for( PotentialAgent a : extent.getAllPotentialAgents() ) {
+			agents.put( a.getID(), a );
+		}
 		//Load in the serialised stuff
-		for( Entry<String, CapitalUpdateFunction> e : serialFunctions.entrySet() )
-			if( agents.containsKey( e.getKey() ))
+		for( Entry<String, CapitalUpdateFunction> e : serialFunctions.entrySet() ) {
+			if( agents.containsKey( e.getKey() )) {
 				functions.put( agents.get( e.getKey() ), e.getValue() );
+			}
+		}
 		
 		//Read in csv files if we have any
-		for( String file : csvFiles ) readCSVFile( file );
+		for( String file : csvFiles ) {
+			readCSVFile( file );
+		}
 		
 		//And init the functions in case they need it
-		for( CapitalUpdateFunction c : functions.values() ) c.initialise( data, info, extent );
+		for( CapitalUpdateFunction c : functions.values() ) {
+			c.initialise( data, info, extent );
+		}
 	}
 	
 	public void readCSVFile( String CSVFile ) throws Exception
@@ -77,8 +118,9 @@ public class AgentTypeUpdater extends AbstractUpdater
 					for( Capital c : data.capitals )
 					{
 						String val = reader.get( c.getName() );
-						if( val != null && val != "" )
+						if( val != null && val != "" ) {
 							functions.put( ag, getCSVFunction( c, Double.parseDouble( val ) ) );
+						}
 					}
 				}
 			}

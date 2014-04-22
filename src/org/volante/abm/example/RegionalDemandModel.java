@@ -1,51 +1,83 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
+
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
-import org.volante.abm.data.*;
-import org.volante.abm.models.*;
-import org.volante.abm.schedule.*;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Service;
+import org.volante.abm.models.CompetitivenessModel;
+import org.volante.abm.models.DemandModel;
+import org.volante.abm.schedule.PostTickAction;
+import org.volante.abm.schedule.PreTickAction;
+import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.RegionalDemandDisplay;
 
-import com.moseph.modelutils.curve.*;
-import com.moseph.modelutils.fastdata.*;
+import com.moseph.modelutils.curve.Curve;
+import com.moseph.modelutils.curve.LinearInterpolator;
+import com.moseph.modelutils.fastdata.DoubleMap;
+import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+
 
 /**
- * Model demand entirely at a regional level. Demand is averaged across
- * all cells in the region.
+ * Model demand entirely at a regional level. Demand is averaged across all cells in the region.
  * 
  * When a cell changes, calculate new demand based on the difference from new to old
+ * 
  * @author dmrust
- *
+ * 
  */
-public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction
-{
-	Region region;
-	@Attribute(required=false)
-	boolean updateOnAgentChange = true;
-	Map<Cell,DoubleMap<Service>> supply = new HashMap<Cell, DoubleMap<Service>>();
-	DoubleMap<Service> totalSupply = null;
-	DoubleMap<Service> residual = null;
-	DoubleMap<Service> perCellResidual = null;
-	DoubleMap<Service> demand = null;
-	DoubleMap<Service> perCellDemand = null;
-	RunInfo runInfo = null;
-	ModelData modelData = null;
-	
-	@Attribute(required=false)
-	String demandCSV = null;
-	@Attribute(required=false)
-	String yearCol = "Year";
-	
-	Logger log = Logger.getLogger( getClass() );
-	
-	Map<Service, Curve> demandCurves = new HashMap<Service, Curve>();
-	
-	public void initialise( ModelData data, RunInfo info, Region r ) throws Exception
-	{
+public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction {
+	Region							region;
+	@Attribute(required = false)
+	boolean							updateOnAgentChange	= true;
+	Map<Cell, DoubleMap<Service>>	supply				= new HashMap<Cell, DoubleMap<Service>>();
+	DoubleMap<Service>				totalSupply			= null;
+	DoubleMap<Service>				residual			= null;
+	DoubleMap<Service>				perCellResidual		= null;
+	DoubleMap<Service>				demand				= null;
+	DoubleMap<Service>				perCellDemand		= null;
+	RunInfo							runInfo				= null;
+	ModelData						modelData			= null;
+
+	@Attribute(required = false)
+	String							demandCSV			= null;
+	@Attribute(required = false)
+	String							yearCol				= "Year";
+
+	Logger							log					= Logger.getLogger(getClass());
+
+	Map<Service, Curve>				demandCurves		= new HashMap<Service, Curve>();
+
+	@Override
+	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		this.region = r;
 		this.runInfo = info;
 		this.modelData = data;
@@ -54,104 +86,134 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 		perCellResidual = data.serviceMap();
 		demand = data.serviceMap();
 		perCellDemand = data.serviceMap();
-		if( updateOnAgentChange )
-			for( Cell c : r.getCells() )
-				supply.put( c, data.serviceMap() );
-		if( demandCSV != null ) loadDemandCurves();
+		if (updateOnAgentChange) {
+			for (Cell c : r.getCells()) {
+				supply.put(c, data.serviceMap());
+			}
+		}
+		if (demandCSV != null) {
+			loadDemandCurves();
+		}
 	}
 
-	public DoubleMap<Service> getResidualDemand() { return residual; }
-	public DoubleMap<Service> getDemand() { return demand; }
-	public DoubleMap<Service> getDemand( Cell c ) { return perCellDemand; }
-	public DoubleMap<Service> getResidualDemand( Cell c ) { return perCellResidual; }
-	public DoubleMap<Service> getSupply() { return totalSupply; }
+	@Override
+	public DoubleMap<Service> getResidualDemand() {
+		return residual;
+	}
 
-	public void agentChange( Cell c )
-	{
-		if( updateOnAgentChange )
-		{
-			totalSupply.subtractInto( supply.get(c), totalSupply );
-			c.getSupply().copyInto( supply.get(c) );
-			c.getSupply().addInto( totalSupply );
+	@Override
+	public DoubleMap<Service> getDemand() {
+		return demand;
+	}
+
+	@Override
+	public DoubleMap<Service> getDemand(Cell c) {
+		return perCellDemand;
+	}
+
+	@Override
+	public DoubleMap<Service> getResidualDemand(Cell c) {
+		return perCellResidual;
+	}
+
+	@Override
+	public DoubleMap<Service> getSupply() {
+		return totalSupply;
+	}
+
+	@Override
+	public void agentChange(Cell c) {
+		if (updateOnAgentChange) {
+			totalSupply.subtractInto(supply.get(c), totalSupply);
+			c.getSupply().copyInto(supply.get(c));
+			c.getSupply().addInto(totalSupply);
 			recalculateResidual();
 		}
 	}
-	
-	public void setDemand( UnmodifiableNumberMap<Service> dem )
-	{
-		dem.copyInto( demand );
+
+	public void setDemand(UnmodifiableNumberMap<Service> dem) {
+		dem.copyInto(demand);
 		updateSupply();
 	}
 
 	/**
 	 * 
 	 */
-	public void updateSupply() 
-	{ 
-		if( updateOnAgentChange )
-		{
-			for( Cell c : region.getCells() )
-				c.getSupply().copyInto( supply.get(c) );
+	@Override
+	public void updateSupply() {
+		if (updateOnAgentChange) {
+			for (Cell c : region.getCells()) {
+				c.getSupply().copyInto(supply.get(c));
+			}
 		}
 		totalSupply.clear();
-		for( Cell c : region.getCells() )
-			c.getSupply().addInto( totalSupply );
+		for (Cell c : region.getCells()) {
+			c.getSupply().addInto(totalSupply);
+		}
 		recalculateResidual();
-			
-		
-	}
-	public void recalculateResidual()
-	{
-		demand.multiplyInto( 1.0/supply.size(), perCellDemand );
-		demand.subtractInto( totalSupply, residual );
-		residual.multiplyInto( 1.0/supply.size(), perCellResidual );
+
 	}
 
-	public void preTick()
-	{
+	public void recalculateResidual() {
+		demand.multiplyInto(1.0 / supply.size(), perCellDemand);
+		demand.subtractInto(totalSupply, residual);
+		residual.multiplyInto(1.0 / supply.size(), perCellResidual);
+	}
+
+	@Override
+	public void preTick() {
 		int tick = runInfo.getSchedule().getCurrentTick();
-		log.info("Loading demand from tick: " + tick );
-		for( Service s : demand.getKeys() )
-			if( demandCurves.containsKey( s ))
-				demand.put( s, demandCurves.get( s ).sample( tick ) );
-		log.info("Demand: " + demand.prettyPrint() );
+		log.info("Loading demand from tick: " + tick);
+		for (Service s : demand.getKeys()) {
+			if (demandCurves.containsKey(s)) {
+				demand.put(s, demandCurves.get(s).sample(tick));
+			}
+		}
+		log.info("Demand: " + demand.prettyPrint());
 	}
-	
-	public void postTick()
-	{
-		log.info("Demand: " + demand.prettyPrint() );
-		log.info("Supply: " + totalSupply.prettyPrint() );
-		log.info("Residual: " + residual.prettyPrint() );
-		log.info("Marginal Utilities: " + getMarginalUtilities().prettyPrint() );
+
+	@Override
+	public void postTick() {
+		log.info("Demand: " + demand.prettyPrint());
+		log.info("Supply: " + totalSupply.prettyPrint());
+		log.info("Residual: " + residual.prettyPrint());
+		log.info("Marginal Utilities: " + getMarginalUtilities().prettyPrint());
 	}
-	
-	//Generally shouldn't use the competition model directly as it ignores institutions, but it's OK here.
-	@SuppressWarnings("deprecation") 
-	public DoubleMap<Service> getMarginalUtilities()
-	{
+
+	// Generally shouldn't use the competition model directly as it ignores institutions, but it's
+	// OK here.
+	@Override
+	@SuppressWarnings("deprecation")
+	public DoubleMap<Service> getMarginalUtilities() {
 		DoubleMap<Service> utilities = modelData.serviceMap();
 		CompetitivenessModel comp = region.getCompetitionModel();
-		for( Service s : modelData.services )
-		{
-			DoubleMap<Service> serv = modelData.serviceMap() ;
+		for (Service s : modelData.services) {
+			DoubleMap<Service> serv = modelData.serviceMap();
 			serv.clear();
-			serv.put( s, 1 );
-			if( comp instanceof CurveCompetitivenessModel ) ((CurveCompetitivenessModel)comp).getCompetitveness( this, serv, true );
-			double score = comp.getCompetitveness( this, serv );
-			System.out.println("Serv: " + serv.prettyPrint() + " -> " + score );
-			utilities.put( s, score );
+			serv.put(s, 1);
+			if (comp instanceof CurveCompetitivenessModel) {
+				((CurveCompetitivenessModel) comp).getCompetitveness(this, serv, true);
+			}
+			double score = comp.getCompetitveness(this, serv);
+			System.out.println("Serv: " + serv.prettyPrint() + " -> " + score);
+			utilities.put(s, score);
 		}
 		return utilities;
 	}
-	
-	void loadDemandCurves() throws IOException
-	{
-		Map<String, LinearInterpolator> curves = runInfo.getPersister().csvVerticalToCurves( demandCSV, yearCol, modelData.services.names() );
-		for( Service s : modelData.services )
-			if( curves.containsKey( s.getName() ))
-				demandCurves.put( s, curves.get(s.getName()));
+
+	void loadDemandCurves() throws IOException {
+		Map<String, LinearInterpolator> curves = runInfo.getPersister().csvVerticalToCurves(
+				demandCSV, yearCol, modelData.services.names());
+		for (Service s : modelData.services) {
+			if (curves.containsKey(s.getName())) {
+				demandCurves.put(s, curves.get(s.getName()));
+			}
+		}
 	}
 
-	public RegionalDemandDisplay getDisplay() { return new RegionalDemandDisplay( this ); }
+	@Override
+	public RegionalDemandDisplay getDisplay() {
+		return new RegionalDemandDisplay(this);
+	}
 
 }

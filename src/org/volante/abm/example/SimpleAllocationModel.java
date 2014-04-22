@@ -1,19 +1,41 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Root;
+import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
-import org.volante.abm.data.*;
-import org.volante.abm.models.*;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.models.AllocationModel;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.SimpleAllocationDisplay;
-
-import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
-
-
-import static com.moseph.modelutils.Utilities.*;
 
 /**
  * A very simple kind of allocation. Any abandoned cells get the most
@@ -24,14 +46,31 @@ import static com.moseph.modelutils.Utilities.*;
 @Root
 public class SimpleAllocationModel implements AllocationModel
 {
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(SimpleAllocationModel.class);
+
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
 	
 	/**
 	 * Creates a copy of the best performing potential agent on each empty cell
 	 */
+	@Override
 	public void allocateLand( Region r )
 	{
+		// <- LOGGING
+		logger.info("Allocate land for region " + r + " (" + r.getAvailable().size() + " cells)...");
+		// LOGGING ->
+
 		for( Cell c : new ArrayList<Cell>( r.getAvailable() ) ) {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Create best agent for cell " + c + " of region " + r + " ...");
+			}
+			// LOGGING ->
+
 			createBestAgentForCell( r, c );
 		}
 	}
@@ -53,16 +92,29 @@ public class SimpleAllocationModel implements AllocationModel
 			}
 		}
 		//Only create agents if their competitiveness is good enough
-		if( p != null ) {
-			r.setOwnership( p.createAgent(r), c );
+
+		// TODO
+		if (p != null) {
+			Agent agent = p.createAgent(r);
+			r.setOwnership(agent, c);
+			if (r.getNetworkService() != null) {
+				if (r.getGeography() != null && agent instanceof GeoAgent) {
+					((GeoAgent) agent).addToGeography();
+				}
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linking agent " + agent);
+				}
+				// LOGGING ->
+
+				r.getNetworkService().addAndLinkNode(r.getNetwork(), agent);
+			}
 		}
 	}
 
+	@Override
 	public AllocationDisplay getDisplay()
 	{
 		return new SimpleAllocationDisplay();
 	}
-	
-
-	
 }

@@ -1,24 +1,52 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.optimization;
 
-import java.util.*;
+import static com.moseph.modelutils.Utilities.sample;
 
-import org.apache.commons.math3.exception.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.NumberIsTooSmallException;
 import org.apache.commons.math3.exception.util.DummyLocalizable;
-import org.apache.commons.math3.genetics.*;
-import org.apache.log4j.Logger;
-
+import org.apache.commons.math3.genetics.AbstractListChromosome;
+import org.apache.commons.math3.genetics.Chromosome;
+import org.apache.commons.math3.genetics.ElitisticListPopulation;
+import org.apache.commons.math3.genetics.FixedGenerationCount;
+import org.apache.commons.math3.genetics.GeneticAlgorithm;
+import org.apache.commons.math3.genetics.InvalidRepresentationException;
+import org.apache.commons.math3.genetics.MutationPolicy;
+import org.apache.commons.math3.genetics.OnePointCrossover;
+import org.apache.commons.math3.genetics.Population;
+import org.apache.commons.math3.genetics.StoppingCondition;
+import org.apache.commons.math3.genetics.TournamentSelection;
 import org.simpleframework.xml.Attribute;
-import org.volante.abm.data.*;
-import org.volante.abm.example.SimplePotentialAgent;
-import org.volante.abm.agent.*;
-import org.volante.abm.models.AllocationModel;
+import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.data.Region;
 import org.volante.abm.optimization.GeneticAlgorithmAllocationModel.LandUseChromosome;
-import org.volante.abm.schedule.RunInfo;
-
-import com.google.common.collect.*;
-import com.moseph.modelutils.fastdata.DoubleMap;
-import static com.moseph.modelutils.Utilities.*;
-import static java.lang.Math.abs;
+import org.volante.abm.param.RandomPa;
 
 /**
  * Uses a GA to optimise land use allocation
@@ -85,12 +113,14 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 	
 	GeneticAlgorithm ga;
 
+	@Override
 	public void setupRun()
 	{
 		// TODO Auto-generated method stub
 		ga = new GeneticAlgorithm( new OnePointCrossover<PotentialAgent>(),
 				1, new AgentMutation(), chromosomeMutationRate, new TournamentSelection( 2 ) )
 		{
+			@Override
 			public Population nextGeneration( Population current )
 			{
 				Population gen = super.nextGeneration( current );
@@ -102,6 +132,7 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 
 	}
 	
+	@Override
 	LandUseChromosome doRun()
 	{
 		log.info("Starting GA optimisation");
@@ -113,6 +144,7 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 		return bestFinal;
 	}
 	
+	@Override
 	void applySolution(LandUseChromosome solution)
 	{
 		applyList( solution.getData() );
@@ -122,8 +154,9 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 	{
 		List<Chromosome> chromosomes = new ArrayList<Chromosome>(numChromosomes);
 		List<PotentialAgent> currentLandUse = currentLandUseList();
-		for( int i = 0; i < numChromosomes; i++ )
+		for( int i = 0; i < numChromosomes; i++ ) {
 			chromosomes.add( new LandUseChromosome(mutatedLandUseList( currentLandUse, initialMutationRate) ));
+		}
 		return new ElitisticListPopulation( chromosomes, numChromosomes, elitismRate );
 	}
 	
@@ -131,11 +164,15 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 	{
 		List<PotentialAgent> agents = new ArrayList<PotentialAgent>( initial.size() );
 		Collection<PotentialAgent> available = region.getPotentialAgents();
-		for( PotentialAgent p : initial )
-			if( nextDouble() < rate ) 
-				agents.add( sample( available ) );
-			else 
+
+		// RANU make more efficient
+		for( PotentialAgent p : initial ) {
+			if( region.getRandom().getURService().getGenerator(RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()).nextDouble() < rate ) {
+				agents.add( sample( available, region.getRandom().getURService(), RandomPa.RANDOM_SEED_RUN_ALLOCATION.name() ) );
+			} else {
 				agents.add( p );
+			}
+		}
 		return agents;
 	}
 	
@@ -148,6 +185,7 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 
 
 	
+	@Override
 	public String getOptimisationType() { return "Genetical Algorithms"; }
 	
 	class LandUseChromosome extends AbstractListChromosome<PotentialAgent>
@@ -159,18 +197,24 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 			super( representation );
 		}
 
+		@Override
 		@SuppressWarnings("deprecation")
 		public double fitness()
 		{
 			//Immutable, so can cache fitness
-			if( fitness != -Double.MAX_VALUE ) return fitness;
-			//log.info( "Agents: " + getRepresentation() );
+			if( fitness != -Double.MAX_VALUE )
+			 {
+				return fitness;
+				//log.info( "Agents: " + getRepresentation() );
+			}
 			
 			fitness = calculateFitness( getRepresentation() );
 			return fitness;
 		}
 		
+		@Override
 		protected void checkValidity( List<PotentialAgent> chromosomeRepresentation ) throws InvalidRepresentationException { }
+		@Override
 		public AbstractListChromosome<PotentialAgent> newFixedLengthChromosome( List<PotentialAgent> chromosomeRepresentation )
 		{
 			return new LandUseChromosome( chromosomeRepresentation );
@@ -183,15 +227,25 @@ public class GeneticAlgorithmAllocationModel extends OptimizationAllocationModel
 	
 	public class AgentMutation implements MutationPolicy
 	{
+		@Override
 		public Chromosome mutate( Chromosome original ) throws MathIllegalArgumentException
 		{
-			if( !( original instanceof LandUseChromosome ) )
+			if( !( original instanceof LandUseChromosome ) ) {
 				throw new MathIllegalArgumentException( new DummyLocalizable("Incompatible Chromosome"+original.getClass()) );
+			}
 			LandUseChromosome chrom = (LandUseChromosome) original;
 			List<PotentialAgent> agents = new ArrayList<PotentialAgent>( chrom.getLength() );
-			for( PotentialAgent p : chrom.getData() )
-				if( nextDouble() < cellMutationRate ) agents.add( sample( region.getPotentialAgents() ) );
-				else agents.add( p );
+
+			// RANU make more efficient
+			for( PotentialAgent p : chrom.getData() ) {
+				if (region.getRandom().getURService()
+						.getGenerator(RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()).nextDouble() < cellMutationRate) {
+					agents.add(sample(region.getPotentialAgents(), region.getRandom()
+							.getURService(), RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()));
+				} else {
+					agents.add( p );
+				}
+			}
 			return new LandUseChromosome( agents);
 		}
 		
