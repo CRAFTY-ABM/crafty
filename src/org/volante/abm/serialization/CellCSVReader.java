@@ -1,11 +1,34 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.serialization;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
-import org.volante.abm.data.*;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
 import org.volante.abm.serialization.RegionLoader.CellInitialiser;
 
 import com.csvreader.CsvReader;
@@ -28,14 +51,18 @@ public class CellCSVReader implements CellInitialiser
 	
 	Logger log = Logger.getLogger( getClass() );
 
+	@Override
 	public void initialise( RegionLoader rl ) throws Exception
 	{
 		ModelData data = rl.modelData;
-		if( ! rl.persister.csvFileOK( "RegionLoader", csvFile, xColumn, yColumn ) ) return;
+		if( ! rl.persister.csvFileOK( "RegionLoader", csvFile, xColumn, yColumn ) ) {
+			return;
+		}
 		log.info("Loading cell CSV from " + csvFile );
 		CsvReader reader = rl.persister.getCSVReader( csvFile );
-		if( ! Arrays.asList( reader.getHeaders()).contains( agentColumn ))
+		if( ! Arrays.asList( reader.getHeaders()).contains( agentColumn )) {
 			log.info( "No Agent Column found in CSV file: " + rl.persister.getFullPath( csvFile ) );
+		}
 		while( reader.readRecord() )
 		{
 			int x = Integer.parseInt( reader.get("x") );
@@ -44,12 +71,14 @@ public class CellCSVReader implements CellInitialiser
 			for( Capital cap : data.capitals )
 			{
 				String s = reader.get( cap.getName() );
-				if( s != null )
+				if( s != null ) {
 					c.getModifiableBaseCapitals().putDouble( cap, Double.parseDouble(s) );
+				}
 			}
 			String ag = reader.get(agentColumn);
-			if( ag != null ) rl.setAgent( c, ag);
+			if( ag != null ) {
+				rl.setAgent( c, ag);
+			}
 		}
 	}
-
 }

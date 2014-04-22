@@ -1,13 +1,39 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.output;
 
-import java.io.File;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.simpleframework.xml.*;
-import org.volante.abm.data.*;
-import org.volante.abm.schedule.*;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Regions;
+import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
 
 /**
@@ -52,6 +78,7 @@ public class Outputs implements Initialisable
 	protected ModelData modelData;
 	List<CloseableOutput> outputsToClose = new ArrayList<CloseableOutput>();
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		runInfo = info;
@@ -59,8 +86,9 @@ public class Outputs implements Initialisable
 		//Setup timestamp for output
 		runInfo.getPersister().setContext( "u", System.currentTimeMillis() + "" );
 		//If there's no runID set, then use a timestamp to ensure different directories
-		if( runInfo.getRunID() == null || runInfo.getRunID().equals("") )
+		if( runInfo.getRunID() == null || runInfo.getRunID().equals("") ) {
 			runInfo.getPersister().setContext( "i", System.currentTimeMillis() + "" );
+		}
 		
 		if( outputsFile != null && outputsFile.length() > 0)
 		{
@@ -72,7 +100,9 @@ public class Outputs implements Initialisable
 			log.info( "Loading Output: " + o.getClass() );
 			o.setOutputManager( this );
 			if( o instanceof Initialisable ) { ((Initialisable)o).initialise( data, info, extent ); }
-			else o.initialise(); //Outputs do their own scheduling in initialise();
+			else {
+				o.initialise(); //Outputs do their own scheduling in initialise();
+			}
 			o.open();
 		}
 		runInfo.setOutputs( this );
@@ -81,12 +111,21 @@ public class Outputs implements Initialisable
 	
 	public void doOutput( Regions r )
 	{
-		for( Outputter o : outputs ) o.doOutput( r );
+		for (Outputter o : outputs) {
+			if (this.runInfo.getSchedule().getCurrentTick() >= o.getStartYear()
+					&& (this.runInfo.getSchedule().getCurrentTick() <= o.getEndYear())
+					&& (this.runInfo.getSchedule().getCurrentTick() - o.getStartYear())
+							% o.getEveryNYears() == 0) {
+				o.doOutput(r);
+			}
+		}
 	}
 	
 	public void finished()
 	{
-		for( Outputter o : outputs ) o.close();
+		for( Outputter o : outputs ) {
+			o.close();
+		}
 	}
 
 	public void addOutput( Outputter out ) 
@@ -115,16 +154,21 @@ public class Outputs implements Initialisable
 	{
 		runInfo.getPersister().setRegion( r );
 		Map<String,String> extra = new HashMap<String, String>();
-		if( r != null ) extra.put( "r", r.getID() );
-		if( output != null ) extra.put("o", output );
+		if( r != null ) {
+			extra.put( "r", r.getID() );
+		}
+		if( output != null ) {
+			extra.put("o", output );
+		}
 		
 		String outputFile = runInfo.getPersister().ensureDirectoryExists( pattern, outputDirectoryPattern, false, extra );
 		if( extension != null ) 
 		{
-			if( extension.startsWith( "." ))
+			if( extension.startsWith( "." )) {
 				outputFile = outputFile + extension;
-			else
+			} else {
 				outputFile = outputFile +"."+ extension;
+			}
 		}
 		return outputFile;
 	}
@@ -142,8 +186,11 @@ public class Outputs implements Initialisable
 	void setupClosingOutputs()
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-		      public void run() {
-		    	  for( CloseableOutput c : outputsToClose ) c.close();
+		      @Override
+			public void run() {
+		    	  for( CloseableOutput c : outputsToClose ) {
+					c.close();
+				}
 		      } });
 	}
 }

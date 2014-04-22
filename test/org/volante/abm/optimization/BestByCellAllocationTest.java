@@ -1,22 +1,52 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.optimization;
 
-import java.util.*;
+import static org.junit.Assert.assertTrue;
+import static org.volante.abm.example.SimpleCapital.NATURAL_CROPS;
+import static org.volante.abm.example.SimpleCapital.NATURAL_FOREST;
+import static org.volante.abm.example.SimpleCapital.NATURE_VALUE;
+import static org.volante.abm.example.SimpleService.FOOD;
+import static org.volante.abm.example.SimpleService.RECREATION;
+import static org.volante.abm.example.SimpleService.TIMBER;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
-
 import org.volante.abm.agent.PotentialAgent;
-import org.volante.abm.data.*;
-import org.volante.abm.example.*;
-import org.volante.abm.models.*;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.Region;
+import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.RegionalDemandModel;
+import org.volante.abm.example.SimpleCapital;
+import org.volante.abm.param.RandomPa;
+
+import cern.jet.random.engine.RandomEngine;
 
 import com.google.common.collect.Multiset;
-
-import static java.lang.Math.cbrt;
-import static org.volante.abm.example.SimpleCapital.*;
-import static org.volante.abm.example.SimpleService.*;
-
-import static com.moseph.modelutils.Utilities.*;
-import static org.junit.Assert.*;
 
 public class BestByCellAllocationTest extends BasicTests
 {
@@ -36,8 +66,11 @@ public class BestByCellAllocationTest extends BasicTests
 	{
 		BestByCellAllocationModel alloc = new BestByCellAllocationModel();
 		RegionalDemandModel dem = new RegionalDemandModel();
-		for( Cell c : r1.getCells() )
-			c.setBaseCapitals( capitals( nextDouble(), nextDouble(), nextDouble(), nextDouble(), nextDouble(), nextDouble(), nextDouble() ) );
+		RandomEngine rEngine = r1.getRandom().getURService()
+				.getGenerator(RandomPa.RANDOM_SEED_INIT.name());
+		for( Cell c : r1.getCells() ) {
+			c.setBaseCapitals( capitals(rEngine.nextDouble(), rEngine.nextDouble(), rEngine.nextDouble(), rEngine.nextDouble(), rEngine.nextDouble(), rEngine.nextDouble(), rEngine.nextDouble() ) );
+		}
 		dem.initialise( modelData, runInfo, r1 );
 		r1.setDemandModel( dem );
 		dem.setDemand( services(100,100,100,100) );
@@ -93,8 +126,11 @@ public class BestByCellAllocationTest extends BasicTests
 		int numX = 10;
 		int numY = 10;
 		Cell[] cells = new Cell[numX*numY];
-		for( int x = 0; x < numX; x++ ) for( int y = 0; y < numY; y++ )
-			cells[x+y*numX] = new Cell( x, y );
+		for( int x = 0; x < numX; x++ ) {
+			for( int y = 0; y < numY; y++ ) {
+				cells[x+y*numX] = new Cell( x, y );
+			}
+		}
 		
 		PotentialAgent farm = getSingleProductionAgent( "Farmer", -10, 0, 1, FOOD, NATURAL_CROPS );
 		PotentialAgent forest = getSingleProductionAgent( "Forester", -10, 0, 1, TIMBER, NATURAL_FOREST );
@@ -109,9 +145,13 @@ public class BestByCellAllocationTest extends BasicTests
 		Region r = setupWorld( alloc, competition, dem, potential, cells );
 		//Make sure demand is the maximum of each service which could be supplied if the region was perfect
 		dem.setDemand( services(0, numX*numY, numX*numY, numX*numY) );
-		for( Cell c : cells )
-			for( Capital cap : SimpleCapital.simpleCapitals )
-				c.getModifiableBaseCapitals().putDouble( cap, nextDouble() );
+		RandomEngine rEngine = r1.getRandom().getURService()
+				.getGenerator(RandomPa.RANDOM_SEED_INIT.name());
+		for( Cell c : cells ) {
+			for( Capital cap : SimpleCapital.simpleCapitals ) {
+				c.getModifiableBaseCapitals().putDouble(cap, rEngine.nextDouble());
+			}
+		}
 		
 		double initial = alloc.getCurrentFitness();
 		alloc.allocateLand( r );
