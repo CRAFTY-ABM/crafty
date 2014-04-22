@@ -1,17 +1,42 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.volante.abm.agent.*;
-import org.volante.abm.data.*;
+import org.volante.abm.agent.DefaultAgent;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.Region;
 
-import com.moseph.modelutils.fastdata.DoubleMap;
 
+/**
+ * TODO seemed to depend on execution order > make clean to guarantee determiend start conditions
+ * 
+ * @author Sascha Holzhauer
+ * 
+ */
 public class GiveUpGiveInAllocationTest extends BasicTests
 {
 	@Test
@@ -81,6 +106,9 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 		SimpleCompetitivenessModel competition = new SimpleCompetitivenessModel();
 		competition.setRemoveNegative( true ); //Makes the maths easier if we ignore oversupply
 		
+		forestry.givingIn = 20; // Make it hard to give in
+		forestry.givingUp = -20; // And very hard to give up
+
 		// Cells
 		Cell c1 = new Cell(0,0);
 		
@@ -123,7 +151,7 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 		
 		// Now replace the forester with a variant forester
 		VariantPotentialAgent vForest = runInfo.getPersister().readXML( VariantPotentialAgent.class, "xml/VariantForester1.xml" );
-		vForest.initialise( modelData, runInfo, null );
+		vForest.initialise(modelData, runInfo, r);
 		
 		r.setOwnership( vForest.createAgent( r, c1 ), c1 );
 		// Check the base variant agent is as expected
@@ -151,7 +179,7 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 		// Now give the land to a variant farmer with a higher giving up distribution [10,11]
 		// This farmer should then give up, and the land will go to the ordinary forester
 		VariantPotentialAgent vFarmer = runInfo.getPersister().readXML( VariantPotentialAgent.class, "xml/VariantFarmer1.xml" );
-		vFarmer.initialise( modelData, runInfo, null );
+		vFarmer.initialise(modelData, runInfo, r);
 		DefaultAgent farmer = (DefaultAgent) vFarmer.createAgent( r, c1 );
 		r.setOwnership( farmer, c1 );
 		// Check the base variant agent is as expected

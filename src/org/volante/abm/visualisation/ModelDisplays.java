@@ -1,46 +1,39 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.visualisation;
 
-import java.awt.Dimension;
-import java.util.*;
-
-import javax.swing.*;
-
-import org.apache.log4j.Logger;
-import org.simpleframework.xml.ElementList;
-import org.volante.abm.data.*;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
 
-public class ModelDisplays extends JTabbedPane 
-{
-	@ElementList(inline=true,entry="display",required=false)
-	List<Display> displays = new ArrayList<Display>();
-	JFrame frame = new JFrame("Model Displays");
-	Logger log = Logger.getLogger( getClass() );
-	
-	public ModelDisplays()
-	{
-		frame.add( this );
-		frame.setSize( new Dimension(800,1200) );
-	}
 
-	public void initialise( ModelData data, RunInfo info, Regions extent ) throws Exception
-	{
-		log.info("Initialising displays: " + extent.getExtent());
-		for( Display d : displays )
-		{
-			d.initialise( data, info, extent );
-			info.getSchedule().register( d );
-			addTab( d.getTitle(), d.getDisplay() );
-		}
-		if( displays.size() > 0 )
-			frame.setVisible( true );
-		for( Display d : displays ) registerDisplay( d );
+public class ModelDisplays {
+
+	public void initialise(ModelData data, RunInfo info, Regions extent) throws Exception {
+		// nothing to do
 	}
 	
-	public void registerDisplay( Display d )
-	{
-		for( Display o : displays ) if( o != d ) d.addCellListener( o );
-		d.setModelDisplays( this );
+	public void registerDisplay(Display d) {
+		// nothing to do
 	}
-
 }

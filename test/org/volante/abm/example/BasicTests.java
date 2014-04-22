@@ -1,21 +1,64 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
 import static java.lang.Math.pow;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.apache.log4j.*;
-import org.junit.*;
-import org.volante.abm.agent.*;
-import org.volante.abm.data.*;
-import org.volante.abm.models.*;
+import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.volante.abm.agent.AbstractAgent;
+import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.DefaultAgent;
+import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.RegionSet;
+import org.volante.abm.data.Service;
+import org.volante.abm.models.AllocationModel;
+import org.volante.abm.models.CompetitivenessModel;
+import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.ABMPersister;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.*;
-import com.moseph.modelutils.fastdata.*;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.moseph.modelutils.fastdata.DoubleMap;
+import com.moseph.modelutils.fastdata.IndexSet;
+import com.moseph.modelutils.fastdata.Indexed;
+import com.moseph.modelutils.fastdata.Named;
+import com.moseph.modelutils.fastdata.NamedIndexSet;
+import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 public class BasicTests
 {
@@ -129,15 +172,23 @@ public class BasicTests
 	public Region r1 = new Region(allocation, competition, demandR1, potentialAgents, c11,c12,c13,c14,c15,c16,c17,c18,c19);
 	public Region r2 = new Region(allocation, competition, demandR2, potentialAgents, c21,c22,c23,c24,c25,c26,c27,c28,c29);
 	public Set<Region> regions = new HashSet<Region>(Arrays.asList(new Region[]{r1, r2}) );
-	
-	@SuppressWarnings("deprecation")
-	public RegionSet w = new World( modelData, runInfo, r1, r2 );
+
+	public RegionSet w;
 	public AbstractAgent a1 = new DefaultAgent("A1",modelData);
 	public AbstractAgent a2 = new DefaultAgent("A2",modelData);
 	
 	public ABMPersister persister = ABMPersister.getInstance();
 	Logger log = Logger.getLogger( getClass() );
 	
+	public BasicTests() {
+		w = new RegionSet(r1, r2);
+		try {
+			w.initialise(modelData, runInfo, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	//Setup persister by default to look in test-data
 	@Before
 	public void setupPersister()
@@ -146,7 +197,6 @@ public class BasicTests
 		runInfo.setUseInstitutions( false );
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Before
 	public void initCells()
 	{
@@ -179,7 +229,13 @@ public class BasicTests
 		r2 = new Region(allocation, competition, demandR2, potentialAgents, c21,c22,c23,c24,c25,c26,c27,c28,c29);
 		regions = new HashSet<Region>(Arrays.asList(new Region[]{r1, r2}) );
 		
-		w = new World( modelData, runInfo, r1, r2 );
+		w = new RegionSet(r1, r2);
+		try {
+			w.initialise(modelData, runInfo, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		a1 = new DefaultAgent("A1",modelData);
 		a2 = new DefaultAgent("A2",modelData);
 		
@@ -243,8 +299,9 @@ public class BasicTests
 	
 	public static void assertUnmanaged( Cell... cells )
 	{
-		for( Cell c : cells )
+		for( Cell c : cells ) {
 			assertEquals( c + " not unmanaged", Agent.NOT_MANAGED, c.getOwner() );
+		}
 	}
 	
 	public static void assertAgent( String id, double competitiveness, Cell...cells )
@@ -266,20 +323,23 @@ public class BasicTests
 	
 	public static void checkOwnership( Cell[] cells, String...owners )
 	{
-		for( int i = 0; i < cells.length; i++ )
+		for( int i = 0; i < cells.length; i++ ) {
 			assertEquals("Ownership: ", owners[i], cells[i].getOwnerID() );
+		}
 	}
 	
 	public static void checkOwnership( Cell[] cells, PotentialAgent...owners )
 	{
-		for( int i = 0; i < cells.length; i++ )
+		for( int i = 0; i < cells.length; i++ ) {
 			assertEquals("Ownership: ", owners[i].getID(), cells[i].getOwnerID() );
+		}
 	}
 	
 	public static void setCapitals( Cell[] cells, double[] ... capitals)
 	{
-		for( int i = 0; i < cells.length; i++ )
+		for( int i = 0; i < cells.length; i++ ) {
 			cells[i].getModifiableBaseCapitals().put( capitals[i]);
+		}
 	}
 	
 	public static void print(Object... vals)
@@ -298,17 +358,23 @@ public class BasicTests
 		for( Service s : SimpleService.simpleServices )
 		{
 			model.productionWeights.put( s, 0 );
-			for(Capital c : SimpleCapital.simpleCapitals) model.captialWeights.put( c, s, 0 );
+			for(Capital c : SimpleCapital.simpleCapitals) {
+				model.capitalWeights.put( c, s, 0 );
+			}
 		}
 		model.productionWeights.put( service, amount );
-		for( Capital d : dependencies) model.captialWeights.put(d, service, 1);
+		for( Capital d : dependencies) {
+			model.capitalWeights.put(d, service, 1);
+		}
 		return new SimplePotentialAgent(id, modelData, model, givingUp, givingIn );
 	}
 	
 	public Multiset<PotentialAgent> countAgents( Region r )
 	{
 		Multiset<PotentialAgent> set = HashMultiset.create();
-		for( Cell c : r.getCells() ) set.add( c.getOwner().getType() );
+		for( Cell c : r.getCells() ) {
+			set.add( c.getOwner().getType() );
+		}
 		return set;
 	}
 	public Region setupBasicWorld( boolean initialiseRegion, Cell...cells ) throws Exception
@@ -318,7 +384,9 @@ public class BasicTests
 		r.setAllocationModel( new SimpleAllocationModel() );
 		r.setCompetitivenessModel( new SimpleCompetitivenessModel() );
 		r.setDemandModel( new RegionalDemandModel() );
-		if( initialiseRegion ) r.initialise( modelData, runInfo, null );
+		if( initialiseRegion ) {
+			r.initialise( modelData, runInfo, null );
+		}
 		runInfo.getSchedule().setRegions( new RegionSet( r ) );
 		runInfo.getSchedule().initialise( modelData, runInfo, r );
 		
