@@ -121,14 +121,4 @@ public class DefaultAgent extends AbstractAgent
 	{
 		return "Giving up: " + givingUp + ", Giving in: " + givingIn + ", nCells: " + cells.size();
 	}
-
-	@Override
-	public int getMilieuGroup() {
-		return 1;
-	}
-
-	@Override
-	public String getAgentId() {
-		return this.id;
-	}
 }
