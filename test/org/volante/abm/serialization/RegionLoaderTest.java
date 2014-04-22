@@ -32,7 +32,6 @@ import org.volante.abm.example.BasicTests;
 import org.volante.abm.example.SimplePotentialAgent;
 import org.volante.abm.example.SimplePotentialAgentTest;
 import org.volante.abm.schedule.RunInfo;
-import org.volante.abm.testutils.CraftyTestUtils;
 
 public class RegionLoaderTest extends BasicTests
 {
@@ -40,7 +39,6 @@ public class RegionLoaderTest extends BasicTests
 	@Test
 	public void testReadingCSV() throws Exception
 	{
-		CraftyTestUtils.initTestEnvironment();
 		RegionLoader loader = ABMPersister.getInstance().readXML( RegionLoader.class, "xml/SmallWorldRegion1.xml" );
 		loader.initialise( new RunInfo() );
 		Region region = loader.region;

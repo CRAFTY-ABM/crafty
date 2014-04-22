@@ -274,16 +274,6 @@ public interface Agent {
 														}
 
 														@Override
-														public int getMilieuGroup() {
-															return 0;
-														}
-
-														@Override
-														public String getAgentId() {
-															return getID();
-														}
-
-														@Override
 														public void die() {
 															// do nothing
 														}
