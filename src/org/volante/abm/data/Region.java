@@ -1,24 +1,61 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.data;
 
-import java.awt.geom.Rectangle2D;
+import static org.volante.abm.agent.Agent.NOT_MANAGED;
 
-import java.util.*;
-
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.volante.abm.agent.*;
+import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.decision.innovations.InnovationRegistry;
 import org.volante.abm.institutions.Institutions;
-import org.volante.abm.models.*;
+import org.volante.abm.models.AllocationModel;
+import org.volante.abm.models.CompetitivenessModel;
+import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
 
-import com.google.common.collect.*;
-import com.moseph.modelutils.fastdata.*;
 
-import static org.volante.abm.agent.Agent.*;
-import static java.lang.Math.*;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
+import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+
+import de.cesr.parma.core.PmParameterManager;
 
 public class Region implements Regions
 {
+
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger.getLogger(Region.class);
+
+
 	/*
 	 * Main data fields
 	 */
@@ -31,8 +68,28 @@ public class Region implements Regions
 	Set<Cell> available = new HashSet<Cell>();
 	Set<PotentialAgent> potentialAgents = new HashSet<PotentialAgent>();
 	ModelData data;
-	String id = "UnknownRegion";
+	RunInfo					rinfo;
 	Institutions institutions = null;
+	String id = "UnknownRegion";
+
+
+	RegionalRandom		random;
+
+	/**
+	 * @return the random
+	 */
+	public RegionalRandom getRandom() {
+		return random;
+	}
+
+	/**
+	 * @return the rinfo
+	 */
+	public RunInfo getRinfo() {
+		return rinfo;
+	}
+
+
 
 	/*
 	 * Unmodifiable versions to pass out as necessary
@@ -52,7 +109,11 @@ public class Region implements Regions
 	/*
 	 * Constructors, with initial sets of cells for convenience
 	 */
-	public Region() {}
+	public Region() {
+		PmParameterManager pm = PmParameterManager.getNewInstance(this);
+		pm.setDefaultPm(PmParameterManager.getInstance(null));
+	}
+
 	public Region( AllocationModel allocation, CompetitivenessModel competition, DemandModel demand, Set<PotentialAgent> potential, Cell...initialCells ) 
 	{ 
 		this( initialCells );
@@ -61,12 +122,19 @@ public class Region implements Regions
 		this.competition = competition;
 		this.demand = demand;
 	}
-	public Region( Cell...initialCells ) { this( Arrays.asList( initialCells )); }
+
+	public Region(Cell... initialCells) {
+		this(Arrays.asList(initialCells));
+	}
+
 	public Region( Collection<Cell> initialCells ) 
 	{ 
+		this();
 		cells.addAll(  initialCells ); 
 		available.addAll( initialCells );
-		for( Cell c : initialCells ) updateExtent(c);
+		for( Cell c : initialCells ) {
+			updateExtent(c);
+		}
 	}
 	
 	/*
@@ -77,10 +145,17 @@ public class Region implements Regions
 	 * each cell in the region
 	 * @param data
 	 */
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ) throws Exception
 	{
+		this.random = new RegionalRandom(this);
+		this.random.init();
+
 		this.data = data;
-		for( Cell c : cells ) c.initialise( data, info, this ); 
+		this.rinfo = info;
+		for( Cell c : cells ) {
+			c.initialise( data, info, this );
+		} 
 		allocation.initialise( data, info, this );
 		competition.initialise( data, info, this );
 		demand.initialise( data, info, this );
@@ -141,9 +216,13 @@ public class Region implements Regions
 	/*
 	 * Regions methods
 	 */
+	@Override
 	public Iterable<Region> getAllRegions() { return uRegions; }
+	@Override
 	public Iterable<Agent> getAllAgents() { return uAgents; }
+	@Override
 	public Iterable<Cell> getAllCells() { return uCells; }
+	@Override
 	public Iterable<PotentialAgent> getAllPotentialAgents() { return uPotentialAgents; }
 	
 	/*
@@ -163,9 +242,9 @@ public class Region implements Regions
 			UnmodifiableNumberMap<Service> provision = agent.getPotentialSupply( c );
 			double comp = competition.getCompetitveness( demand, provision, c );
 			return institutions.adjustCompetitiveness( agent, c, provision, comp );
-		}
-		else
+		} else {
 			return getUnadjustedCompetitiveness( agent, c );
+		}
 	}
 	
 	/**
@@ -193,8 +272,9 @@ public class Region implements Regions
 			double comp = competition.getCompetitveness( demand, c.getSupply(), c );
 			PotentialAgent a = c.getOwner() == null ? null : c.getOwner().getType();
 			return institutions.adjustCompetitiveness( a, c, c.getSupply(), comp );
+		} else {
+			return getUnadjustedCompetitiveness( c );
 		}
-		else return getUnadjustedCompetitiveness( c );
 	}
 	
 	/**
@@ -204,7 +284,9 @@ public class Region implements Regions
 	 */
 	public double getUnadjustedCompetitiveness( Cell c )
 	{
-		if( competition == null || demand == null ) return Double.NaN;
+		if( competition == null || demand == null ) {
+			return Double.NaN;
+		}
 		return competition.getCompetitveness( demand, c.getSupply(), c );
 	}
 	
@@ -232,9 +314,13 @@ public class Region implements Regions
 			a.updateSupply();
 			a.updateCompetitiveness();
 			available.remove( c );
-			if( demand != null ) demand.agentChange( c ); //could be null in initialisation
-			if (a.getCompetitiveness() < a.getGivingUp()) 
+			if( demand != null )
+			 {
+				demand.agentChange( c ); //could be null in initialisation
+			}
+			if (a.getCompetitiveness() < a.getGivingUp()) {
 				log.error(" Cell below new "+a.getID()+"'s GivingUp threshold: comp = " + a.getCompetitiveness() + " GU = " + a.getGivingUp());
+			}
 			log.trace(" owner is now " + a);
 		}
 		agents.add( a );
@@ -252,9 +338,13 @@ public class Region implements Regions
 		{
 			a.addCell( c );
 			c.setOwner( a );
-			if( a != Agent.NOT_MANAGED ) available.remove( c );
+			if( a != Agent.NOT_MANAGED ) {
+				available.remove( c );
+			}
 		}
-		if( a != Agent.NOT_MANAGED ) agents.add( a );
+		if( a != Agent.NOT_MANAGED ) {
+			agents.add( a );
+		}
 	}
 	
 	/**
@@ -264,11 +354,13 @@ public class Region implements Regions
 	{
 		for( Cell c : cells )
 		{
-			if( c.getOwner() == null || c.getOwner() == Agent.NOT_MANAGED )
+			if( c.getOwner() == null || c.getOwner() == Agent.NOT_MANAGED ) {
 				available.add( c );
+			}
 		}
 	}
 	
+	@Override
 	public String getID() { return id; }
 	public void setID( String id ) { this.id= id; }
 	
@@ -277,6 +369,7 @@ public class Region implements Regions
 		extent.update( c );
 	}
 
+	@Override
 	public Extent getExtent()
 	{
 		return extent;
@@ -287,16 +380,18 @@ public class Region implements Regions
 	 */
 	public void cellsCreated()
 	{
-		for( Cell c : cells )
+		for( Cell c : cells ) {
 			updateExtent( c );
+		}
 		cellTable = TreeBasedTable.create(); //Would rather use the ArrayTable below, but requires setting up ranges, and the code below doesn't work
 		/*
 		cellTable = ArrayTable.create( 
 				Ranges.open( extent.minY, extent.maxY ).asSet( DiscreteDomains.integers() ),
 				Ranges.open( extent.minX, extent.maxX ).asSet( DiscreteDomains.integers() ) );
 				*/
-		for( Cell c : cells )
+		for( Cell c : cells ) {
 			cellTable.put( c.getY(), c.getX(), c );
+		}
 	}
 	
 	/**
@@ -308,15 +403,25 @@ public class Region implements Regions
 	 */
 	public Cell getCell( int x, int y )
 	{
-		if( cellTable == null ) return null;
+		if( cellTable == null ) {
+			return null;
+		}
 		return cellTable.get( y, x );
 	}
 	
+	@Override
 	public int getNumCells() { return cells.size(); }
 	
 	public boolean hasInstitutions() { return institutions != null; }
 	public Institutions getInstitutions() { return institutions; }
 	public void setInstitutions( Institutions inst ) { this.institutions = inst; }
 	public ModelData getModelData() { return data; }
-	
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.getID();
+	}
 }

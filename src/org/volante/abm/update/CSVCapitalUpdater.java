@@ -1,16 +1,45 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.update;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.simpleframework.xml.*;
-import org.volante.abm.data.*;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementMap;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.ABMPersister;
 
 import com.csvreader.CsvReader;
-import com.google.common.collect.*;
+import com.google.common.collect.Table;
 import com.moseph.modelutils.distribution.Distribution;
 
 public class CSVCapitalUpdater extends AbstractUpdater
@@ -33,20 +62,23 @@ public class CSVCapitalUpdater extends AbstractUpdater
 	Map<Integer,String> yearlyFilenames = new HashMap<Integer, String>();
 	
 	@ElementMap(inline=true,key="capital",attribute=true,entry="noise",required=false,value="distribution")
-	Map<String,Distribution> distributionsSerial = new HashMap<String, Distribution>();
+	Map<String, Distribution>		distributionsSerial	= new LinkedHashMap<String, Distribution>();
 	
-	Map<Capital,Distribution> distributions = new HashMap<Capital, Distribution>();
+	Map<Capital, Distribution>		distributions		= new LinkedHashMap<Capital, Distribution>();
 	Table<Integer, Integer, Cell> cellTable = null;
 
 	/**
 	 * Do the actual updating
 	 */
+	@Override
 	public void preTick()
 	{
 		info.getPersister().setRegion( region ); //Makes sure we can use %r in filenames
 		try {
 			CsvReader file = getFileForYear();
-			if( file != null ) applyFile( file );
+			if( file != null ) {
+				applyFile( file );
+			}
 		} catch ( Exception e )
 		{
 			log.fatal( "Couldn't update Capitals: " + e.getMessage() );
@@ -67,12 +99,13 @@ public class CSVCapitalUpdater extends AbstractUpdater
 		ABMPersister p = info.getPersister();
 		String fn = null;
 		String yearly = yearlyFilenames.get( info.getSchedule().getCurrentTick() );
-		if( yearly != null && p.csvFileOK( getClass(), yearly, X_COL, Y_COL ) )
+		if( yearly != null && p.csvFileOK( getClass(), yearly, X_COL, Y_COL ) ) {
 			fn = yearly;
-		else if( yearInFilename && p.csvFileOK( getClass(), filename, X_COL, Y_COL ))
+		} else if( yearInFilename && p.csvFileOK( getClass(), filename, X_COL, Y_COL )) {
 			fn = filename;
-		else if( reapplyPreviousFile && previousFilename != null )
+		} else if( reapplyPreviousFile && previousFilename != null ) {
 			fn = previousFilename;
+		}
 		
 		if( fn != null )
 		{
@@ -106,7 +139,9 @@ public class CSVCapitalUpdater extends AbstractUpdater
 				{
 					double val = Double.parseDouble( cap );
 					//Add noise if we've got it
-					if( distributions.containsKey( c )) val += distributions.get( c ).sample();
+					if( distributions.containsKey( c )) {
+						val += distributions.get( c ).sample();
+					}
 					cell.getModifiableBaseCapitals().putDouble( c, val );
 				}
 			}
@@ -116,12 +151,14 @@ public class CSVCapitalUpdater extends AbstractUpdater
 	/**
 	 * Load in config stuff
 	 */
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		super.initialise( data, info, extent );
 		//Create a map of the distributions by capital rather than capital name.
-		for( Entry<String, Distribution> e : distributionsSerial.entrySet() )
+		for (Entry<String, Distribution> e : distributionsSerial.entrySet()) {
+			e.getValue().init(extent.getRandom().getURService(), RandomPa.RANDOM_SEED_RUN.name());
 			distributions.put( data.capitals.forName( e.getKey() ), e.getValue() );
+		}
 	}
-
 }

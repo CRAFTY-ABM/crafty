@@ -1,14 +1,14 @@
 package org.volante.abm.optimization;
-import static java.lang.Math.pow;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.simpleframework.xml.Attribute;
-import org.volante.abm.agent.*;
+import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
+import org.volante.abm.param.RandomPa;
 
-import com.moseph.modelutils.*;
-import com.moseph.modelutils.Utilities.Score;
+import com.moseph.modelutils.Utilities;
 
 
 /**
@@ -20,8 +20,10 @@ public class BestByCellAllocationModel extends OptimizationAllocationModel<List<
 {
 	@Attribute(required=false)
 	boolean shuffle = true;
+	@Override
 	void setupRun() { }
 
+	@Override
 	List<PotentialAgent> doRun()
 	{
 		List<PotentialAgent> list = currentLandUseList();
@@ -29,18 +31,21 @@ public class BestByCellAllocationModel extends OptimizationAllocationModel<List<
 		if( shuffle )
 		{
 			List<Cell> cs = new ArrayList<Cell>( cells );
-			Utilities.shuffle( cs );
+			Utilities.shuffle(cs, region.getRandom().getURService(),
+					RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
 			cells = cs;
 		}
-		for( Cell c : cells )
+		for( Cell c : cells ) {
 			list.set( cellToIndex( c ), getBestAgent( c, c.getRegion().getPotentialAgents() ) );
+		}
 		return list;
 	}
 
 	PotentialAgent getBestAgent( Cell c, Collection<PotentialAgent> ag )
 	{
 		List<PotentialAgent> agents = new ArrayList<PotentialAgent>( ag );
-		Utilities.shuffle(agents);
+		Utilities.shuffle(agents, region.getRandom().getURService(),
+				RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
 		double comp = -Double.MAX_VALUE;
 		PotentialAgent best = null;
 		//Map<String, Double> scores = new HashMap<String, Double>();
@@ -58,7 +63,9 @@ public class BestByCellAllocationModel extends OptimizationAllocationModel<List<
 		return best;
 	}
 
+	@Override
 	void applySolution( List<PotentialAgent> solution ) { applyList( solution ); }
+	@Override
 	public String getOptimisationType() { return "Assign Best to Each Cell Randomly"; }
 	
 }

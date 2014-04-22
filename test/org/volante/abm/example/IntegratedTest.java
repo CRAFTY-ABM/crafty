@@ -1,17 +1,43 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
-import static org.junit.Assert.*;
+import static org.volante.abm.agent.Agent.NOT_MANAGED_COMPETITION;
+import static org.volante.abm.agent.Agent.NOT_MANAGED_ID;
 
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.volante.abm.agent.PotentialAgent;
-import org.volante.abm.data.*;
-import org.volante.abm.models.*;
-import org.volante.abm.schedule.*;
-
-import static org.volante.abm.agent.Agent.*;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.RegionSet;
+import org.volante.abm.models.ProductionModel;
+import org.volante.abm.schedule.DefaultSchedule;
+import org.volante.abm.schedule.RunInfo;
 
 /**
  * A simple test of the integrated system. A couple of potential agents,
@@ -54,14 +80,24 @@ public class IntegratedTest extends BasicTests
 	Set<PotentialAgent> agents = new HashSet<PotentialAgent>( Arrays.asList( farming, forest ) );
 	
 	Region r1 = new Region( allocation, competition, demand, agents, c1, c2, c3, c4 );
-	@SuppressWarnings("deprecation")
-	World w = new World( data, new RunInfo(), r1 );
+	RegionSet w;
+
+	public IntegratedTest() {
+		w = new RegionSet(r1);
+		try {
+			w.initialise(data, new RunInfo(), null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Test
 	public void integratedTest() throws Exception
 	{
 		competition.setRemoveCurrentLevel( true );
-		for( Cell c : cells ) c.setBaseCapitals( capitals( 1, 1, 1, 1, 1, 1, 1 ) );
+		for( Cell c : cells ) {
+			c.setBaseCapitals( capitals( 1, 1, 1, 1, 1, 1, 1 ) );
+		}
 		DefaultSchedule sched = new DefaultSchedule( w );
 		sched.initialise( modelData, runInfo, null );
 		sched.tick();

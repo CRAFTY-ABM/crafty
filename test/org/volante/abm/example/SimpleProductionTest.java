@@ -1,3 +1,25 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * 
+ */
 package org.volante.abm.example;
 
 import static java.lang.Math.*;
@@ -65,28 +87,28 @@ public class SimpleProductionTest extends BasicTests
 	public static void testLowIntensityArableProduction( SimpleProductionModel model )
 	{
 		assertEqualMaps( services(0,0,4,0), model.productionWeights );
-		assertEqualMaps( capitals(0,0,0,0,0,1,0), model.captialWeights.getRow( FOOD ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( TIMBER ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( HOUSING ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( RECREATION ) );
+		assertEqualMaps( capitals(0,0,0,0,0,1,0), model.capitalWeights.getRow( FOOD ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( TIMBER ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( HOUSING ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( RECREATION ) );
 	}
 	
 	public static void testHighIntensityArableProduction( SimpleProductionModel model )
 	{
 		assertEqualMaps( services(0,0,10,0), model.productionWeights );
-		assertEqualMaps( capitals(0.5,0.5,0.5,0,0,1,0), model.captialWeights.getRow( FOOD ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( TIMBER ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( HOUSING ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( RECREATION ) );
+		assertEqualMaps( capitals(0.5,0.5,0.5,0,0,1,0), model.capitalWeights.getRow( FOOD ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( TIMBER ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( HOUSING ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( RECREATION ) );
 	}
 	
 	public static void testCommercialForestryProduction( SimpleProductionModel model )
 	{
 		assertEqualMaps( services(0,8,0,0), model.productionWeights );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( FOOD ) );
-		assertEqualMaps( capitals(0,0,0,0,1,0,0), model.captialWeights.getRow( TIMBER ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( HOUSING ) );
-		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.captialWeights.getRow( RECREATION ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( FOOD ) );
+		assertEqualMaps( capitals(0,0,0,0,1,0,0), model.capitalWeights.getRow( TIMBER ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( HOUSING ) );
+		assertEqualMaps( capitals(0,0,0,0,0,0,0), model.capitalWeights.getRow( RECREATION ) );
 	}
 	
 	void checkProduction( String msg, double... vals )
