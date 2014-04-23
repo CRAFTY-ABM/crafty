@@ -28,18 +28,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
-import org.volante.abm.decision.innovations.InnovationRegistry;
 import org.volante.abm.institutions.Institutions;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
-
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
@@ -66,7 +65,7 @@ public class Region implements Regions
 	CompetitivenessModel competition;
 	DemandModel demand;
 	Set<Cell> available = new HashSet<Cell>();
-	Set<PotentialAgent> potentialAgents = new HashSet<PotentialAgent>();
+	Set<PotentialAgent>		potentialAgents	= new LinkedHashSet<PotentialAgent>();
 	ModelData data;
 	RunInfo					rinfo;
 	Institutions institutions = null;

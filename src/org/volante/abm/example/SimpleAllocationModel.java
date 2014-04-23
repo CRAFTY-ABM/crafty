@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Root;
 import org.volante.abm.agent.Agent;
-import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
@@ -83,6 +82,12 @@ public class SimpleAllocationModel implements AllocationModel
 		for( PotentialAgent a : potential )
 		{
 			double s = r.getCompetitiveness( a, c );
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug(a + "> competitiveness: " + s);
+			}
+			// LOGGING ->
+
 			if( s > max )
 			{
 				if (s > a.getGivingUp()) {
