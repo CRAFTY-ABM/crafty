@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.volante.abm.agent.Agent;
-import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;

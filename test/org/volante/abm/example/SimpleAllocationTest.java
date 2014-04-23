@@ -1,9 +1,14 @@
 package org.volante.abm.example;
 
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.volante.abm.agent.*;
+import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.DefaultAgent;
+import org.volante.abm.agent.PotentialAgent;
 
 public class SimpleAllocationTest extends BasicTests
 {
@@ -11,6 +16,7 @@ public class SimpleAllocationTest extends BasicTests
 	@Test
 	public void testSimpleAllocation() throws Exception
 	{
+		log.info("Test simple Allocation...");
 		System.out.println(r1.getPotentialAgents());
 		System.out.println(r2.getPotentialAgents());
 		assertEquals( potentialAgents, r1.getPotentialAgents() );
@@ -22,6 +28,10 @@ public class SimpleAllocationTest extends BasicTests
 		assertNotNull( ag );
 		print( r1.getCompetitiveness( c11 ), ag.getPotentialSupply( c11 ), c11 );
 		
+		assertTrue(r1.getCells().contains(c11));
+		assertTrue(demandR1.demand.containsKey(c11));
+		assertEquals(demandR1, r1.getDemandModel());
+
 		demandR1.setResidual( c11, services(5, 0, 5, 0) );
 		r1.getAllocationModel().allocateLand( r1 );
 		assertEquals( farming.getID(), c11.getOwner().getID() ); //Make sure that demand for food gives a farmer

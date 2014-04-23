@@ -35,7 +35,6 @@ import java.util.Map;
 
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
-import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
