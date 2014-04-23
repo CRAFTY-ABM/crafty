@@ -28,8 +28,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
-import org.volante.abm.agent.DefaultSocialInnovationAgent;
-import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
