@@ -193,11 +193,14 @@ public class BasicTests
 	@Before
 	public void setupPersister()
 	{
+		runInfo = new RunInfo();
+		log.info("Reset RunInfo");
+
 		persister.setBaseDir( "test-data" );
 		runInfo.setUseInstitutions( false );
+		initCells();
 	}
 	
-	@Before
 	public void initCells()
 	{
 		log.info("Reinitialising Cells");
