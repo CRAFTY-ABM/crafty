@@ -116,6 +116,10 @@ public class Outputs implements Initialisable
 					&& (this.runInfo.getSchedule().getCurrentTick() <= o.getEndYear())
 					&& (this.runInfo.getSchedule().getCurrentTick() - o.getStartYear())
 							% o.getEveryNYears() == 0) {
+				// <- LOGGING
+				log.info("Handle outputter " + o);
+				// LOGGING ->
+
 				o.doOutput(r);
 			}
 		}
@@ -161,6 +165,28 @@ public class Outputs implements Initialisable
 			extra.put("o", output );
 		}
 		
+		// substitute sys vars:
+		int firstMarker = 0;
+		int secondMarker = -1;
+		while (firstMarker >= 0) {
+			firstMarker = outputDirectoryPattern.indexOf("$", secondMarker + 1);
+			secondMarker = outputDirectoryPattern.indexOf("$", firstMarker + 1);
+
+			if (firstMarker >= 0) {
+				if (secondMarker < 0) {
+					throw new IllegalStateException(
+						"System Variables need to be surrounded by '$' ($VAR$)");
+				} else {
+					String sysvar = outputDirectoryPattern.substring(firstMarker + 1,
+							secondMarker);
+					String result = System.getenv(sysvar);
+					outputDirectoryPattern = outputDirectoryPattern.replace('$' + sysvar + '$',
+							result);
+				}
+			}
+		}
+		log.info("Final output directory: " + outputDirectoryPattern);
+
 		String outputFile = runInfo.getPersister().ensureDirectoryExists( pattern, outputDirectoryPattern, false, extra );
 		if( extension != null ) 
 		{

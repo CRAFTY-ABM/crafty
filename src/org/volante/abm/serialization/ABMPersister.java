@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
 import org.volante.abm.data.Regions;
+import org.volante.abm.output.PRasterWriter;
 import org.volante.abm.schedule.RunInfo;
 
 import com.moseph.gis.raster.Raster;
@@ -57,7 +58,7 @@ public class ABMPersister extends EasyPersister {
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
-		RasterWriter writer = new RasterWriter();
+		PRasterWriter writer = new PRasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);
 		} else if (writeInts) {
@@ -74,5 +75,4 @@ public class ABMPersister extends EasyPersister {
 
 	public void setRunInfo(RunInfo info) {
 	}
-
 }

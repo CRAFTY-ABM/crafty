@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="CRAFTY-Jar-Creation">
+<project default="CRAFTY-P-Jar-Creation">
 	
-	<property name="dir_target" value="${basedir}/../../../../../mercurial/crafty/socialAgentsDecide/lib" />
+	<property name="dir_target" value="${basedir}/../../../../../mercurial/crafty/CraftyParallel/lib" />
 	<property file="../../project.properties"/>
 	
 	<tstamp>
 	    <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" locale="ENGLISH, GERMANY"/>
 	 </tstamp>
 	
-<target name="CRAFTY-Jar-Creation" description="Creates a jar file from CRAFTY">
-	<echo>"Destination: ${dir_target}/CRAFTY.jar"</echo>
-    <jar destfile="${dir_target}/CRAFTY.jar"
+<target name="CRAFTY-P-Jar-Creation" description="Creates a jar file from CRAFTY-P">
+	<echo>"Destination: ${dir_target}/CRAFTY-P.jar"</echo>
+    <jar destfile="${dir_target}/CRAFTY-P.jar"
         update="false"
         compress="true"
         duplicate="add">
