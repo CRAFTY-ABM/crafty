@@ -36,6 +36,15 @@ import com.moseph.gis.raster.RasterWriter;
 import com.moseph.modelutils.serialisation.EasyPersister;
 
 
+/**
+ * Note: The Raster class is not well implemented. Calling {@link Raster#getNDATA()} without a
+ * previous call to {@link Raster#setNDATA(String)} may cause a segmentation fault since the object
+ * it returns has not been initialised.
+ * 
+ * @author Dave Murray-Rust
+ * @author Sascha Holzhauer
+ * 
+ */
 public class ABMPersister extends EasyPersister {
 	static ABMPersister	instance	= null;
 
