@@ -65,8 +65,17 @@ import de.cesr.parma.core.PmParameterManager;
  */
 @Root(name = "region")
 public class RegionLoader {
+
+	static int						currentUid				= 0;
+
 	@Attribute(name = "id")
 	String							id						= "Unknown";
+
+	/**
+	 * Required for parallel mpiJava computing:
+	 */
+	@Element(required = true)
+	int								pid						= 0;
 
 	@Element(required = false)
 	String							competitionFile			= "";
@@ -131,9 +140,12 @@ public class RegionLoader {
 		this.modelData = data;
 	}
 
-	public RegionLoader(String id, String competition, String allocation,
+	public RegionLoader(String pid, String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers) {
+
+		this.pid = Integer.parseInt(pid);
+
 		this.id = id;
 		this.competitionFile = competition;
 		this.allocationFile = allocation;
@@ -383,5 +395,12 @@ public class RegionLoader {
 
 	public int getRandomSeed() {
 		return this.randomSeed;
+	}
+
+	/**
+	 * @return the pid
+	 */
+	public int getUid() {
+		return pid;
 	}
 }
