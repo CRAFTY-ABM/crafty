@@ -1,4 +1,6 @@
 syntax: glob
 bin/
+test-data\tmp\CSVCapitalUpdater.xml
+test-data/tmp/
 syntax: regexp
 ^lib/CRAFTY-P\.jar$
