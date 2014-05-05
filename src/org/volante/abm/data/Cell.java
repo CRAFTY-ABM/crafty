@@ -45,20 +45,21 @@ public class Cell implements Initialisable {
 	/*
 	 * Internal data
 	 */
-	DoubleMap<Capital>	baseCapitals		= null;				// Current levels of
-																	// baseCapitals
-	DoubleMap<Capital>	effectiveCapitals	= null;				// Current levels of
-																	// baseCapitals
+	DoubleMap<Capital>			baseCapitals		= null;				// Current levels of
+	// baseCapitals
+	DoubleMap<Capital>			effectiveCapitals	= null;				// Current levels of
+	// baseCapitals
 	// DoubleMap<Service> demand; //Current levels of spatialised demand
-	DoubleMap<Service>	supply				= null;				// Current levels of spatialised
-																	// supply
+	DoubleMap<Service>			supply				= null;				// Current levels of
+																			// spatialised
+	// supply
 	// DoubleMap<Service> residual; //Residual demand
-	Agent				owner				= Agent.NOT_MANAGED;
-	Region				region				= null;
-	String				id					= "";
-	int					x					= 0;
-	int					y					= 0;
-	boolean				initialised			= false;
+	Agent						owner				= Agent.NOT_MANAGED;
+	Region						region				= null;
+	String						id					= "";
+	int							x					= 0;
+	int							y					= 0;
+	boolean						initialised			= false;
 
 	public Cell() {
 	}
@@ -156,7 +157,7 @@ public class Cell implements Initialisable {
 
 	@Override
 	public String toString() {
-		if (id != null) {
+		if (id != "") {
 			return id;
 		}
 		return super.toString();
