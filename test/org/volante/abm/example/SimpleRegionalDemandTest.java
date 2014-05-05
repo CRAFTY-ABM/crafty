@@ -1,15 +1,16 @@
 package org.volante.abm.example;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.volante.abm.example.SimpleService.FOOD;
 
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.data.Service;
 
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.fastdata.DoubleMap;
-import static org.volante.abm.example.SimpleService.*;
 
 public class SimpleRegionalDemandTest extends BasicTests
 {
@@ -56,6 +57,7 @@ public class SimpleRegionalDemandTest extends BasicTests
 		
 		//Update demand model
 		dem.updateSupply();
+		dem.recalculateResidual();
 		
 		//Check that we're getting the correct level of supply, on the cell and total
 		assertEqualMaps( extensiveFarmingOnCA, dem.supply.get(c11) );
@@ -113,7 +115,9 @@ public class SimpleRegionalDemandTest extends BasicTests
 		assertEquals( 94, foodDem.sample( 2002 ), 0.0001 );
 		assertEquals( 100, foodDem.sample( 2005 ), 0.0001 );
 		
-		for( Service s : modelData.services ) assertNotNull( model.demandCurves.get(s));
+		for( Service s : modelData.services ) {
+			assertNotNull( model.demandCurves.get(s));
+		}
 	}
 
 }

@@ -22,6 +22,7 @@
  */
 package org.volante.abm.serialization;
 
+
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
@@ -33,52 +34,77 @@ import org.volante.abm.serialization.RegionLoader.CellInitialiser;
 
 import com.csvreader.CsvReader;
 
+
 /**
  * Reads information from a csv file into the given region
+ * 
  * @author dmrust
- *
+ * 
  */
-public class CellCSVReader implements CellInitialiser
-{
+public class CellCSVReader implements CellInitialiser {
 	@Attribute
 	String	csvFile		= "";
-	@Attribute(required=false)
-	String agentColumn = "Agent";
-	@Attribute(required=false)
-	String xColumn = "x";
-	@Attribute(required=false)
-	String yColumn = "y";
-	
-	Logger log = Logger.getLogger( getClass() );
+	@Attribute(required = false)
+	String	agentColumn	= "Agent";
+	@Attribute(required = false)
+	String	xColumn		= "x";
+	@Attribute(required = false)
+	String	yColumn		= "y";
+
+	Logger	log			= Logger.getLogger(getClass());
 
 	@Override
-	public void initialise( RegionLoader rl ) throws Exception
-	{
+	public void initialise(RegionLoader rl) throws Exception {
 		ModelData data = rl.modelData;
-		if( ! rl.persister.csvFileOK( "RegionLoader", csvFile, xColumn, yColumn ) ) {
+		boolean hasAgentColumn = true;
+
+		if (!rl.persister.csvFileOK("RegionLoader", csvFile, xColumn, yColumn)) {
 			return;
 		}
-		log.info("Loading cell CSV from " + csvFile );
-		CsvReader reader = rl.persister.getCSVReader( csvFile );
-		if( ! Arrays.asList( reader.getHeaders()).contains( agentColumn )) {
-			log.info( "No Agent Column found in CSV file: " + rl.persister.getFullPath( csvFile ) );
+		log.info("Loading cell CSV from " + csvFile);
+		CsvReader reader = rl.persister.getCSVReader(csvFile);
+		if (!Arrays.asList(reader.getHeaders()).contains(agentColumn)) {
+			hasAgentColumn = false;
+			log.info("No Agent Column found in CSV file: " + rl.persister.getFullPath(csvFile));
 		}
-		while( reader.readRecord() )
-		{
-			int x = Integer.parseInt( reader.get("x") );
-			int y = Integer.parseInt( reader.get("y") );
-			Cell c = rl.getCell( x, y );
-			for( Capital cap : data.capitals )
-			{
-				String s = reader.get( cap.getName() );
-				if( s != null ) {
-					c.getModifiableBaseCapitals().putDouble( cap, Double.parseDouble(s) );
+		while (reader.readRecord()) {
+			// <- LOGGING
+			if (log.isDebugEnabled()) {
+				log.debug("Read row " + reader.getCurrentRecord());
+			}
+			// LOGGING ->
+
+			int x = Integer.parseInt(reader.get("x"));
+			int y = Integer.parseInt(reader.get("y"));
+			Cell c = rl.getCell(x, y);
+			for (Capital cap : data.capitals) {
+				String s = reader.get(cap.getName());
+				if (s != null) {
+					try {
+						c.getModifiableBaseCapitals().putDouble(cap, Double.parseDouble(s));
+					} catch (Exception exception) {
+						log.error("Exception in row " + reader.getCurrentRecord() + "("
+								+ exception.getMessage() + ")");
+					}
 				}
 			}
-			String ag = reader.get(agentColumn);
-			if( ag != null ) {
-				rl.setAgent( c, ag);
+			if (hasAgentColumn) {
+				String ag = reader.get(agentColumn);
+				if (ag != null) {
+					rl.setAgent(c, ag);
+				}
 			}
 		}
+
+		// <- LOGGING
+		if (log.isDebugEnabled()) {
+			log.debug("Finished reading CSV file " + rl.persister.getFullPath(csvFile));
+		}
+		// LOGGING ->
+	}
+
+	@Override
+	public String toString() {
+		return "CellCSVReader for " + csvFile;
 	}
 }

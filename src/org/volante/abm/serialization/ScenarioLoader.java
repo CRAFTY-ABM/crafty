@@ -25,6 +25,8 @@ package org.volante.abm.serialization;
 import java.util.ArrayList;
 import java.util.List;
 
+import mpi.MPI;
+
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -35,10 +37,13 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
 import org.volante.abm.data.Service;
+import org.volante.abm.example.SingleMarketWorldSynchronisationModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.output.Outputs;
 import org.volante.abm.schedule.DefaultSchedule;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.schedule.Schedule;
+import org.volante.abm.schedule.WorldSyncSchedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
 import org.volante.abm.visualisation.ModelDisplays;
 
@@ -98,6 +103,9 @@ public class ScenarioLoader {
 	
 	@Element(name = "schedule", required = false)
 	Schedule schedule = new DefaultSchedule();
+
+	@Element(name = "worldSyncModel", required = false)
+	WorldSynchronisationModel	worldSyncModel	= new SingleMarketWorldSynchronisationModel();
 
 	@Element(name = "capitals", required = false)
 	DataTypeLoader<Capital>	capitals		= null;
@@ -170,7 +178,36 @@ public class ScenarioLoader {
 		if (worldLoader != null) {
 			worldLoader.setModelData(modelData);
 			worldLoader.initialise(info);
+
+			// regions for parallel processing have been selected here:
 			regions = worldLoader.getWorld();
+		}
+
+		if (worldSyncModel != null) {
+			worldSyncModel.initialise(modelData, info);
+			if (schedule instanceof WorldSyncSchedule) {
+				((WorldSyncSchedule) schedule).setWorldSyncModel(worldSyncModel);
+			} else {
+				log.warn("WorldSynchronisationModel could not be assigned to schedule!");
+			}
+		}
+
+		log.info("About to load regions");
+		for (String s : regionFileList) {
+			// <- LOGGING
+			log.warn("This way of initialising regions for parallel computing is untested!");
+			// LOGGING ->
+
+			regionList.add(persister.readXML(RegionLoader.class, s));
+		}
+		for (RegionLoader rl : regionList) {
+			rl.initialise(info);
+			if (MPI.COMM_WORLD.Rank() == rl.getUid()) {
+				Region r = rl.getRegion();
+				regions.addRegion(r);
+
+				log.info("Run region " + r + " on rank " + MPI.COMM_WORLD.Rank());
+			}
 		}
 
 		if (outputFile != null) {
@@ -183,16 +220,6 @@ public class ScenarioLoader {
 
 		schedule.initialise(modelData, info, null);
 
-		log.info("About to load regions");
-		for (String s : regionFileList) {
-			regionList.add(persister.readXML(RegionLoader.class, s));
-		}
-		for (RegionLoader r : regionList) {
-			// select process' region here
-			r.initialise(info);
-			Region reg = r.getRegion();
-			regions.addRegion(reg);
-		}
 		log.info("Final extent: " + regions.getExtent());
 		regions.initialise(modelData, info, null);
 		if (regions.getAllRegions().iterator().hasNext()) {

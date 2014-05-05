@@ -24,6 +24,8 @@ package org.volante.abm.serialization;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 
+import mpi.MPI;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -50,8 +52,11 @@ public class ModelRunner
 	
 	public static void main( String[] args ) throws Exception
 	{
+		logger.info("Start CRAFTY parallel");
+		String[] realArgs = MPI.Init(args);
+
 		CommandLineParser parser = new BasicParser();
-		CommandLine cmd = parser.parse(manageOptions(), args);
+		CommandLine cmd = parser.parse(manageOptions(), realArgs);
 
 		if (cmd.hasOption('h')) {
 			HelpFormatter formatter = new HelpFormatter();
