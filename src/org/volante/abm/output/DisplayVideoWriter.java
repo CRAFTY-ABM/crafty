@@ -1,17 +1,39 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.output;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import javax.swing.JComponent;
 
-import org.simpleframework.xml.*;
-import org.volante.abm.data.*;
-import org.volante.abm.output.Outputs.CloseableOutput;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
-import org.volante.abm.serialization.Initialisable;
-import org.volante.abm.visualisation.*;
+import org.volante.abm.visualisation.AbstractDisplay;
+import org.volante.abm.visualisation.Display;
 
 public class DisplayVideoWriter extends AbstractVideoWriter 
 {
@@ -19,10 +41,11 @@ public class DisplayVideoWriter extends AbstractVideoWriter
 	boolean includeSurroundings = true;
 	
 	@Element
-	Display display;
-	JComponent toPaint;
+	Display		display				= null;
+	JComponent	toPaint				= null;
 	
 	
+	@Override
 	public BufferedImage getImage( Regions r )
 	{
 		display.update();
@@ -30,18 +53,21 @@ public class DisplayVideoWriter extends AbstractVideoWriter
 	}
 	
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		super.initialise(data, info, extent );
 		display.initialise( data, info, extent );
 		
-		if( output == null || output.equals("") )
+		if( output == null || output.equals("") ) {
 			output = display.getTitle().replaceAll( "\\s", "" );
+		}
 		//Either just get the main panel, or get the whole display
-		if( ! includeSurroundings && display instanceof AbstractDisplay) 
+		if( ! includeSurroundings && display instanceof AbstractDisplay) {
 			toPaint = ((AbstractDisplay)display).getMainPanel();
-		else 
+		} else {
 			toPaint = display.getDisplay();
+		}
 		toPaint.setPreferredSize( new Dimension( width, height ) );
 		toPaint.setSize( new Dimension( width, height ) );
 	}

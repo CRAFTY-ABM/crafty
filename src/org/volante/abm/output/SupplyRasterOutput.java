@@ -22,38 +22,46 @@
  */
 package org.volante.abm.output;
 
+
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Service;
 
-public class SupplyRasterOutput extends RasterOutputter
-{
+
+public class SupplyRasterOutput extends RasterOutputter {
 	@Attribute(name = "service", required = true)
-	String serviceName = "HUMAN";
-	Service service;
-	
-	public SupplyRasterOutput() {}
-	public SupplyRasterOutput( String serviceName ) { this.serviceName = serviceName; }
-	public SupplyRasterOutput( Service service ) { this.service = service; }
-	@Override
-	public double apply( Cell c )
-	{
-		return c.getSupply().getDouble( service );
+	String	serviceName	= "HUMAN";
+	Service	service		= null;
+
+	public SupplyRasterOutput() {
+	}
+
+	public SupplyRasterOutput(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public SupplyRasterOutput(Service service) {
+		this.service = service;
 	}
 
 	@Override
-	public String getDefaultOutputName()
-	{
-		return "Service-"+service.getName();
+	public double apply(Cell c) {
+		return c.getSupply().getDouble(service);
 	}
 
 	@Override
-	public void initialise() throws Exception
-	{
+	public String getDefaultOutputName() {
+		return "Service-" + service.getName();
+	}
+
+	@Override
+	public void initialise() throws Exception {
 		super.initialise();
-		service = modelData.services.forName( serviceName );
+		service = modelData.services.forName(serviceName);
 	}
 
 	@Override
-	public boolean isInt() { return false; }
+	public boolean isInt() {
+		return false;
+	}
 }

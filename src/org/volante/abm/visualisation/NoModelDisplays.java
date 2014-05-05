@@ -25,8 +25,9 @@ package org.volante.abm.visualisation;
 
 
 /**
+ * Pseudo class for Model displays to be used for non-interactive cluster computing.
+ * 
  * @author Sascha Holzhauer
- *
  */
 public class NoModelDisplays extends ModelDisplays {
 }

@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
  */
 package org.volante.abm.serialization;
 
@@ -36,6 +35,7 @@ import org.volante.abm.schedule.RunInfo;
 public class RegionLoaderTest extends BasicTests
 {
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testReadingCSV() throws Exception
 	{

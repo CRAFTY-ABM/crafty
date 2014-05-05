@@ -25,6 +25,7 @@ package org.volante.abm.example;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.data.Cell;
@@ -39,6 +40,11 @@ import org.volante.abm.data.Region;
  */
 public class GiveUpGiveInAllocationTest extends BasicTests
 {
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(GiveUpGiveInAllocationTest.class);
+
 	@Test
 	public void testSimpleAllocation() throws Exception
 	{
@@ -59,8 +65,8 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 		forestry.givingUp = -20; //And very hard to give up
 		
 		assertEquals( potentialAgents, r1.getPotentialAgents() ); //Check the agents are in the region correctly
-		System.out.println(r1.getPotentialAgents());
-		System.out.println(r2.getPotentialAgents());
+		logger.info(r1.getPotentialAgents());
+		logger.info(r2.getPotentialAgents());
 		
 		r1.setOwnership( forestry.createAgent( r1, c11 ), c11 ); //Start with a forester
 		

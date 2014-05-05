@@ -22,6 +22,7 @@
  */
 package org.volante.abm.output;
 
+
 import static org.monte.media.FormatKeys.EncodingKey;
 import static org.monte.media.FormatKeys.FrameRateKey;
 import static org.monte.media.FormatKeys.MediaTypeKey;
@@ -52,138 +53,131 @@ import org.volante.abm.output.Outputs.CloseableOutput;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
 
-public abstract class AbstractVideoWriter implements CloseableOutput, Outputter, Initialisable
-{
+
+public abstract class AbstractVideoWriter implements CloseableOutput, Outputter, Initialisable {
 
 	/**
-	 * Output name
-	 * Subclasses should provide sensible defaults for this in initialise if it is blank
+	 * Output name Subclasses should provide sensible defaults for this in initialise if it is blank
 	 */
 	@Attribute(required = false)
-	String output; 
+	String				output			= "";
 	/**
 	 * Number of frames per second in the video file
 	 */
 	@Attribute(required = false)
-	long frameRate = 1; 
+	long				frameRate		= 1;
 	/**
-	 * Number of times to write an image to the file each tick. Can be used to make videos with 
+	 * Number of times to write an image to the file each tick. Can be used to make videos with
 	 * slower updates than 1 per second.
 	 */
 	@Attribute(required = false)
-	long imagesPerFrame = 1; 
+	long				imagesPerFrame	= 1;
 	/**
 	 * Width of the video file. Defaults to 500px
 	 */
 	@Attribute(required = false)
-	int width = 500;
+	int					width			= 500;
 	/**
 	 * Height of the video file. Defaults to 500px
 	 */
 	@Attribute(required = false)
-	int height = 500;
-	
+	int					height			= 500;
+
 	/**
 	 * Should the current tick be added to the images?
 	 */
-	@Attribute(required=false)
-	boolean addTick = true;
-	
-	Color tickColor = new Color( 0.0f, 0.6f, 0.3f, 0.5f );
-	NumberFormat tickFormat = new DecimalFormat( "000" );
-	
-	protected AVIWriter out;
-	protected String fn;
-	protected Logger log = Logger.getLogger( getClass() );
-	protected Outputs outputs;
-	protected RunInfo info;
-	protected ModelData data;
+	@Attribute(required = false)
+	boolean				addTick			= true;
+
+	Color				tickColor		= new Color(0.0f, 0.6f, 0.3f, 0.5f);
+	NumberFormat		tickFormat		= new DecimalFormat("000");
+
+	protected AVIWriter	out;
+	protected String	fn;
+	protected Logger	log				= Logger.getLogger(getClass());
+	protected Outputs	outputs;
+	protected RunInfo	info;
+	protected ModelData	data;
 
 	@Override
-	public void open()
-	{
-		try
-		{
-			fn = outputs.getOutputFilename( output, ".avi"); //Construct proper output filename
-			File file = new File( fn );
-			Format format = new Format( MediaTypeKey, MediaType.VIDEO, //
-					EncodingKey, ENCODING_AVI_PNG, 
-					FrameRateKey, new Rational( frameRate, 1 ),//
+	public void open() {
+		try {
+			fn = outputs.getOutputFilename(output, ".avi"); // Construct proper output filename
+			File file = new File(fn);
+			Format format = new Format(MediaTypeKey, MediaType.VIDEO, //
+					EncodingKey, ENCODING_AVI_PNG,
+					FrameRateKey, new Rational(frameRate, 1),//
 					WidthKey, width, //
 					HeightKey, height,//
-					DepthKey, 24 );
-			out = new AVIWriter( file );
-			log.info( "Starting video file: " + fn + " using " + out + " on file: " + file + ", w:" + width + ",p_rest:" + height);
-			BufferedImage image = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB );
-			out.addTrack( format );
-			out.setPalette( 0, image.getColorModel() );
-		} catch (IOException e )
-		{
+					DepthKey, 24);
+			out = new AVIWriter(file);
+			log.info("Starting video file: " + fn + " using " + out + " on file: " + file + ", w:"
+					+ width + ",p_rest:" + height);
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			out.addTrack(format);
+			out.setPalette(0, image.getColorModel());
+		} catch (IOException e) {
 			log.error("Couldn't start video file: " + fn);
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
-	public void doOutput( Regions r )
-	{
-		if( out == null ) {
+	public void doOutput(Regions r) {
+		if (out == null) {
 			return;
 		}
-		try
-		{
-			for( int i = 0; i < imagesPerFrame; i++ )
-			{
-				BufferedImage image = getImage( r );
-				if( addTick )
-				{
+		try {
+			for (int i = 0; i < imagesPerFrame; i++) {
+				BufferedImage image = getImage(r);
+				if (addTick) {
 					Graphics2D g = image.createGraphics();
-					g.setColor( tickColor );
-					g.setFont( g.getFont().deriveFont( 36.0f ).deriveFont( Font.BOLD ) );
-					g.drawString( "t="+tickFormat.format( info.getSchedule().getCurrentTick() ), 2, height-2 );
+					g.setColor(tickColor);
+					g.setFont(g.getFont().deriveFont(36.0f).deriveFont(Font.BOLD));
+					g.drawString("t=" + tickFormat.format(info.getSchedule().getCurrentTick()), 2,
+							height - 2);
 					g.dispose();
 				}
-				out.write( 0, image, 1);
+				out.write(0, image, 1);
 			}
-		} catch (IOException e)
-		{
-			log.error( "Couldn't write file to " + fn );
+		} catch (IOException e) {
+			log.error("Couldn't write file to " + fn);
 			e.printStackTrace();
 		}
 	}
-	
-	abstract BufferedImage getImage( Regions r );
+
+	abstract BufferedImage getImage(Regions r);
 
 	@Override
-	public void close()
-	{
-		if( out == null ) {
+	public void close() {
+		if (out == null) {
 			return;
 		}
-		try
-		{
+		try {
 			out.close();
-			log.info("Closed video file: " + fn );
-		} catch (IOException e)
-		{
-			log.error( "Couldn't close video file: " + fn );
+			log.info("Closed video file: " + fn);
+		} catch (IOException e) {
+			log.error("Couldn't close video file: " + fn);
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
-	{
+	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		outputs = info.getOutputs();
-		outputs.registerClosableOutput( this );
+		outputs.registerClosableOutput(this);
 		this.info = info;
 		this.data = data;
 	}
 
 	@Override
-	public void initialise() throws Exception { } //Do it all in the real initialise
+	public void initialise() throws Exception {
+	} // Do it all in the real initialise
+
 	@Override
-	public void setOutputManager( Outputs outputs ) { this.outputs = outputs; }
+	public void setOutputManager(Outputs outputs) {
+		this.outputs = outputs;
+	}
 
 	/**
 	 * @see org.volante.abm.output.Outputter#getStartYear()
@@ -208,5 +202,4 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	public int getEveryNYears() {
 		return this.getEveryNYears();
 	}
-
 }

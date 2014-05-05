@@ -18,39 +18,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
  */
 package org.volante.abm.output;
+
 
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 
-public class CapitalRasterOutput extends RasterOutputter
-{
+
+public class CapitalRasterOutput extends RasterOutputter {
 	@Attribute(name = "capital", required = true)
-	String capitalName = "HUMAN";
-	Capital capital;
-	
+	String	capitalName	= "HUMAN";
+	Capital	capital		= null;
+
 	@Override
-	public double apply( Cell c )
-	{
-		return c.getEffectiveCapitals().getDouble( capital );
+	public double apply(Cell c) {
+		return c.getEffectiveCapitals().getDouble(capital);
 	}
 
 	@Override
-	public String getDefaultOutputName()
-	{
-		return "Capital-"+capital.getName();
+	public String getDefaultOutputName() {
+		return "Capital-" + capital.getName();
 	}
 
 	@Override
-	public void initialise() throws Exception
-	{
+	public void initialise() throws Exception {
 		super.initialise();
-		capital = modelData.capitals.forName( capitalName );
+		capital = modelData.capitals.forName(capitalName);
 	}
 
 	@Override
-	public boolean isInt() { return false; }
+	public boolean isInt() {
+		return false;
+	}
 }

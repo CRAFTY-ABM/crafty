@@ -62,6 +62,12 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 public class BasicTests
 {
+
+	/**
+	 * Logger
+	 */
+	static private Logger				logger								= Logger.getLogger(BasicTests.class);
+
 	public static ModelData modelData = new ModelData(); //Setup with simple versions of all attributes
 	public static RunInfo runInfo = new RunInfo();
 	
@@ -347,7 +353,7 @@ public class BasicTests
 	
 	public static void print(Object... vals)
 	{
-		System.out.println( Joiner.on( " " ).useForNull( "<NULL>" ).join( vals ) );
+		logger.info(Joiner.on(" ").useForNull("<NULL>").join(vals));
 	}
 	
 	public Region setupBasicWorld( Cell...cells ) throws Exception

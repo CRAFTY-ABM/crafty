@@ -24,7 +24,7 @@ package org.volante.abm.schedule;
 
 public class ScheduleThread implements Runnable
 {
-	Schedule schedule;
+	Schedule	schedule	= null;
 	
 	public ScheduleThread( Schedule sched )
 	{

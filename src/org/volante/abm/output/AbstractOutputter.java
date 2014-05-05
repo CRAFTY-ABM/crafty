@@ -22,6 +22,7 @@
  */
 package org.volante.abm.output;
 
+
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.ModelData;
@@ -29,64 +30,84 @@ import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.ABMPersister;
 
-public abstract class AbstractOutputter implements Outputter
-{
-	protected Logger log = Logger.getLogger( getClass() );
-	protected Outputs outputs;
+
+public abstract class AbstractOutputter implements Outputter {
+	protected Logger		log			= Logger.getLogger(getClass());
+	protected Outputs		outputs		= null;
 	@Attribute(required = false)
-	private String outputName = "";
+	private String			outputName	= "";
 	@Attribute(required = false)
-	String extension = "csv";
-	protected boolean disabled = false;
-	@Attribute(required=false)
-	protected int everyNYears=1;
-	@Attribute(required=false)
-	protected int startYear = 1;
+	String					extension	= "csv";
+	protected boolean		disabled	= false;
+	@Attribute(required = false)
+	protected int			everyNYears	= 1;
+	@Attribute(required = false)
+	protected int			startYear	= 1;
 	@Attribute(required = false)
 	protected int			endYear		= 2147483647;
-	protected RunInfo runInfo;
-	protected ModelData modelData;
-	protected ABMPersister persister;
-	
+	protected RunInfo		runInfo		= null;
+	protected ModelData		modelData	= null;
+	protected ABMPersister	persister	= null;
+
 	@Override
-	public void initialise() throws Exception 
-	{ 
-		if( disable() )
-		{
+	public void initialise() throws Exception {
+		if (disable()) {
 			disabled = true;
 			return;
 		}
 	}
-	
+
 	/**
-	 * Callback to start a file if one is required. This is good for e.g. csv files which start a header 
-	 * and append to the same file each time writeRecord() is called
-	 * but it is not needed for shapefiles where each writeRecord() creates its own file
+	 * Callback to start a file if one is required. This is good for e.g. csv files which start a
+	 * header and append to the same file each time writeRecord() is called but it is not needed for
+	 * shapefiles where each writeRecord() creates its own file
+	 * 
 	 * @param filename
 	 */
 	@Override
-	public void open() {}
-	
-	@Override
-	public void close() { }
+	public void open() {
+	}
 
 	@Override
-	public void setOutputManager( Outputs outputs ) 
-	{ 
-		this.outputs = outputs; 
+	public void close() {
+	}
+
+	@Override
+	public void setOutputManager(Outputs outputs) {
+		this.outputs = outputs;
 		this.runInfo = outputs.runInfo;
 		this.modelData = outputs.modelData;
 		this.persister = runInfo.getPersister();
 	}
+
 	public abstract String getDefaultOutputName();
-	public String getOutputName() { if( outputName == null || outputName.length() == 0 ) {
-		return getDefaultOutputName();
-	} return outputName; }
-	public void setOutputName( String outputName ) { this.outputName = outputName; }
-	public String getExtension() { return extension; }
-	public String filename( Regions r ) { return outputs.getOutputFilename( getOutputName(), getExtension(), r ); }
-	public String tickFilename( Regions r ) { return outputs.getOutputFilename( getOutputName(), getExtension(), outputs.tickPattern, r ); }
-	public boolean disable() { return false; }
+
+	public String getOutputName() {
+		if (outputName == null || outputName.length() == 0) {
+			return getDefaultOutputName();
+		}
+		return outputName;
+	}
+
+	public void setOutputName(String outputName) {
+		this.outputName = outputName;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public String filename(Regions r) {
+		return outputs.getOutputFilename(getOutputName(), getExtension(), r);
+	}
+
+	public String tickFilename(Regions r) {
+		return outputs.getOutputFilename(getOutputName(), getExtension(), outputs.tickPattern, r);
+	}
+
+	public boolean disable() {
+		return false;
+	}
 
 	/**
 	 * @see org.volante.abm.output.Outputter#getStartYear()

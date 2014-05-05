@@ -1,19 +1,48 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.visualisation;
 
-import static java.lang.Math.*;
-
-import java.awt.*;
-import java.text.DecimalFormat;
-import java.util.*;
-
-import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-
-import info.monitorenter.gui.chart.*;
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import info.monitorenter.gui.chart.Chart2D;
+import info.monitorenter.gui.chart.IAxisLabelFormatter;
+import info.monitorenter.gui.chart.ITrace2D;
 import info.monitorenter.gui.chart.labelformatters.LabelFormatterNumber;
 import info.monitorenter.gui.chart.traces.Trace2DSimple;
 
-import org.volante.abm.data.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Regions;
+import org.volante.abm.data.Service;
 import org.volante.abm.example.CurveCompetitivenessModel;
 import org.volante.abm.models.CompetitivenessModel.CompetitivenessDisplay;
 import org.volante.abm.schedule.RunInfo;
@@ -22,14 +51,15 @@ import com.moseph.modelutils.curve.Curve;
 
 public class CurveCompetitivenessDisplay extends AbstractDisplay implements CompetitivenessDisplay
 {
+	private static final long	serialVersionUID	= 1331487655171517592L;
+
 	double width = 2;
 	int numPoints = 100;
-	CurveCompetitivenessModel model;
+	CurveCompetitivenessModel	model				= null;
 	Map<Service, Chart2D> charts = new HashMap<Service, Chart2D>();
 	Box chartBox = new Box(BoxLayout.Y_AXIS);
-	ModelData data;
-	private RunInfo info;
-	private Regions region;
+	ModelData					data				= null;
+	private Regions				region				= null;
 	
 	public CurveCompetitivenessDisplay( CurveCompetitivenessModel model ) 
 	{
@@ -83,6 +113,7 @@ public class CurveCompetitivenessDisplay extends AbstractDisplay implements Comp
 		trace2.addPoint( current, maxY );
 	}
 
+	@Override
 	public void update()
 	{
 		Map<Service, Curve> curves = model.getCurves();
@@ -98,11 +129,11 @@ public class CurveCompetitivenessDisplay extends AbstractDisplay implements Comp
 		}
 	}
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Regions region ) throws Exception
 	{
 		this.data = data;
 		this.info = info;
 		this.region = region;
 	}
-
 }

@@ -22,6 +22,7 @@
  */
 package org.volante.abm.agent;
 
+
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -31,94 +32,113 @@ import org.volante.abm.models.nullmodel.NullProductionModel;
 
 import com.moseph.modelutils.fastdata.DoubleMap;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+
+
 /**
  * This is a default agent
+ * 
  * @author jasper
- *
+ * 
  */
-public class DefaultAgent extends AbstractAgent
-{
+public class DefaultAgent extends AbstractAgent {
 	/*
 	 * Characteristic fields (define an agent)
 	 */
 	protected ProductionModel	production	= NullProductionModel.INSTANCE;
 	protected double			givingUp	= -Double.MAX_VALUE;
 	protected double			givingIn	= Double.MAX_VALUE;
-	protected PotentialAgent type;
-	public DefaultAgent() {}
-	public DefaultAgent( String id, ModelData data )
-	{
-		this.id = id;
-		initialise( data );
+	protected PotentialAgent	type		= null;
+
+	public DefaultAgent() {
 	}
-	
-	public DefaultAgent( PotentialAgent type, ModelData data, Region r, ProductionModel prod, double givingUp, double givingIn )
-	{
+
+	public DefaultAgent(String id, ModelData data) {
+		this.id = id;
+		System.out.println();
+		initialise(data);
+	}
+
+	public DefaultAgent(PotentialAgent type, ModelData data, Region r, ProductionModel prod,
+			double givingUp, double givingIn) {
 		this.type = type;
 		this.region = r;
 		this.production = prod;
 		this.givingUp = givingUp;
 		this.givingIn = givingIn;
-		initialise( data );
+		initialise(data);
 	}
-	
-	public DefaultAgent( PotentialAgent type, String id, ModelData data, Region r, ProductionModel prod, double givingUp, double givingIn )
-	{
-		this( type, data, r, prod, givingUp, givingIn );
+
+	public DefaultAgent(PotentialAgent type, String id, ModelData data, Region r,
+			ProductionModel prod, double givingUp, double givingIn) {
+		this(type, data, r, prod, givingUp, givingIn);
 		this.id = id;
 	}
-	
-	public void initialise( ModelData data )
-	{
-		productivity = new DoubleMap<Service>( data.services );
+
+	public void initialise(ModelData data) {
+		productivity = new DoubleMap<Service>(data.services);
 	}
 
 	@Override
-	public void updateSupply()
-	{
+	public void updateSupply() {
 		productivity.clear();
-		for( Cell c : cells )
-		{
-			production.production( c, c.getModifiableSupply() );
-			c.getSupply().addInto( productivity );
+		for (Cell c : cells) {
+			production.production(c, c.getModifiableSupply());
+			c.getSupply().addInto(productivity);
 		}
 	}
-	
+
 	@Override
-	public void considerGivingUp()
-	{
-		if( currentCompetitiveness < givingUp ) {
+	public void considerGivingUp() {
+		if (currentCompetitiveness < givingUp) {
 			giveUp();
 		}
 	}
-	
+
 	@Override
-	public boolean canTakeOver( Cell c, double incoming ) 
-	{
+	public boolean canTakeOver(Cell c, double incoming) {
 		return incoming > (getCompetitiveness() + givingIn);
 	}
 
 	@Override
-	public UnmodifiableNumberMap<Service> supply( Cell c ) 
-	{ 
+	public UnmodifiableNumberMap<Service> supply(Cell c) {
 		DoubleMap<Service> prod = productivity.duplicate();
-		production.production( c, prod ); 
+		production.production(c, prod);
 		return prod;
 	}
-	public void setProductionFunction( ProductionModel f ) { this.production = f; }
-	public ProductionModel getProductionFunction() { return production; }
-	public void setGivingUp( double g ) { this.givingUp = g; }
-	public void setGivingIn( double g ) { this.givingIn = g; }
+
+	public void setProductionFunction(ProductionModel f) {
+		this.production = f;
+	}
+
+	public ProductionModel getProductionFunction() {
+		return production;
+	}
+
+	public void setGivingUp(double g) {
+		this.givingUp = g;
+	}
+
+	public void setGivingIn(double g) {
+		this.givingIn = g;
+	}
+
 	@Override
-	public double getGivingUp() { return givingUp; }
+	public double getGivingUp() {
+		return givingUp;
+	}
+
 	@Override
-	public double getGivingIn() { return givingIn; }
+	public double getGivingIn() {
+		return givingIn;
+	}
+
 	@Override
-	public PotentialAgent getType() { return type; }
-	
+	public PotentialAgent getType() {
+		return type;
+	}
+
 	@Override
-	public String infoString()
-	{
+	public String infoString() {
 		return "Giving up: " + givingUp + ", Giving in: " + givingIn + ", nCells: " + cells.size();
 	}
 }

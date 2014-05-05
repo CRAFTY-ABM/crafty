@@ -1,71 +1,131 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.example;
 
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.volante.abm.data.*;
-import org.volante.abm.models.*;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Regions;
+import org.volante.abm.data.Service;
+import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.StaticPerCellDemandDisplay;
 
-import com.moseph.modelutils.fastdata.*;
+import com.moseph.modelutils.fastdata.DoubleMap;
+import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
-public class StaticPerCellDemandModel implements DemandModel
-{
-	Map<Cell,DoubleMap<Service>> demand = new HashMap<Cell, DoubleMap<Service>>();
-	Map<Cell,DoubleMap<Service>> residual = new HashMap<Cell, DoubleMap<Service>>();
-	ModelData data = null;
-	Regions region;
-	Logger log = Logger.getLogger( getClass() );
-	
-	public void initialise( ModelData data, RunInfo info, Region r )
-	{
+
+public class StaticPerCellDemandModel implements DemandModel {
+	/**
+	 * Logger
+	 */
+	static private Logger			log			= Logger.getLogger(StaticPerCellDemandModel.class);
+
+	Map<Cell, DoubleMap<Service>>	demand		= new HashMap<Cell, DoubleMap<Service>>();
+	Map<Cell, DoubleMap<Service>>	residual	= new HashMap<Cell, DoubleMap<Service>>();
+	ModelData						data		= null;
+	Regions							region		= null;
+
+	@Override
+	public void initialise(ModelData data, RunInfo info, Region r) {
 		this.data = data;
 		this.region = r;
-		for( Cell c : r.getCells() )
-		{
-			demand.put( c, data.serviceMap() );
-			residual.put( c, data.serviceMap() );
+		for (Cell c : r.getCells()) {
+			demand.put(c, data.serviceMap());
+			residual.put(c, data.serviceMap());
 		}
 	}
 
-	public DoubleMap<Service> getDemand() { log.fatal("Regional demand not implemented in per cell demand model");return null; }
-	public DoubleMap<Service> getSupply() { log.fatal("Regional supply not implemented in per cell demand model");return null; }
-	public DoubleMap<Service> getMarginalUtilities() { log.fatal("Regional marginal utilities not implemented in per cell demand model");return null; }
-	public DoubleMap<Service> getDemand( Cell c ) { return demand.get( c ); }
-	public DoubleMap<Service> getResidualDemand( Cell c ) { return residual.get( c ); }
+	@Override
+	public DoubleMap<Service> getDemand() {
+		log.fatal("Regional demand not implemented in per cell demand model");
+		return null;
+	}
+
+	@Override
+	public DoubleMap<Service> getSupply() {
+		log.fatal("Regional supply not implemented in per cell demand model");
+		return null;
+	}
+
+	@Override
+	public DoubleMap<Service> getMarginalUtilities() {
+		log.fatal("Regional marginal utilities not implemented in per cell demand model");
+		return null;
+	}
+
+	@Override
+	public DoubleMap<Service> getDemand(Cell c) {
+		return demand.get(c);
+	}
+
+	@Override
+	public DoubleMap<Service> getResidualDemand(Cell c) {
+		return residual.get(c);
+	}
+
 	/**
 	 * Not implemented yet!
 	 */
-	public DoubleMap<Service> getResidualDemand() { return null; }
+	@Override
+	public DoubleMap<Service> getResidualDemand() {
+		return null;
+	}
 
-	public void agentChange( Cell c )
-	{
-		demand.get( c ).subtractInto( c.getSupply(), residual.get( c ) );
+	@Override
+	public void agentChange(Cell c) {
+		demand.get(c).subtractInto(c.getSupply(), residual.get(c));
 	}
-	
-	public void setResidual( Cell c, UnmodifiableNumberMap<Service> res )
-	{
-		res.copyInto( residual.get( c ) );
+
+	public void setResidual(Cell c, UnmodifiableNumberMap<Service> res) {
+		res.copyInto(residual.get(c));
 	}
-	public void setDemand( Cell c, UnmodifiableNumberMap<Service> dem )
-	{
-		dem.copyInto( demand.get( c ) );
-		updateSupply( c );
+
+	public void setDemand(Cell c, UnmodifiableNumberMap<Service> dem) {
+		dem.copyInto(demand.get(c));
+		updateSupply(c);
 	}
-	
-	public void updateSupply( Cell c )
-	{
-		demand.get( c ).subtractInto( c.getSupply(), residual.get( c ) );
+
+	public void updateSupply(Cell c) {
+		demand.get(c).subtractInto(c.getSupply(), residual.get(c));
 	}
 
 	/**
 	 * Do nothing
 	 */
-	public void updateSupply() 
-	{ 
-		for( Cell c : region.getAllCells() ) updateSupply( c );
+	@Override
+	public void updateSupply() {
+		for (Cell c : region.getAllCells()) {
+			updateSupply(c);
+		}
 	}
 
-	public StaticPerCellDemandDisplay getDisplay() { return new StaticPerCellDemandDisplay( this ); }
+	@Override
+	public StaticPerCellDemandDisplay getDisplay() {
+		return new StaticPerCellDemandDisplay(this);
+	}
 }

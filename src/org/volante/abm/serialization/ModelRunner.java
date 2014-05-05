@@ -1,3 +1,24 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.serialization;
 
 import javax.swing.BoxLayout;
@@ -82,7 +103,7 @@ public class ModelRunner
 	
 	public static void noninteractiveRun( ScenarioLoader loader, int start, int end )
 	{
-		System.out.printf("Running from %d to %d\n", start, end );
+		logger.info(String.format("Running from %d to %d\n", start, end));
 		if (end != Integer.MIN_VALUE) {
 			if (start != Integer.MIN_VALUE) {
 				loader.schedule.runFromTo(start, end);
@@ -96,7 +117,7 @@ public class ModelRunner
 	
 	public static void interactiveRun( ScenarioLoader loader )
 	{
-		System.out.println("Setting up interactive run");
+		logger.info("Setting up interactive run");
 		ScheduleThread thread = new ScheduleThread( loader.schedule );
 		thread.start();
 		JFrame controls = new JFrame();

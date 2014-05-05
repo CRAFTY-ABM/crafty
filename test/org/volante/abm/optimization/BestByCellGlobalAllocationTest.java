@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Capital;
@@ -51,6 +52,11 @@ import com.google.common.collect.Multiset;
 public class BestByCellGlobalAllocationTest extends BasicTests
 {
 	 
+	/**
+	 * Logger
+	 */
+	static private Logger	logger			= Logger.getLogger(BestByCellGlobalAllocationTest.class);
+
 	//Order:
 	// HUMAN INFRASTRUCTURE ECONOMIC NATURAL_GRASSLAND NATURAL_FOREST NATURAL_CROPS NATURE_VALUE
 	double[] cropsOnly = { 1, 1, 1, 0, 0, 1, 0 };
@@ -156,23 +162,23 @@ public class BestByCellGlobalAllocationTest extends BasicTests
 		double initial = alloc.getCurrentFitness();
 		alloc.allocateLand( r );
 		double after = alloc.getCurrentFitness();
-		System.err.println("Before: " + initial + " -> After: " + after );
+		logger.error("Before: " + initial + " -> After: " + after);
 		assertTrue( "GA improves fitness...", after >= initial );
 		Multiset<PotentialAgent> randomSet = countAgents( r );
-		System.out.println( randomSet );
-		System.out.println("Demand: " + r.getDemandModel().getDemand().prettyPrint() );
-		System.out.println("Supply: " + r.getDemandModel().getSupply().prettyPrint() );
+		logger.info(randomSet);
+		logger.info("Demand: " + r.getDemandModel().getDemand().prettyPrint());
+		logger.info("Supply: " + r.getDemandModel().getSupply().prettyPrint());
 		
 		dem.setDemand( services(0, 0, 3*numX*numY, 0 ));
 		initial = alloc.getCurrentFitness();
 		alloc.allocateLand( r );
 		after = alloc.getCurrentFitness();
-		System.err.println("Before: " + initial + " -> After: " + after );
+		logger.error("Before: " + initial + " -> After: " + after);
 		assertTrue( "GA improves fitness...", after >= initial );
 		Multiset<PotentialAgent> foodSet = countAgents( r );
-		System.out.println( foodSet );
-		System.out.println("Demand: " + r.getDemandModel().getDemand().prettyPrint() );
-		System.out.println("Supply: " + r.getDemandModel().getSupply().prettyPrint() );
+		logger.info(foodSet);
+		logger.info("Demand: " + r.getDemandModel().getDemand().prettyPrint());
+		logger.info("Supply: " + r.getDemandModel().getSupply().prettyPrint());
 		assertTrue( "More farmers when there's high food demand (Should always work!)", foodSet.count( farm ) > randomSet.count( farm ));
 		assertTrue( "Less foresters when there's high food demand (Mostly works - stochastic)", foodSet.count( forest ) < randomSet.count( forest ));
 		assertTrue( "Less nature when there's high food demand (often fails - there's normally less nature to start with)", foodSet.count( nature ) < randomSet.count( nature ));

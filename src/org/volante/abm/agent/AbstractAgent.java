@@ -46,10 +46,10 @@ public abstract class AbstractAgent implements Agent {
 
 	int								age						= 0;
 	protected String				id						= "Default";
-	protected Region				region;
+	protected Region				region					= null;
 	protected Set<Cell>				cells					= new HashSet<Cell>();
 	Set<Cell>						uCells					= Collections.unmodifiableSet(cells);
-	protected DoubleMap<Service>	productivity;
+	protected DoubleMap<Service>	productivity			= null;
 	protected double				currentCompetitiveness	= 0;
 
 	/*
@@ -138,7 +138,7 @@ public abstract class AbstractAgent implements Agent {
 
 	/**
 	 * Uses the current level of production in each Cell to update competitiveness (hence
-	 * independant of the Agent)
+	 * independent of the Agent)
 	 */
 	@Override
 	public void updateCompetitiveness() {
@@ -148,5 +148,4 @@ public abstract class AbstractAgent implements Agent {
 		}
 		currentCompetitiveness = comp / cells.size();
 	}
-
 }

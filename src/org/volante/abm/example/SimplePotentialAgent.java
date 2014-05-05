@@ -22,6 +22,7 @@
  */
 package org.volante.abm.example;
 
+
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -38,8 +39,8 @@ import org.volante.abm.serialization.Initialisable;
 
 import com.moseph.modelutils.fastdata.DoubleMap;
 
-public class SimplePotentialAgent implements PotentialAgent, Initialisable
-{
+
+public class SimplePotentialAgent implements PotentialAgent, Initialisable {
 	@Element
 	protected ProductionModel	production	= new SimpleProductionModel();
 	@Attribute
@@ -50,63 +51,73 @@ public class SimplePotentialAgent implements PotentialAgent, Initialisable
 	protected String			id			= "PotentialAgent";
 	@Attribute
 	protected int				serialID	= UNKNOWN_SERIAL;
-	protected ModelData			data;
-	protected RunInfo			info;
-	
-	protected Logger log = Logger.getLogger( getClass() );
-	
-	public SimplePotentialAgent() {}
-	
-	public SimplePotentialAgent(String id, ModelData data, ProductionModel production, double givingUp, double givingIn )
-	{
+	protected ModelData			data		= null;
+	protected RunInfo			info		= null;
+
+	protected Logger			log			= Logger.getLogger(getClass());
+
+	public SimplePotentialAgent() {
+	}
+
+	public SimplePotentialAgent(String id, ModelData data, ProductionModel production,
+			double givingUp, double givingIn) {
 		this.id = id;
 		this.production = production;
 		this.givingUp = givingUp;
 		this.givingIn = givingIn;
 		this.data = data;
 	}
-	
 
 	@Override
-	public DoubleMap<Service> getPotentialSupply( Cell cell )
-	{
+	public DoubleMap<Service> getPotentialSupply(Cell cell) {
 		DoubleMap<Service> map = data.serviceMap();
-		production.production( cell, map );
+		production.production(cell, map);
 		return map;
 	}
 
 	@Override
-	public Agent createAgent( Region region, Cell... cells )
-	{
+	public Agent createAgent(Region region, Cell... cells) {
 		DefaultAgent da = new DefaultAgent(this, id, data, region,
 				production, givingUp, givingIn);
-		region.setOwnership( da, cells );
-		return da; 
+		region.setOwnership(da, cells);
+		return da;
 	}
 
 	@Override
-	public String getID() { return id; }
-	@Override
-	public int getSerialID() { return serialID; }
-	@Override
-	public double getGivingUp() { return givingUp; }
-	@Override
-	public double getGivingIn() { return givingIn; }
+	public String getID() {
+		return id;
+	}
 
 	@Override
-	public void initialise( ModelData data, RunInfo info, Region r ) throws Exception
-	{
+	public int getSerialID() {
+		return serialID;
+	}
+
+	@Override
+	public double getGivingUp() {
+		return givingUp;
+	}
+
+	@Override
+	public double getGivingIn() {
+		return givingIn;
+	}
+
+	@Override
+	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		this.data = data;
 		this.info = info;
-		production.initialise( data, info, r );
-		log.debug("Agent initialised: " + getID() );
+		production.initialise(data, info, r);
+		log.debug("Agent initialised: " + getID());
 		log.trace("Production: \n" + production);
 	}
-	
-	public ProductionModel getProduction() { return production; }
-	
-	//public String toString() { return String.format( "SA: %s (@%X)", id, hashCode() ); }
-	@Override
-	public String toString() { return String.format( "%s", id ); }
-}
 
+	public ProductionModel getProduction() {
+		return production;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s", id);
+	}
+}

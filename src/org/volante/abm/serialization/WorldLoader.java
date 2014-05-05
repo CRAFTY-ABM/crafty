@@ -95,7 +95,6 @@ public class WorldLoader {
 	{
 		RegionSet rs = new RegionSet();
 		for( RegionLoader rl : loaders ) {
-			// PACO check here for region's rank
 			rs.addRegion( loadRegion( rl ) );
 		}
 		return rs;

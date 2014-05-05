@@ -39,7 +39,7 @@ public abstract class RasterOutputter extends AbstractOutputter implements CellT
 	@Attribute(required = false)
 	String	doubleFormat	= "0.000";
 
-	DecimalFormat	doubleFmt;
+	DecimalFormat	doubleFmt		= null;
 
 	@Override
 	public void initialise() throws Exception {

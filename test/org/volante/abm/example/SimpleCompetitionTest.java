@@ -1,11 +1,30 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.example;
 
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.volante.abm.data.Service;
+import static org.junit.Assert.assertEquals;
 
-import com.moseph.modelutils.fastdata.*;
+import org.junit.Test;
 
 public class SimpleCompetitionTest extends BasicTests
 {
@@ -16,7 +35,7 @@ public class SimpleCompetitionTest extends BasicTests
 	{
 		//Competitiveness should be the dot product of services provided and the
 		//residual demand in a cell
-		SimpleCompetitivenessModel comp2 = persister.roundTripSerialise( comp );
+		persister.roundTripSerialise(comp);
 		demandR1.setResidual( c11, services( 0, 1, 2, 0 ));
 		assertEqualMaps( services( 0, 1, 2, 0 ), demandR1.getResidualDemand( c11 ) );
 		assertEquals( 10, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
