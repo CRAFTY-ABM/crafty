@@ -111,6 +111,8 @@ public class Region implements Regions {
 	public Region() {
 		PmParameterManager pm = PmParameterManager.getNewInstance(this);
 		pm.setDefaultPm(PmParameterManager.getInstance(null));
+		this.random = new RegionalRandom(this);
+		this.random.init();
 	}
 
 	public Region(AllocationModel allocation, CompetitivenessModel competition, DemandModel demand,
@@ -363,8 +365,8 @@ public class Region implements Regions {
 			if (demand != null) {
 				demand.agentChange(c); // could be null in initialisation
 			}
-			if (a.getCompetitiveness() < a.getGivingUp()) {
-				log.error(" Cell below new " + a.getID() + "'s GivingUp threshold: comp = "
+			if (log.isDebugEnabled() && a.getCompetitiveness() < a.getGivingUp()) {
+				log.debug(" Cell below new " + a.getID() + "'s GivingUp threshold: comp = "
 						+ a.getCompetitiveness() + " GU = " + a.getGivingUp());
 			}
 			log.trace(" owner is now " + a);
@@ -424,9 +426,17 @@ public class Region implements Regions {
 	/**
 	 * Called afeter all cells in the region have been created, to allow building a table of them
 	 */
-	public void cellsCreated() {
-		for (Cell c : cells) {
-			updateExtent(c);
+	public void cellsCreated()
+	{
+		log.info("Update Extent...");
+		for( Cell c : cells ) {
+			// <- LOGGING
+			if (log.isDebugEnabled()) {
+				log.error("Update extent by cell " + c);
+			}
+			// LOGGING ->
+
+			updateExtent( c );
 		}
 		cellTable = TreeBasedTable.create(); // Would rather use the ArrayTable below, but requires
 												// setting up ranges, and the code below doesn't

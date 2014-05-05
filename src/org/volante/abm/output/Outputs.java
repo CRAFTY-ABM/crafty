@@ -41,20 +41,25 @@ import org.volante.abm.serialization.Initialisable;
 /**
  * Manages creation of output of a variety of types.
  * 
- * Uses substitution patterns to do filenames. There is one pattern for: - outputDirectory - files
- * without time in their name (filePattern) - files with the year in their name (yearlyPattern) -
- * files with the day and year in their name (dailyPattern)
+ * Uses substitution patterns to do filenames. There is one pattern for:
+ * - outputDirectory
+ * - files without time in their name (filePattern)
+ * - files with the year in their name (yearlyPattern)
+ * - files with the day and year in their name (dailyPattern)
  * 
- * Substitutions are done with % signs, with each letter being a different variable: - %o = output
- * name - %s = scenario name - %i = run ID (i.e. number within a batch run, may be timestamp unless
- * otherwise set) - %u = timestamp (almost certainly unique) - %y = current tick/year - %r = current
- * region
+ * Substitutions are done with % signs, with each letter being a different
+ * variable:
+ * - %o = output name
+ * - %s = scenario name
+ * - %i = run ID (i.e. number within a batch run, may be timestamp unless otherwise set)
+ * - %u = timestamp (almost certainly unique)
+ * - %y = current tick/year
+ * - %r = current region
  * 
- * As an example, a file pattern of "%s-%o-%y" and an outputDirectory of "output/%s-%i" might create
- * a file: "output/A1-3/A1-parcels-2034.asc" (for a raster)
- * 
+ * As an example, a file pattern of "%s-%o-%y" and an outputDirectory of "output/%s-%i"
+ * might create a file: "output/A1-3/A1-parcels-2034.asc" (for a raster)
  * @author dmrust
- * 
+ *
  */
 public class Outputs implements Initialisable {
 	@Attribute(required = false, name = "outputDirectory")
@@ -109,6 +114,10 @@ public class Outputs implements Initialisable {
 					&& (this.runInfo.getSchedule().getCurrentTick() <= o.getEndYear())
 					&& (this.runInfo.getSchedule().getCurrentTick() - o.getStartYear())
 							% o.getEveryNYears() == 0) {
+				// <- LOGGING
+				log.info("Handle outputter " + o);
+				// LOGGING ->
+
 				o.doOutput(r);
 			}
 		}
@@ -158,11 +167,33 @@ public class Outputs implements Initialisable {
 		if (output != null) {
 			extra.put("o", output);
 		}
+		
+		// substitute sys vars:
+		int firstMarker = 0;
+		int secondMarker = -1;
+		while (firstMarker >= 0) {
+			firstMarker = outputDirectoryPattern.indexOf("$", secondMarker + 1);
+			secondMarker = outputDirectoryPattern.indexOf("$", firstMarker + 1);
 
-		String outputFile = runInfo.getPersister().ensureDirectoryExists(pattern,
-				outputDirectoryPattern, false, extra);
-		if (extension != null) {
-			if (extension.startsWith(".")) {
+			if (firstMarker >= 0) {
+				if (secondMarker < 0) {
+					throw new IllegalStateException(
+						"System Variables need to be surrounded by '$' ($VAR$)");
+				} else {
+					String sysvar = outputDirectoryPattern.substring(firstMarker + 1,
+							secondMarker);
+					String result = System.getenv(sysvar);
+					outputDirectoryPattern = outputDirectoryPattern.replace('$' + sysvar + '$',
+							result);
+				}
+			}
+		}
+		log.info("Final output directory: " + outputDirectoryPattern);
+
+		String outputFile = runInfo.getPersister().ensureDirectoryExists( pattern, outputDirectoryPattern, false, extra );
+		if( extension != null ) 
+		{
+			if( extension.startsWith( "." )) {
 				outputFile = outputFile + extension;
 			} else {
 				outputFile = outputFile + "." + extension;
