@@ -38,14 +38,16 @@ import org.volante.abm.schedule.ScheduleStatusListener;
 
 
 public class ScheduleControls extends JPanel implements ScheduleStatusListener {
-	JButton			step;
-	JButton			stepTillEnd;
-	JTextField		runUntil;
-	JButton			stop;
-	AbstractAction	stepAction;
-	AbstractAction	stepTillEndAction;
-	AbstractAction	stopNextTick;
-	Schedule		schedule;
+	private static final long	serialVersionUID	= 3122750609514377601L;
+
+	JButton						step				= null;
+	JButton						stepTillEnd			= null;
+	JTextField					runUntil			= null;
+	JButton						stop				= null;
+	AbstractAction				stepAction			= null;
+	AbstractAction				stepTillEndAction	= null;
+	AbstractAction				stopNextTick		= null;
+	Schedule					schedule			= null;
 
 	public ScheduleControls() {
 		stepAction = getAction("Step", new Runnable() {
@@ -97,6 +99,8 @@ public class ScheduleControls extends JPanel implements ScheduleStatusListener {
 
 	public AbstractAction getAction(String name, final Runnable run) {
 		return new AbstractAction(name) {
+			private static final long	serialVersionUID	= -2377276489333239452L;
+
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				SwingUtilities.invokeLater(run);

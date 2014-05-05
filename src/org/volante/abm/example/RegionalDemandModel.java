@@ -55,7 +55,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * 
  */
 public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction {
-	Region							region;
+	Region							region				= null;
 	@Attribute(required = false)
 	boolean							updateOnAgentChange	= true;
 	Map<Cell, DoubleMap<Service>>	supply				= new HashMap<Cell, DoubleMap<Service>>();
@@ -133,7 +133,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 
 	public void setDemand(UnmodifiableNumberMap<Service> dem) {
 		dem.copyInto(demand);
-		updateSupply();
+		recalculateResidual();
 	}
 
 	/**
@@ -195,7 +195,6 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 				((CurveCompetitivenessModel) comp).getCompetitveness(this, serv, true);
 			}
 			double score = comp.getCompetitveness(this, serv);
-			System.out.println("Serv: " + serv.prettyPrint() + " -> " + score);
 			utilities.put(s, score);
 		}
 		return utilities;

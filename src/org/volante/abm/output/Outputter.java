@@ -37,5 +37,4 @@ public interface Outputter
 	public int getEndYear();
 
 	public int getEveryNYears();
-
 }

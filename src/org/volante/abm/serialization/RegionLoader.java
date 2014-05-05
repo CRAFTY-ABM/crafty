@@ -71,15 +71,15 @@ public class RegionLoader {
 	@Element(required = false)
 	String							competitionFile			= "";
 	@Element(required = false)
-	CompetitivenessModel			competition;
+	CompetitivenessModel			competition				= null;
 
 	@Element(required = false)
-	AllocationModel					allocation;
+	AllocationModel					allocation				= null;
 	@Element(required = false)
 	String							allocationFile			= "";
 
 	@Element(required = false)
-	DemandModel						demand;
+	DemandModel						demand					= null;
 	@Element(required = false)
 	String							demandFile				= "";
 
@@ -114,10 +114,10 @@ public class RegionLoader {
 
 	Logger							log						= Logger.getLogger(getClass());
 
-	ABMPersister					persister;
-	ModelData						modelData;
+	ABMPersister					persister				= null;
+	ModelData						modelData				= null;
 	RunInfo							runInfo					= new RunInfo();
-	Region							region;
+	Region							region					= null;
 	Map<String, PotentialAgent>		agentsByID				= new LinkedHashMap<String, PotentialAgent>();
 	Map<Integer, PotentialAgent>	agentsBySerialID		= new LinkedHashMap<Integer, PotentialAgent>();
 	Table<Integer, Integer, Cell>	cellTable				= TreeBasedTable.create();

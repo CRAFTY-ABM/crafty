@@ -38,9 +38,9 @@ import de.cesr.uranus.core.UranusRandomService;
  */
 public class RegionalRandom {
 
-	UranusRandomService	rservice;
-	Region				r;
-	PmParameterManager	pm;
+	UranusRandomService	rservice	= null;
+	Region				r			= null;
+	PmParameterManager	pm			= null;
 
 	public RegionalRandom(Region r) {
 		this.r = r;

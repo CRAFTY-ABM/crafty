@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
  */
 package org.volante.abm.output;
+
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,144 +33,189 @@ import org.volante.abm.data.Regions;
 import org.volante.abm.data.Service;
 import org.volante.abm.schedule.RunInfo;
 
-public class CellTable extends TableOutputter<Cell>
-{
-	@Attribute(required=false)
-	boolean addTick = true;
-	@Attribute(required=false)
-	boolean addRegion = true;
-	@Attribute(required=false)
-	boolean addCellRegion = true;
-	@Attribute(required=false)
-	boolean addServices = true;
-	@Attribute(required=false)
-	boolean addCapitals = true;
-	@Attribute(required=false)
-	boolean addLandUse = true;
-	@Attribute(required=false)
-	boolean addLandUseIndex = true;
-	@Attribute(required=false)
-	boolean addAgent = true;
-	@Attribute(required=false)
-	boolean addXY = true;
-	@Attribute(required=false)
-	boolean addCompetitiveness = true;
-	
-	@Attribute(required=false)
-	String doubleFormat = "0.000";
-	
-	DecimalFormat doubleFmt;
-	
+
+public class CellTable extends TableOutputter<Cell> {
+	@Attribute(required = false)
+	boolean			addTick				= true;
+	@Attribute(required = false)
+	boolean			addRegion			= true;
+	@Attribute(required = false)
+	boolean			addCellRegion		= true;
+	@Attribute(required = false)
+	boolean			addServices			= true;
+	@Attribute(required = false)
+	boolean			addCapitals			= true;
+	@Attribute(required = false)
+	boolean			addLandUse			= true;
+	@Attribute(required = false)
+	boolean			addLandUseIndex		= true;
+	@Attribute(required = false)
+	boolean			addAgent			= true;
+	@Attribute(required = false)
+	boolean			addXY				= true;
+	@Attribute(required = false)
+	boolean			addCompetitiveness	= true;
+
+	@Attribute(required = false)
+	String			doubleFormat		= "0.000";
+
+	DecimalFormat	doubleFmt			= null;
+
 	@Override
-	public void setOutputManager(Outputs outputs)
-	{
-		super.setOutputManager( outputs );
+	public void setOutputManager(Outputs outputs) {
+		super.setOutputManager(outputs);
 
 		DecimalFormatSymbols decimalSymbols = new DecimalFormat()
 				.getDecimalFormatSymbols();
 		decimalSymbols.setDecimalSeparator('.');
 		doubleFmt = new DecimalFormat(doubleFormat, decimalSymbols);
 
-		if( addTick ) {
-			addColumn( new TickColumn<Cell>() );
+		if (addTick) {
+			addColumn(new TickColumn<Cell>());
 		}
-		if( addRegion ) {
-			addColumn( new RegionColumn<Cell>() );
+		if (addRegion) {
+			addColumn(new RegionsColumn<Cell>());
 		}
-		if( addCellRegion ) {
-			addColumn( new CellRegionColumn() );
+		if (addCellRegion) {
+			addColumn(new CellRegionColumn());
 		}
-		if( addXY )
-		{
-			addColumn( new CellXColumn());
-			addColumn( new CellYColumn());
+		if (addXY) {
+			addColumn(new CellXColumn());
+			addColumn(new CellYColumn());
 		}
-		if( addServices ) {
-			for( Service s : outputs.modelData.services ) {
-				addColumn( new CellServiceColumn( s ));
+		if (addServices) {
+			for (Service s : outputs.modelData.services) {
+				addColumn(new CellServiceColumn(s));
 			}
 		}
-		if( addCapitals ) {
-			for( Capital s : outputs.modelData.capitals ) {
-				addColumn( new CellCapitalColumn( s ));
+		if (addCapitals) {
+			for (Capital s : outputs.modelData.capitals) {
+				addColumn(new CellCapitalColumn(s));
 			}
 		}
-		if( addAgent ) {
-			addColumn( new CellAgentColumn());
+		if (addAgent) {
+			addColumn(new CellAgentColumn());
 		}
-		if( addCompetitiveness ) {
-			addColumn( new CellCompetitivenessColumn() );
+		if (addCompetitiveness) {
+			addColumn(new CellCompetitivenessColumn());
 		}
 	}
 
 	@Override
-	public Iterable<Cell> getData( Regions r ) { return r.getAllCells(); }
-	@Override
-	public String getDefaultOutputName() { return "Cell"; }
+	public Iterable<Cell> getData(Regions r) {
+		return r.getAllCells();
+	}
 
-	public static class CellXColumn implements TableColumn<Cell>
-	{
-		@Override
-		public String getHeader() { return "X"; }
-		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) { return t.getX()+""; }
+	@Override
+	public String getDefaultOutputName() {
+		return "Cell";
 	}
-	public static class CellYColumn implements TableColumn<Cell>
-	{
+
+	public static class CellXColumn implements TableColumn<Cell> {
 		@Override
-		public String getHeader() { return "Y"; }
+		public String getHeader() {
+			return "X";
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) { return t.getY()+""; }
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return t.getX() + "";
+		}
 	}
-	public static class CellRegionColumn implements TableColumn<Cell>
-	{
+
+	public static class CellYColumn implements TableColumn<Cell> {
 		@Override
-		public String getHeader() { return "CellRegion"; }
+		public String getHeader() {
+			return "Y";
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) { return t.getRegionID(); }
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return t.getY() + "";
+		}
 	}
-	public static class CellLandUseColumn implements TableColumn<Cell>
-	{
+
+	public static class CellRegionColumn implements TableColumn<Cell> {
 		@Override
-		public String getHeader() { return "LandUse"; }
+		public String getHeader() {
+			return "CellRegion";
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) { return "Not implemented"; }
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return t.getRegionID();
+		}
 	}
-	public static class CellAgentColumn implements TableColumn<Cell>
-	{
+
+	public static class CellLandUseColumn implements TableColumn<Cell> {
 		@Override
-		public String getHeader() { return "Agent"; }
+		public String getHeader() {
+			return "LandUse";
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) { return t.getOwnerID(); }
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return "Not implemented";
+		}
 	}
-	public class CellServiceColumn implements TableColumn<Cell>
-	{
-		Service service;
-		public CellServiceColumn( Service s ) { this.service = s; }
+
+	public static class CellAgentColumn implements TableColumn<Cell> {
 		@Override
-		public String getHeader() { return "Service:"+service.getName(); }
+		public String getHeader() {
+			return "Agent";
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) 
-			{ return doubleFmt.format( t.getSupply().getDouble( service ) );}
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return t.getOwnerID();
+		}
 	}
-	
-	public class CellCapitalColumn implements TableColumn<Cell>
-	{
-		Capital capital;
-		public CellCapitalColumn( Capital s ) { this.capital = s; }
+
+	public class CellServiceColumn implements TableColumn<Cell> {
+		Service	service;
+
+		public CellServiceColumn(Service s) {
+			this.service = s;
+		}
+
 		@Override
-		public String getHeader() { return "Capital:"+capital.getName(); }
+		public String getHeader() {
+			return "Service:" + service.getName();
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) 
-			{ return doubleFmt.format( t.getEffectiveCapitals().getDouble( capital ) );}
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return doubleFmt.format(t.getSupply().getDouble(service));
+		}
 	}
-	
-	public class CellCompetitivenessColumn implements TableColumn<Cell>
-	{
+
+	public class CellCapitalColumn implements TableColumn<Cell> {
+		Capital	capital;
+
+		public CellCapitalColumn(Capital s) {
+			this.capital = s;
+		}
+
 		@Override
-		public String getHeader() { return "Competitiveness"; }
+		public String getHeader() {
+			return "Capital:" + capital.getName();
+		}
+
 		@Override
-		public String getValue( Cell t, ModelData data, RunInfo info, Regions r ) 
-			{ return doubleFmt.format( t.getOwner().getCompetitiveness() ); }
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return doubleFmt.format(t.getEffectiveCapitals().getDouble(capital));
+		}
+	}
+
+	public class CellCompetitivenessColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "Competitiveness";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return doubleFmt.format(t.getOwner().getCompetitiveness());
+		}
 	}
 }

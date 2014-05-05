@@ -41,9 +41,9 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 @Root
 public class Institutions implements Institution, PreTickAction {
 	Set<Institution> institutions = new HashSet<Institution>();
-	Region region;
-	ModelData data;
-	RunInfo info;
+	Region				region			= null;
+	ModelData			data			= null;
+	RunInfo				info			= null;
 	Logger log = Logger.getLogger(getClass());
 
 	public void addInstitution(Institution i) {
@@ -75,11 +75,12 @@ public class Institutions implements Institution, PreTickAction {
 	@Override
 	public double adjustCompetitiveness(PotentialAgent agent, Cell location,
 			UnmodifiableNumberMap<Service> provision, double competitiveness) {
+		double result = competitiveness;
 		for (Institution i : institutions) {
-			competitiveness = i.adjustCompetitiveness(agent, location,
-					provision, competitiveness);
+			result = i.adjustCompetitiveness(agent, location,
+					provision, result);
 		}
-		return competitiveness;
+		return result;
 	}
 
 	@Override

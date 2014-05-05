@@ -65,7 +65,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel {
 	@Attribute(required = false)
 	public int	probabilityExponent	= 2;
 	Cell		perfectCell			= new Cell();
-	ModelData	data;
+	ModelData	data				= null;
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {

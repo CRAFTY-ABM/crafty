@@ -17,8 +17,8 @@ public class SimpleAllocationTest extends BasicTests
 	public void testSimpleAllocation() throws Exception
 	{
 		log.info("Test simple Allocation...");
-		System.out.println(r1.getPotentialAgents());
-		System.out.println(r2.getPotentialAgents());
+		log.info(r1.getPotentialAgents());
+		log.info(r2.getPotentialAgents());
 		assertEquals( potentialAgents, r1.getPotentialAgents() );
 		allocation = persister.roundTripSerialise( allocation );
 		r1.setAvailable( c11 );

@@ -64,7 +64,7 @@ public class ScenarioLoader {
 	ModelData modelData = new ModelData();
 	RunInfo info = new RunInfo();
 	RegionSet regions = new RegionSet();
-	ABMPersister persister;
+	ABMPersister			persister		= null;
 
 	/**
 	 * Scenario name (default: "Unknown")
@@ -100,13 +100,13 @@ public class ScenarioLoader {
 	Schedule schedule = new DefaultSchedule();
 
 	@Element(name = "capitals", required = false)
-	DataTypeLoader<Capital> capitals;
+	DataTypeLoader<Capital>	capitals		= null;
 
 	@Element(name = "services", required = false)
-	DataTypeLoader<Service> services;
+	DataTypeLoader<Service>	services		= null;
 
 	@Element(name = "landUses", required = false)
-	DataTypeLoader<LandUse> landUses;
+	DataTypeLoader<LandUse>	landUses		= null;
 
 	@Attribute(required = false)
 	boolean useInstitutions = false;

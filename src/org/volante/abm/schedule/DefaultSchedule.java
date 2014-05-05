@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
  */
 package org.volante.abm.schedule;
 
@@ -38,16 +37,16 @@ import org.volante.abm.schedule.ScheduleStatusEvent.ScheduleStage;
 
 public class DefaultSchedule implements Schedule {
 	Logger							log				= Logger.getLogger(this.getClass());
-	RegionSet						regions;
+	RegionSet						regions			= null;
 	int								tick			= 0;
-	int								targetTick;
-	int								endTick;
+	int								targetTick		= 0;
+	int								endTick			= Integer.MAX_VALUE;
 
 	List<PreTickAction>				preTickActions	= new ArrayList<PreTickAction>();
 	List<PostTickAction>			postTickActions	= new ArrayList<PostTickAction>();
 
 	Outputs							output			= new Outputs();
-	private RunInfo					info;
+	private RunInfo					info			= null;
 
 	List<ScheduleStatusListener>	listeners		= new ArrayList<ScheduleStatusListener>();
 
@@ -123,7 +122,6 @@ public class DefaultSchedule implements Schedule {
 			a.updateCompetitiveness();
 			a.tickEndUpdate();
 		}
-
 
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.POST_TICK, true));
 		postTickUpdates();

@@ -23,6 +23,7 @@
  */
 package org.volante.abm.visualisation;
 
+
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ import org.volante.abm.schedule.RunInfo;
 
 /**
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class DefaultModelDisplays extends ModelDisplays {
 
@@ -48,45 +49,41 @@ public class DefaultModelDisplays extends ModelDisplays {
 	 */
 	private static final long	serialVersionUID	= 6914665248590637679L;
 
-	@ElementList(inline=true,entry="display",required=false)
-	List<Display> displays = new ArrayList<Display>();
-	JFrame frame = new JFrame("Model Displays");
-	Logger log = Logger.getLogger( getClass() );
-	JTabbedPane					tabbedPane;
-	
-	public DefaultModelDisplays()
-	{
+	@ElementList(inline = true, entry = "display", required = false)
+	List<Display>				displays			= new ArrayList<Display>();
+	JFrame						frame				= new JFrame("Model Displays");
+	Logger						log					= Logger.getLogger(getClass());
+	JTabbedPane					tabbedPane			= null;
+
+	public DefaultModelDisplays() {
 		this.tabbedPane = new JTabbedPane();
 		frame.add(this.tabbedPane);
-		frame.setSize( new Dimension(800,1200) );
+		frame.setSize(new Dimension(800, 1200));
 	}
 
 	@Override
-	public void initialise( ModelData data, RunInfo info, Regions extent ) throws Exception
-	{
+	public void initialise(ModelData data, RunInfo info, Regions extent) throws Exception {
 		log.info("Initialising displays: " + extent.getExtent());
-		for( Display d : displays )
-		{
-			d.initialise( data, info, extent );
-			info.getSchedule().register( d );
+		for (Display d : displays) {
+			d.initialise(data, info, extent);
+			info.getSchedule().register(d);
 			this.tabbedPane.addTab(d.getTitle(), d.getDisplay());
 		}
-		if( displays.size() > 0 ) {
-			frame.setVisible( true );
+		if (displays.size() > 0) {
+			frame.setVisible(true);
 		}
-		for( Display d : displays ) {
-			registerDisplay( d );
+		for (Display d : displays) {
+			registerDisplay(d);
 		}
 	}
-	
+
 	@Override
-	public void registerDisplay( Display d )
-	{
-		for( Display o : displays ) {
-			if( o != d ) {
-				d.addCellListener( o );
+	public void registerDisplay(Display d) {
+		for (Display o : displays) {
+			if (o != d) {
+				d.addCellListener(o);
 			}
 		}
-		d.setModelDisplays( this );
+		d.setModelDisplays(this);
 	}
 }

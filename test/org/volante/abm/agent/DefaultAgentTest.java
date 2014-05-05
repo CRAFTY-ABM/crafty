@@ -1,14 +1,24 @@
 package org.volante.abm.agent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.*;
+import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.volante.abm.data.Region;
 import org.volante.abm.example.BasicTests;
 import org.volante.abm.schedule.Schedule;
 
 public class DefaultAgentTest extends BasicTests
 {
+
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(DefaultAgentTest.class);
+
 	DefaultAgent farmer = (DefaultAgent) farming.createAgent( r1, c11 );
 	@Before
 	public void setupAgent()
@@ -78,7 +88,9 @@ public class DefaultAgentTest extends BasicTests
 		r.setOwnership( farmer, c11 );
 		farmer.setGivingUp(-5); //Make sure he doesn't give up!
 		farmer.setAge( 20 );
-		for( Agent a : r.getAllAgents() ) System.out.println("Agent: " + a );
+		for (Agent a : r.getAllAgents()) {
+			logger.info("Agent: " + a );
+		}
 		
 		Schedule s = runInfo.getSchedule();
 		assertEquals( 20, farmer.getAge() );

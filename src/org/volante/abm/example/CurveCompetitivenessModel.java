@@ -90,9 +90,9 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	Map<Service, Curve>	curves				= new LinkedHashMap<Service, Curve>();
 
 	Logger				log					= Logger.getLogger(getClass());
-	ModelData			data;
-	RunInfo				info;
-	Region				region;
+	ModelData			data				= null;
+	RunInfo				info				= null;
+	Region				region				= null;
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
@@ -159,7 +159,9 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 		for (Service s : supply.getKeySet()) {
 			Curve c = curves.get(s); /* Gets the curve parameters for this service */
 			if (c == null) {
-				log.fatal("Missing curve for: " + s.getName() + " got: " + curves.keySet());
+				String message = "Missing curve for: " + s.getName() + " got: " + curves.keySet();
+				log.fatal(message);
+				throw new IllegalStateException(message);
 			}
 			double res = residualDemand.getDouble(s);
 			double marginal = c.sample(res); /*

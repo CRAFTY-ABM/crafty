@@ -1,27 +1,58 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.visualisation;
 
-import java.awt.*;
+import java.awt.Dimension;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
-import org.volante.abm.data.*;
-import org.volante.abm.example.*;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Regions;
+import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.schedule.RunInfo;
 
 public class RegionalDisplay extends AbstractDisplay
 {
-	Region current;
-	Regions regions;
+	private static final long	serialVersionUID	= -4302068451677804813L;
+
+	Region						current				= null;
+	Regions						regions				= null;
 	
-	ModelData data;
-	RunInfo info;
+	ModelData					data				= null;
+	RunInfo						info				= null;
 	
 	DoubleMapDisplay supply = new DoubleMapTextDisplay();
 	DoubleMapDisplay demand = new DoubleMapTextDisplay();
 	DoubleMapDisplay residual = new DoubleMapTextDisplay();
 
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Regions region ) throws Exception
 	{
 		this.data = data;
@@ -31,6 +62,7 @@ public class RegionalDisplay extends AbstractDisplay
 		setupDisplay();
 	}
 	
+	@Override
 	public void update() { setRegion( current ); }
 	
 	public void setRegion( Region r )
@@ -66,6 +98,7 @@ public class RegionalDisplay extends AbstractDisplay
 		setBorder(new TitledBorder( "Main" ));
 	}
 	
+	@Override
 	public JComponent getMainPanel()
 	{
 		JScrollPane pane = new JScrollPane( this );
@@ -77,11 +110,11 @@ public class RegionalDisplay extends AbstractDisplay
 		BasicTests bt = new BasicTests();
 		Region r = bt.r1;
 		RegionalDemandModel dem = new RegionalDemandModel();
-		r.setDemandModel( dem );
-		r.initialise( bt.modelData, bt.runInfo, r );
+		r.setDemandModel(dem);
+		r.initialise(BasicTests.modelData, BasicTests.runInfo, r);
 		RegionalDisplay rd = new RegionalDisplay();
-		rd.initialise( bt.modelData, bt.runInfo, r );
-		rd.setRegion( r );
+		rd.initialise(BasicTests.modelData, BasicTests.runInfo, r);
+		rd.setRegion(r);
 		
 		JFrame frame = new JFrame("Regional Display Test");
 		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );

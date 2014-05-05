@@ -1,19 +1,25 @@
 package org.volante.abm.update;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.volante.abm.data.*;
-import org.volante.abm.example.*;
-import org.volante.abm.serialization.ABMPersister;
-import org.volante.abm.update.CSVCapitalUpdater;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.Region;
+import org.volante.abm.example.BasicTests;
 
 import com.csvreader.CsvReader;
 
 public class CSVCapitalUpdaterTest extends BasicTests
 {
+
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(CSVCapitalUpdaterTest.class);
 
 	@Test
 	public void testGeneralOperation() throws Exception
@@ -68,7 +74,8 @@ public class CSVCapitalUpdaterTest extends BasicTests
 					double exp = Double.parseDouble( target.get(c.getName() ));
 					double got = cell.getEffectiveCapitals().getDouble( c );
 					assertEquals( "Capital " + c.getName(), exp, got, 0.00001 );
-					System.out.println("Got: " + got + ", Exp: " + exp + " for " + c.getName() + " on " + cell );
+					logger.info("Got: " + got + ", Exp: " + exp + " for " + c.getName() + " on "
+							+ cell);
 				}
 			}
 		}

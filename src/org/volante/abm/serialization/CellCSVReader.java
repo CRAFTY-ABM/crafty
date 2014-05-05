@@ -41,7 +41,7 @@ import com.csvreader.CsvReader;
 public class CellCSVReader implements CellInitialiser
 {
 	@Attribute
-	String csvFile;
+	String	csvFile		= "";
 	@Attribute(required=false)
 	String agentColumn = "Agent";
 	@Attribute(required=false)

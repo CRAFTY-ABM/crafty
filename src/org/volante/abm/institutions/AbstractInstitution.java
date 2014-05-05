@@ -1,10 +1,34 @@
+/**
+ * This file is part of
+ * 
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ * 
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software 
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *  
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ */
 package org.volante.abm.institutions;
 
-import org.volante.abm.agent.*;
-import org.volante.abm.data.*;
+import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Service;
 import org.volante.abm.schedule.RunInfo;
 
-import com.moseph.modelutils.fastdata.*;
+import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 /**
  * AbstractInstitution - provides null implementations of all methods to provide a base for creating
@@ -14,24 +38,28 @@ import com.moseph.modelutils.fastdata.*;
  */
 public class AbstractInstitution implements Institution
 {
-	ModelData data;
-	RunInfo info;
-	Region region;
+	ModelData	data	= null;
+	RunInfo		info	= null;
+	Region		region	= null;
 
+	@Override
 	public void adjustCapitals( Cell c )
 	{}
 
+	@Override
 	public double adjustCompetitiveness( PotentialAgent agent, Cell location, UnmodifiableNumberMap<Service> provision, double competitiveness )
 	{ return competitiveness; }
 
+	@Override
 	public boolean isAllowed( PotentialAgent agent, Cell location ) { return true; }
+	@Override
 	public void update() {}
 
+	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
 		this.data = data;
 		this.info = info;
 		this.region = extent;
 	}
-
 }

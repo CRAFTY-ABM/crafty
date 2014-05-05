@@ -1,25 +1,40 @@
 package org.volante.abm.institution;
 
 import static java.lang.Math.abs;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Arrays;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.volante.abm.agent.*;
-import org.volante.abm.data.*;
-import org.volante.abm.example.*;
-import org.volante.abm.institutions.*;
+import org.volante.abm.agent.DefaultAgent;
+import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.data.Capital;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.Region;
+import org.volante.abm.data.Service;
+import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.RegionalDemandModel;
+import org.volante.abm.institutions.DefaultInstitution;
+import org.volante.abm.institutions.Institutions;
 
-import com.moseph.modelutils.fastdata.*;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 public class InstitutionsTest extends BasicTests
 {
 
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(InstitutionsTest.class);
+
 	@Test
 	public void testBasicIntegration() throws Exception
 	{
+		logger.info("Test basic integration of institutions");
+
 		DefaultInstitution a = getTestInstitution( 1, 1 );
 		c11 = new Cell( 1, 1 );
 		c12 = new Cell( 1, 2 );
@@ -192,55 +207,30 @@ public class InstitutionsTest extends BasicTests
 	}
 
 	/*
-	class TestInstitution extends AbstractInstitution
-	{
-		double capAdjust = 0.1;
-		double compAdjust = 0.1;
-		Map<PotentialAgent, Double> perAgentAdjust = new HashMap<PotentialAgent, Double>();
-		DoubleMap<Service> subsidies = services( 0, 0, 0, 0 );
-		public TestInstitution( double cap, double comp )
-		{
-			this.capAdjust = cap;
-			this.compAdjust = comp;
-		}
-		
-		public TestInstitution( double cap, double comp, Map<PotentialAgent,Double> perAgent )
-		{
-			this( cap, comp );
-			perAgentAdjust.putAll( perAgent );
-		}
-		public void adjustCapitals( Cell c )
-		{
-			DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals();
-			for( Capital cap : adjusted.getKeys() ) adjusted.add( cap, capAdjust );
-			System.out.println("Adjusting capitals. \n\t" + c.getBaseCapitals().prettyPrint() + " \n=>\t" + adjusted.prettyPrint() );
-		}
-
-		public double adjustCompetitiveness( PotentialAgent agent, Cell location, UnmodifiableNumberMap<Service> provision, double competitiveness )
-		{
-			double subsidy = provision.dotProduct( subsidies );
-			competitiveness += subsidy;
-			if( perAgentAdjust.containsKey( agent ) )
-				return competitiveness + perAgentAdjust.get( agent );
-			return competitiveness + compAdjust; 
-		}
-		
-		public void setBonus( PotentialAgent a, double l )
-		{
-			perAgentAdjust.put( a, l );
-		}
-		
-		public void setSubsidy( Service s, double level )
-		{
-			subsidies.put( s, level );
-		}
-		
-		public void setSubsidies( DoubleMap<Service> levels )
-		{
-			subsidies.copyFrom( levels );
-		}
-		
-		
-	};
-	*/
+	 * class TestInstitution extends AbstractInstitution { double capAdjust = 0.1; double compAdjust
+	 * = 0.1; Map<PotentialAgent, Double> perAgentAdjust = new HashMap<PotentialAgent, Double>();
+	 * DoubleMap<Service> subsidies = services( 0, 0, 0, 0 ); public TestInstitution( double cap,
+	 * double comp ) { this.capAdjust = cap; this.compAdjust = comp; }
+	 * 
+	 * public TestInstitution( double cap, double comp, Map<PotentialAgent,Double> perAgent ) {
+	 * this( cap, comp ); perAgentAdjust.putAll( perAgent ); } public void adjustCapitals( Cell c )
+	 * { DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals(); for( Capital cap :
+	 * adjusted.getKeys() ) adjusted.add( cap, capAdjust ); logger.info("Adjusting capitals. \n\t" +
+	 * c.getBaseCapitals().prettyPrint() + " \n=>\t" + adjusted.prettyPrint() ); }
+	 * 
+	 * public double adjustCompetitiveness( PotentialAgent agent, Cell location,
+	 * UnmodifiableNumberMap<Service> provision, double competitiveness ) { double subsidy =
+	 * provision.dotProduct( subsidies ); competitiveness += subsidy; if(
+	 * perAgentAdjust.containsKey( agent ) ) return competitiveness + perAgentAdjust.get( agent );
+	 * return competitiveness + compAdjust; }
+	 * 
+	 * public void setBonus( PotentialAgent a, double l ) { perAgentAdjust.put( a, l ); }
+	 * 
+	 * public void setSubsidy( Service s, double level ) { subsidies.put( s, level ); }
+	 * 
+	 * public void setSubsidies( DoubleMap<Service> levels ) { subsidies.copyFrom( levels ); }
+	 * 
+	 * 
+	 * };
+	 */
 }
