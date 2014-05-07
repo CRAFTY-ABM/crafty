@@ -38,7 +38,8 @@ public class ScheduleStatusEvent {
 		PRE_TICK,
 		MAIN_LOOP,
 		POST_TICK,
-		PAUSED;
+		PAUSED,
+		FINISHING;
 	}
 
 	public boolean isRunning() {

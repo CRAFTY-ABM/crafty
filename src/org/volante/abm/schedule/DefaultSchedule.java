@@ -135,6 +135,7 @@ public class DefaultSchedule implements Schedule {
 	@Override
 	public void finish() {
 		output.finished();
+		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.FINISHING, true));
 	}
 
 	/*
@@ -221,7 +222,7 @@ public class DefaultSchedule implements Schedule {
 	}
 
 	@Override
-	public void register(Object o) {
+	public void register(TickAction o) {
 		if (o instanceof PreTickAction && !preTickActions.contains(o)) {
 			preTickActions.add((PreTickAction) o);
 		}
