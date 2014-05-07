@@ -15,5 +15,10 @@
 	<classpathentry kind="lib" path="lib/Uranus.jar"/>
 	<classpathentry kind="lib" path="lib/colt-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/mpi.jar"/>
+		<classpathentry kind="lib" path="lib/JRI.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/holzhauer/Documents/R/win-library/3.01/rJava/jri/x64"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

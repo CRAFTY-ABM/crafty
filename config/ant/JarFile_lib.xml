@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="CRAFTY-P-Jar-Creation">
 	
-	<property name="dir_target" value="${basedir}/../../../../../mercurial/crafty/CraftyParallel/lib" />
+	<property name="dir_target" value="${basedir}/../../lib" />
 	<property file="../../project.properties"/>
 	
 	<tstamp>

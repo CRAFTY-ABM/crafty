@@ -44,7 +44,7 @@ public abstract class AbstractOutputter implements Outputter {
 	@Attribute(required = false)
 	protected int			startYear	= 1;
 	@Attribute(required = false)
-	protected int			endYear		= 2147483647;
+	protected int			endYear		= Integer.MAX_VALUE;
 	protected RunInfo		runInfo		= null;
 	protected ModelData		modelData	= null;
 	protected ABMPersister	persister	= null;

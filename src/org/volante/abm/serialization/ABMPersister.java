@@ -23,7 +23,13 @@
 package org.volante.abm.serialization;
 
 
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
@@ -31,8 +37,10 @@ import org.volante.abm.data.Regions;
 import org.volante.abm.output.PRasterWriter;
 import org.volante.abm.schedule.RunInfo;
 
+import com.csvreader.CsvReader;
 import com.moseph.gis.raster.Raster;
 import com.moseph.gis.raster.RasterWriter;
+import com.moseph.modelutils.curve.LinearInterpolator;
 import com.moseph.modelutils.serialisation.EasyPersister;
 
 
@@ -47,6 +55,8 @@ import com.moseph.modelutils.serialisation.EasyPersister;
  */
 public class ABMPersister extends EasyPersister {
 	static ABMPersister	instance	= null;
+
+	RunInfo				rInfo		= null;
 
 	public static ABMPersister getInstance() {
 		if (instance == null) {
@@ -83,5 +93,38 @@ public class ABMPersister extends EasyPersister {
 	}
 
 	public void setRunInfo(RunInfo info) {
+		this.rInfo = info;
+	}
+
+	@Override
+	public Map<String, LinearInterpolator> csvVerticalToCurves(String csvFile, String xCol,
+			Collection<String> columns) throws IOException {
+		// TODO check if LinkedHashMap required
+		Map<String, LinearInterpolator> map = new LinkedHashMap<String, LinearInterpolator>();
+		CsvReader reader = getCSVReader(csvFile);
+
+		String xColHeader = xCol;
+		Collection<String> columHeader = columns;
+
+		if (xColHeader == null) {
+			xColHeader = reader.getHeaders()[0];
+		}
+
+		if (columHeader == null || columHeader.size() == 0) {
+			columHeader = new ArrayList<String>(Arrays.asList(reader.getHeaders()));
+		}
+		columHeader.remove(xCol);
+
+		for (String s : columHeader) {
+			map.put(s, new LinearInterpolator());
+		}
+
+		while (reader.readRecord() && reader.get(xColHeader).length() > 0) {
+			double year = Double.parseDouble(reader.get(xColHeader));
+			for (String s : columHeader) {
+				map.get(s).addPoint(year, BatchRunParser.parseDouble(reader.get(s), rInfo));
+			}
+		}
+		return map;
 	}
 }

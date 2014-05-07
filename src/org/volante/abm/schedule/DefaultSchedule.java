@@ -161,6 +161,7 @@ public class DefaultSchedule implements WorldSyncSchedule {
 	@Override
 	public void finish() {
 		output.finished();
+		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.FINISHING, true));
 		try {
 			MPI.Finalize();
 		} catch (MPIException exception) {
@@ -253,7 +254,7 @@ public class DefaultSchedule implements WorldSyncSchedule {
 	}
 
 	@Override
-	public void register(Object o) {
+	public void register(TickAction o) {
 		if (o instanceof PreTickAction && !preTickActions.contains(o)) {
 			preTickActions.add((PreTickAction) o);
 		}

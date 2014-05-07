@@ -32,10 +32,9 @@ import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.volante.abm.data.ModelData;
-import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
-import org.volante.abm.serialization.Initialisable;
+import org.volante.abm.serialization.GloballyInitialisable;
 
 
 /**
@@ -61,7 +60,7 @@ import org.volante.abm.serialization.Initialisable;
  * @author dmrust
  *
  */
-public class Outputs implements Initialisable {
+public class Outputs implements GloballyInitialisable {
 	@Attribute(required = false, name = "outputDirectory")
 	String					outputDirectoryPattern	= "output";
 	@Attribute(required = false)
@@ -80,7 +79,7 @@ public class Outputs implements Initialisable {
 	List<CloseableOutput>	outputsToClose			= new ArrayList<CloseableOutput>();
 
 	@Override
-	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
+	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
 		runInfo = info;
 		modelData = data;
 		// Setup timestamp for output
@@ -97,8 +96,8 @@ public class Outputs implements Initialisable {
 		for (Outputter o : outputs) {
 			log.info("Loading Output: " + o.getClass());
 			o.setOutputManager(this);
-			if (o instanceof Initialisable) {
-				((Initialisable) o).initialise(data, info, extent);
+			if (o instanceof GloballyInitialisable) {
+				((GloballyInitialisable) o).initialise(data, info, regions);
 			} else {
 				o.initialise(); // Outputs do their own scheduling in initialise();
 			}

@@ -22,11 +22,12 @@
  */
 package org.volante.abm.schedule;
 
+
 import org.volante.abm.data.RegionSet;
 import org.volante.abm.serialization.Initialisable;
 
-public interface Schedule extends Initialisable
-{
+
+public interface Schedule extends Initialisable {
 	/**
 	 * Runs the simulation a single tick.
 	 */
@@ -44,21 +45,23 @@ public interface Schedule extends Initialisable
 	 * @return
 	 */
 	public int getCurrentTick();
-	
+
 	/**
-	 * Registers the object in case any actions are going to be called on it
-	 * e.g. before/after ticks.
+	 * Registers the object in case any actions are going to be called on it e.g. before/after
+	 * ticks.
+	 * 
 	 * @param o
 	 */
-	public void register( Object o );
-	public void setRegions( RegionSet set );
-	
+	public void register(TickAction o);
+
+	public void setRegions(RegionSet set);
+
 	/**
 	 * Sets the simulation's start tick.
 	 * 
 	 * @param start
 	 */
-	public void setStartTick( int start );
+	public void setStartTick(int start);
 
 	/**
 	 * Sets and (intermediate) target tick.
@@ -72,7 +75,7 @@ public interface Schedule extends Initialisable
 	 * 
 	 * @param end
 	 */
-	public void setEndTick( int end );
+	public void setEndTick(int end);
 
 	public int getEndTick();
 
@@ -86,7 +89,7 @@ public interface Schedule extends Initialisable
 	 * 
 	 * @param end
 	 */
-	public void runUntil( int end );
+	public void runUntil(int end);
 
 	/**
 	 * Runs the simulation from given start to end tick. Overwrites previously set values for start
@@ -95,9 +98,9 @@ public interface Schedule extends Initialisable
 	 * @param start
 	 * @param end
 	 */
-	public void runFromTo( int start, int end );
+	public void runFromTo(int start, int end);
 
 	public void finish();
-	
-	public void addStatusListener( ScheduleStatusListener l );
+
+	public void addStatusListener(ScheduleStatusListener l);
 }

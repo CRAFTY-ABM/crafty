@@ -74,31 +74,48 @@ public class ModelRunner
 		int end = cmd.hasOption("e") ? Integer.parseInt(cmd.getOptionValue('e'))
 				: Integer.MIN_VALUE;
 
-		int numRuns = cmd.hasOption("r") ? Integer.parseInt(cmd.getOptionValue('r')) : 1;
+		int numRuns = cmd.hasOption("n") ? Integer.parseInt(cmd.getOptionValue('n')) : 1;
+		int startRun = cmd.hasOption("sr") ? Integer.parseInt(cmd.getOptionValue("sr")) : 0;
+
+		int numOfRandVariation = cmd.hasOption("r") ? Integer.parseInt(cmd.getOptionValue('r')) : 1;
 
 		logger.info(String.format("File: %s, Dir: %s, Start: %s, End: %s\n", filename, directory,
 				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start),
 				(end == Integer.MIN_VALUE ? "<ScenarioFile>" : end)));
 
-		for( int i = 0; i < numRuns; i++ )
-		{
-			int randomSeed = cmd.hasOption('o') ? (i + Integer.parseInt(cmd.getOptionValue('o')))
-					: (int) System
-					.currentTimeMillis();
-			PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
-
-			//Worry about random seeds here...
-			doRun(filename, directory, start, end, randomSeed, interactive);
-		}
 		if( end > start ) {
+			logger.error("End tick must not be larger than start tick!");
 			System.exit(0);
+		}
+
+		if (startRun > numRuns) {
+			logger.error("StartRun must not be larger than number of runs!");
+			System.exit(0);
+		}
+
+		for (int i = startRun; i < numRuns; i++) {
+			for (int j = 0; j < numOfRandVariation; j++) {
+				int randomSeed = cmd.hasOption('o') ? (j + Integer
+						.parseInt(cmd.getOptionValue('o')))
+						: (int) System
+								.currentTimeMillis();
+				PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
+
+				// Worry about random seeds here...
+				RunInfo rInfo = new RunInfo();
+				rInfo.setNumRuns(numRuns);
+				rInfo.setNumRandomVariations(numOfRandVariation);
+				rInfo.setCurrentRun(i);
+				rInfo.setCurrentRandomSeed(randomSeed);
+				doRun(filename, directory, start, end, rInfo, interactive);
+			}
 		}
 	}
 	
 	public static void doRun(String filename, String directory, int start,
-			int end, long randomSeed, boolean interactive) throws Exception
+			int end, RunInfo rInfo, boolean interactive) throws Exception
 	{
-		ScenarioLoader loader = setupRun(filename, directory, start, end, randomSeed);
+		ScenarioLoader loader = setupRun(filename, directory, start, end, rInfo);
 		if (interactive) {
 			interactiveRun(loader);
 		} else {
@@ -114,9 +131,11 @@ public class ModelRunner
 				loader.schedule.runFromTo(start, end);
 			} else {
 				loader.schedule.runUntil(end);
+				loader.schedule.finish();
 			}
 		} else {
 			loader.schedule.run();
+			loader.schedule.finish();
 		}
 	}
 	
@@ -137,14 +156,14 @@ public class ModelRunner
 	}
 	
 	public static ScenarioLoader setupRun(String filename, String directory,
-			int start, int end, long randomSeed) throws Exception
+			int start, int end, RunInfo rInfo) throws Exception
 	{
 		ABMPersister p = ABMPersister.getInstance();
 
 		p.setBaseDir( directory );
 		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename);
-		loader.setRunID("" + randomSeed);
-		loader.initialise( new RunInfo() );
+		loader.setRunID("" + rInfo.getCurrentRandomSeed());
+		loader.initialise(rInfo);
 		loader.schedule.setRegions( loader.regions );
 		return loader;
 	}
@@ -195,9 +214,25 @@ public class ModelRunner
 		
 		options.addOption(OptionBuilder.withArgName("numOfRuns")
 				.hasArg()
-				.withDescription("Number of runs (with distinct random seed)")
+				.withDescription("Number of runs with distinct configuration")
 				.withType(Integer.class)
 				.withLongOpt("runs")
+				.isRequired(false)
+				.create("n"));
+
+		options.addOption(OptionBuilder.withArgName("startRun")
+				.hasArg()
+				.withDescription("Number of run to start with")
+				.withType(Integer.class)
+				.withLongOpt("startRun")
+				.isRequired(false)
+				.create("sr"));
+
+		options.addOption(OptionBuilder.withArgName("numOfRandVariation")
+				.hasArg()
+				.withDescription("Number of runs of each configuration with distinct random seed)")
+				.withType(Integer.class)
+				.withLongOpt("randomVariations")
 				.isRequired(false)
 				.create("r"));
 
