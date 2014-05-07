@@ -112,6 +112,7 @@ public class SimplePotentialAgent implements PotentialAgent, Initialisable {
 		log.trace("Production: \n" + production);
 	}
 
+	@Override
 	public ProductionModel getProduction() {
 		return production;
 	}

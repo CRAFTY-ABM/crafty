@@ -38,9 +38,11 @@ import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
+import org.volante.abm.data.Service;
 import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.example.SimpleAllocationModel;
 import org.volante.abm.example.SimpleCompetitivenessModel;
+import org.volante.abm.example.SimpleProductionModel;
 import org.volante.abm.institutions.Institution;
 import org.volante.abm.institutions.Institutions;
 import org.volante.abm.models.AllocationModel;
@@ -48,6 +50,7 @@ import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.schedule.TickAction;
 import org.volante.abm.update.Updater;
 
 import com.google.common.collect.Table;
@@ -125,7 +128,7 @@ public class RegionLoader {
 
 	ABMPersister					persister				= null;
 	ModelData						modelData				= null;
-	RunInfo							runInfo					= new RunInfo();
+	RunInfo							runInfo					= null;
 	Region							region					= null;
 	Map<String, PotentialAgent>		agentsByID				= new LinkedHashMap<String, PotentialAgent>();
 	Map<Integer, PotentialAgent>	agentsBySerialID		= new LinkedHashMap<Integer, PotentialAgent>();
@@ -194,10 +197,29 @@ public class RegionLoader {
 		for (PotentialAgent p : potentialAgents.agents) {
 			agentsByID.put(p.getID(), p);
 			agentsBySerialID.put(p.getSerialID(), p);
+			storeAgentParameters(p);
 		}
 		for (PotentialAgent a : agentsByID.values()) {
 			log.info("Initialise agent type: " + a.getID());
 			a.initialise(modelData, runInfo, region);
+			storeAgentParameters(a);
+		}
+	}
+
+	protected void storeAgentParameters(PotentialAgent pa) {
+		this.runInfo.getParamRepos().addParameter(region,
+				"AFT" + pa.getSerialID() + "_GiveIN", pa.getGivingIn());
+		this.runInfo.getParamRepos().addParameter(region,
+				"AFT" + pa.getSerialID() + "_GiveUP", pa.getGivingUp());
+
+		if (pa.getProduction() instanceof SimpleProductionModel) {
+			for (Service s : modelData.services) {
+				this.runInfo.getParamRepos().addParameter(
+						region,
+						"AFT" + pa.getSerialID() + "_Productivity",
+						((SimpleProductionModel) pa.getProduction()).getProductionWeights()
+								.getDouble(s));
+			}
 		}
 	}
 
@@ -229,13 +251,21 @@ public class RegionLoader {
 		if (demand == null) {
 			demand = persister.readXML(DemandModel.class, demandFile);
 		}
+
 		if (competition == null) {
 			competition = persister.readXML(CompetitivenessModel.class,
 					competitionFile);
 		}
-		runInfo.getSchedule().register(allocation);
-		runInfo.getSchedule().register(demand);
-		runInfo.getSchedule().register(competition);
+		if (allocation instanceof TickAction) {
+			runInfo.getSchedule().register((TickAction) allocation);
+		}
+		if (demand instanceof TickAction) {
+			runInfo.getSchedule().register((TickAction) demand);
+		}
+		if (competition instanceof TickAction) {
+			runInfo.getSchedule().register((TickAction) competition);
+		}
+		runInfo.getSchedule().register(region);
 	}
 
 	private void loadUpdaters() throws Exception {

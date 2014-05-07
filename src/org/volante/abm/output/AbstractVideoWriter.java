@@ -47,14 +47,14 @@ import org.monte.media.avi.AVIWriter;
 import org.monte.media.math.Rational;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.ModelData;
-import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.output.Outputs.CloseableOutput;
 import org.volante.abm.schedule.RunInfo;
-import org.volante.abm.serialization.Initialisable;
+import org.volante.abm.serialization.GloballyInitialisable;
 
 
-public abstract class AbstractVideoWriter implements CloseableOutput, Outputter, Initialisable {
+public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
+		GloballyInitialisable {
 
 	/**
 	 * Output name Subclasses should provide sensible defaults for this in initialise if it is blank
@@ -163,7 +163,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	}
 
 	@Override
-	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
+	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
 		outputs = info.getOutputs();
 		outputs.registerClosableOutput(this);
 		this.info = info;

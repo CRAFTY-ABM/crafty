@@ -40,7 +40,6 @@ import org.volante.abm.data.Service;
 import org.volante.abm.example.SingleMarketWorldSynchronisationModel;
 import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.output.Outputs;
-import org.volante.abm.schedule.DefaultSchedule;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.schedule.Schedule;
 import org.volante.abm.schedule.WorldSyncSchedule;
@@ -67,7 +66,7 @@ import org.volante.abm.visualisation.ModelDisplays;
  */
 public class ScenarioLoader {
 	ModelData modelData = new ModelData();
-	RunInfo info = new RunInfo();
+	RunInfo					info			= null;
 	RegionSet regions = new RegionSet();
 	ABMPersister			persister		= null;
 
@@ -102,7 +101,7 @@ public class ScenarioLoader {
 	int						endTick			= 2015;
 	
 	@Element(name = "schedule", required = false)
-	Schedule schedule = new DefaultSchedule();
+	Schedule				schedule		= null;
 
 	@Element(name = "worldSyncModel", required = false)
 	WorldSynchronisationModel	worldSyncModel	= new SingleMarketWorldSynchronisationModel();
@@ -146,7 +145,7 @@ public class ScenarioLoader {
 	 * @throws Exception
 	 */
 	public void initialise(RunInfo info) throws Exception {
-		info.setSchedule(schedule);
+		this.setSchedule(info.getSchedule());
 
 		this.info = info;
 		persister = info.getPersister();

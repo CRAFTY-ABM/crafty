@@ -25,9 +25,15 @@ package org.volante.abm.output;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
 
@@ -35,41 +41,58 @@ import com.csvreader.CsvWriter;
 
 
 public abstract class TableOutputter<T> extends AbstractOutputter {
+
+	@Attribute(required = false)
+	boolean					perRegion	= false;
+
 	List<TableColumn<T>>	columns	= new ArrayList<TableColumn<T>>();
-	CsvWriter				writer	= null;
+	Map<Regions, CsvWriter>	writers		= new HashMap<Regions, CsvWriter>();
 
 	public void addColumn(TableColumn<T> col) {
 		columns.add(col);
 	}
 
 	@Override
-	public void doOutput(Regions r) {
+	public void doOutput(Regions regions) {
+		if (perRegion) {
+			for (Region r : regions.getAllRegions()) {
+				writeFile(r);
+			}
+		} else {
+			writeFile(regions);
+		}
+	}
+
+	/**
+	 * @param r
+	 */
+	protected void writeFile(Regions r) {
 		String filename = filePerTick() ? tickFilename(r) : filename(r);
 		try {
 			if (filePerTick()) {
-				startFile(filename);
-			} else if (writer == null) {
-				startFile(filename);
+				startFile(filename, r);
+			} else if (writers.get(r) == null) {
+				startFile(filename, r);
 			}
 			writeData(getData(r), r);
 		} catch (Exception e) {
 			log.error("Couldn't write file " + filename + ": " + e.getMessage(), e);
 		}
 		if (filePerTick()) {
-			endFile();
+			endFile(r);
 		}
 	}
 
 	public abstract Iterable<T> getData(Regions r);
 
-	public void startFile(String filename) throws IOException {
-		endFile();
-		writer = new CsvWriter(filename);
+	public void startFile(String filename, Regions r) throws IOException {
+		endFile(r);
+		writers.put(r, new CsvWriter(filename));
 		String[] headers = new String[columns.size()];
 		for (int i = 0; i < columns.size(); i++) {
 			headers[i] = columns.get(i).getHeader();
 		}
-		writer.writeRecord(headers);
+		writers.get(r).writeRecord(headers);
 	}
 
 	public void writeData(Iterable<T> data, Regions r) throws IOException {
@@ -78,21 +101,27 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 			for (int i = 0; i < columns.size(); i++) {
 				output[i] = columns.get(i).getValue(d, modelData, runInfo, r);
 			}
-			writer.writeRecord(output);
-			writer.flush();
+			writers.get(r).writeRecord(output);
+			writers.get(r).flush();
 		}
 	}
 
-	public void endFile() {
-		if (writer != null) {
-			writer.close();
-		}
-		writer = null;
+	public void endFile(Regions r) {
+		if (writers.get(r) != null) {
+			writers.get(r).close();
+			}
+		writers.remove(r);
 	}
 
 	@Override
 	public void close() {
-		endFile();
+		Set<Regions> regions = new LinkedHashSet<Regions>();
+		for (Regions r : writers.keySet()) {
+			regions.add(r);
+		}
+		for (Regions r : regions) {
+			endFile(r);
+		}
 	}
 
 	/**

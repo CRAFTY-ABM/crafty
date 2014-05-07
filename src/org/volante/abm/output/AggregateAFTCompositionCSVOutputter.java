@@ -23,7 +23,7 @@ package org.volante.abm.output;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,12 +36,14 @@ import org.volante.abm.schedule.RunInfo;
 
 
 /**
+ * Creates one column per AFT-ID (across regions, too).
+ * 
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 
-	Map<Region, Map<PotentialAgent, Double>>	aftData	= new HashMap<Region, Map<PotentialAgent, Double>>();
+	Map<Region, Map<String, Double>>	aftData		= new HashMap<Region, Map<String, Double>>();
 
 	protected boolean							initialised	= false;
 	/**
@@ -53,15 +55,19 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 	}
 
 	public void initAftColumns(Regions regions) {
-		Set<PotentialAgent> pAgentSet = new HashSet<PotentialAgent>();
+		Set<String> pAgentSet = new LinkedHashSet<String>();
 		for (Region r : regions.getAllRegions()) {
-			pAgentSet.addAll(r.getPotentialAgents());
-			HashMap<PotentialAgent, Double> pMap = new HashMap<PotentialAgent, Double>();
+			for (PotentialAgent pa : r.getPotentialAgents()) {
+				if (!pAgentSet.contains(pa.getID())) {
+					pAgentSet.add(pa.getID());
+				}
+			}
+			HashMap<String, Double> pMap = new HashMap<String, Double>();
 			aftData.put(r, pMap);
 		}
 
-		for (PotentialAgent pa : pAgentSet) {
-			addColumn(new PotentialAgentColumn(pa));
+		for (String id : pAgentSet) {
+			addColumn(new PotentialAgentColumn(id));
 		}
 	}
 
@@ -89,20 +95,21 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 				sum += pagentNumbers[i];
 			}
 			for (PotentialAgent p : r.getPotentialAgents()) {
-				aftData.get(r).put(p, new Double((double) pagentNumbers[p.getSerialID()] / sum));
+				aftData.get(r).put(p.getID(),
+						new Double((double) pagentNumbers[p.getSerialID()] / sum));
 			}
 		}
 		super.doOutput(regions);
 	}
 
 	public class PotentialAgentColumn implements TableColumn<Region> {
-		PotentialAgent	pagent;
+		String	id;
 
 		/**
-		 * @param pagent
+		 * @param id
 		 */
-		public PotentialAgentColumn(PotentialAgent pagent) {
-			this.pagent = pagent;
+		public PotentialAgentColumn(String id) {
+			this.id = id;
 		}
 
 		/**
@@ -110,7 +117,7 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 		 */
 		@Override
 		public String getHeader() {
-			return "AFT:" + pagent.getSerialID();
+			return "AFT:" + id;
 		}
 
 		/**
@@ -120,10 +127,10 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 		 */
 		@Override
 		public String getValue(Region r, ModelData data, RunInfo info, Regions rs) {
-			if (!aftData.get(r).containsKey(pagent)) {
+			if (!aftData.get(r).containsKey(id)) {
 				return doubleFmt.format(Double.NaN);
 			} else {
-				return doubleFmt.format(aftData.get(r).get(pagent).doubleValue());
+				return doubleFmt.format(aftData.get(r).get(id).doubleValue());
 			}
 		}
 	}

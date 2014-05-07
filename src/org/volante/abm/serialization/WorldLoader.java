@@ -75,7 +75,7 @@ public class WorldLoader {
 	
 	ABMPersister persister = ABMPersister.getInstance();
 	ModelData modelData = new ModelData();
-	RunInfo info = new RunInfo();
+	RunInfo					info				= null;
 	
 	public WorldLoader() {}
 	public WorldLoader( ModelData data, ABMPersister persister )

@@ -23,16 +23,34 @@ package org.volante.abm.schedule;
 
 
 import org.volante.abm.output.Outputs;
+import org.volante.abm.param.ParameterRepository;
 import org.volante.abm.serialization.ABMPersister;
 
 
 public class RunInfo {
 	ABMPersister	persister		= ABMPersister.getInstance();
+
+	{
+		this.persister.setRunInfo(this);
+	}
+
 	Schedule		schedule		= new DefaultSchedule();
 	Outputs			outputs			= new Outputs();
 	String			scenario		= "";
 	String			runID			= "";
+
+	int				numRuns				= 0;
+	int				currentRun			= 0;
+
+	int				numRandomVariations	= 0;
+	long			currentRandomSeed	= 0;
+
 	boolean			useInstitutions	= false;
+
+	ParameterRepository	paramRepos			= new ParameterRepository();
+
+	public RunInfo() {
+	}
 
 	public ABMPersister getPersister() {
 		return persister;
@@ -40,6 +58,7 @@ public class RunInfo {
 
 	public void setPersister(ABMPersister persister) {
 		this.persister = persister;
+		this.persister.setRunInfo(this);
 	}
 
 	public Schedule getSchedule() {
@@ -82,5 +101,72 @@ public class RunInfo {
 
 	public void setUseInstitutions(boolean useInstitutions) {
 		this.useInstitutions = useInstitutions;
+	}
+
+	/**
+	 * @return the numRuns
+	 */
+	public int getNumRuns() {
+		return numRuns;
+	}
+
+	/**
+	 * @param numRuns
+	 *        the numRuns to set
+	 */
+	public void setNumRuns(int numRuns) {
+		this.numRuns = numRuns;
+	}
+
+	/**
+	 * @return the currentRun
+	 */
+	public int getCurrentRun() {
+		return currentRun;
+	}
+
+	/**
+	 * @param currentRun
+	 *        the currentRun to set (starting by 0)
+	 */
+	public void setCurrentRun(int currentRun) {
+		this.currentRun = currentRun;
+	}
+
+	/**
+	 * @return the numRandomVariations
+	 */
+	public int getNumRandomVariations() {
+		return numRandomVariations;
+	}
+
+	/**
+	 * @param numRandomVariations
+	 *        the numRandomVariations to set
+	 */
+	public void setNumRandomVariations(int numRandomVariations) {
+		this.numRandomVariations = numRandomVariations;
+	}
+
+	/**
+	 * @return the currentRandomSeed
+	 */
+	public long getCurrentRandomSeed() {
+		return currentRandomSeed;
+	}
+
+	/**
+	 * @param currentRandomSeed
+	 *        the currentRandomSeed to set
+	 */
+	public void setCurrentRandomSeed(long currentRandomSeed) {
+		this.currentRandomSeed = currentRandomSeed;
+	}
+
+	/**
+	 * @return the paramRepos
+	 */
+	public ParameterRepository getParamRepos() {
+		return paramRepos;
 	}
 }

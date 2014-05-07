@@ -40,7 +40,7 @@ public interface Display extends PostTickAction {
 
 	public JComponent getDisplay();
 
-	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception;
+	public void initialise(ModelData data, RunInfo info, Regions extent) throws Exception;
 
 	public void setModelDisplays(ModelDisplays d);
 
