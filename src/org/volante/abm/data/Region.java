@@ -39,6 +39,7 @@ import org.volante.abm.institutions.Institutions;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
+import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
 
 import com.google.common.collect.Table;
@@ -48,7 +49,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 import de.cesr.parma.core.PmParameterManager;
 
 
-public class Region implements Regions {
+public class Region implements Regions, PreTickAction {
 
 	/**
 	 * Logger
@@ -148,7 +149,7 @@ public class Region implements Regions {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		// <- LOGGING
-		logger.info("Initilaise region " + this);
+		logger.info("Initialise region " + this);
 		// LOGGING ->
 
 		this.random = new RegionalRandom(this);
@@ -493,5 +494,13 @@ public class Region implements Regions {
 	@Override
 	public String toString() {
 		return this.getID();
+	}
+
+	@Override
+	public void preTick() {
+		for (Service s : data.services) {
+			rinfo.getParamRepos().addParameter(this, "Deamand_" + s,
+					demand.getDemand().get(s));
+		}
 	}
 }

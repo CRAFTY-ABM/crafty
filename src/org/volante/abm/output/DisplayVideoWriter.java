@@ -29,7 +29,6 @@ import javax.swing.JComponent;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.volante.abm.data.ModelData;
-import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.AbstractDisplay;
@@ -54,11 +53,12 @@ public class DisplayVideoWriter extends AbstractVideoWriter
 	
 
 	@Override
-	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
+	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception
 	{
-		super.initialise(data, info, extent );
-		display.initialise( data, info, extent );
+		super.initialise(data, info, regions);
 		
+		display.initialise(data, info, regions);
+
 		if( output == null || output.equals("") ) {
 			output = display.getTitle().replaceAll( "\\s", "" );
 		}

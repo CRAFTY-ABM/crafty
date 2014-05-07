@@ -36,7 +36,6 @@ import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
 import org.volante.abm.data.Service;
 import org.volante.abm.output.Outputs;
-import org.volante.abm.schedule.DefaultSchedule;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.schedule.Schedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
@@ -62,7 +61,7 @@ import org.volante.abm.visualisation.ModelDisplays;
  */
 public class ScenarioLoader {
 	ModelData modelData = new ModelData();
-	RunInfo info = new RunInfo();
+	RunInfo					info			= null;
 	RegionSet regions = new RegionSet();
 	ABMPersister			persister		= null;
 
@@ -97,7 +96,7 @@ public class ScenarioLoader {
 	int						endTick			= 2015;
 	
 	@Element(name = "schedule", required = false)
-	Schedule schedule = new DefaultSchedule();
+	Schedule				schedule		= null;
 
 	@Element(name = "capitals", required = false)
 	DataTypeLoader<Capital>	capitals		= null;
@@ -138,7 +137,7 @@ public class ScenarioLoader {
 	 * @throws Exception
 	 */
 	public void initialise(RunInfo info) throws Exception {
-		info.setSchedule(schedule);
+		this.setSchedule(info.getSchedule());
 
 		this.info = info;
 		persister = info.getPersister();
@@ -188,20 +187,14 @@ public class ScenarioLoader {
 			regionList.add(persister.readXML(RegionLoader.class, s));
 		}
 		for (RegionLoader r : regionList) {
-			// select process' region here
 			r.initialise(info);
 			Region reg = r.getRegion();
 			regions.addRegion(reg);
 		}
 		log.info("Final extent: " + regions.getExtent());
 		regions.initialise(modelData, info, null);
-		if (regions.getAllRegions().iterator().hasNext()) {
-			outputs.initialise(modelData, info, regions.getAllRegions()
-					.iterator().next()); // TODO: fix initialisation
-		}
-		else {
-			outputs.initialise(modelData, info, null); // TODO: fix
-		}
+		outputs.initialise(modelData, info, regions);
+
 		// initialisation
 		if (displays == null) {
 			displays = new DefaultModelDisplays();

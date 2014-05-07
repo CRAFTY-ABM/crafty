@@ -27,6 +27,7 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Service;
+import org.volante.abm.models.ProductionModel;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
 
@@ -48,6 +49,8 @@ public interface PotentialAgent extends Initialisable {
 	public double getGivingUp();
 
 	public double getGivingIn();
+
+	public ProductionModel getProduction();
 
 	public static final int				UNKNOWN_SERIAL		= -1;
 
@@ -94,6 +97,11 @@ public interface PotentialAgent extends Initialisable {
 																@Override
 																public double getGivingIn() {
 																	return 0;
+																}
+
+																@Override
+																public ProductionModel getProduction() {
+																	return null;
 																}
 
 															};

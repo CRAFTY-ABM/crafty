@@ -22,6 +22,6 @@
 package org.volante.abm.schedule;
 
 
-public interface PostTickAction {
+public interface PostTickAction extends TickAction {
 	public void postTick();
 }

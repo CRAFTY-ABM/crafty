@@ -22,6 +22,6 @@
 package org.volante.abm.schedule;
 
 
-public interface PreTickAction {
+public interface PreTickAction extends TickAction {
 	public void preTick();
 }
