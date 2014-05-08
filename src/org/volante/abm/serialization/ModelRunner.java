@@ -78,7 +78,7 @@ public class ModelRunner
 				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start),
 				(end == Integer.MIN_VALUE ? "<ScenarioFile>" : end)));
 
-		if( end > start ) {
+		if (end < start) {
 			logger.error("End tick must not be larger than start tick!");
 			System.exit(0);
 		}
@@ -157,7 +157,7 @@ public class ModelRunner
 
 		p.setBaseDir( directory );
 		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename);
-		loader.setRunID("" + rInfo.getCurrentRandomSeed());
+		loader.setRunID(rInfo.getCurrentRun() + "-" + rInfo.getCurrentRandomSeed());
 		loader.initialise(rInfo);
 		loader.schedule.setRegions( loader.regions );
 		return loader;
