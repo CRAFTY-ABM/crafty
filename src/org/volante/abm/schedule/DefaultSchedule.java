@@ -25,17 +25,22 @@ package org.volante.abm.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
+import mpi.MPI;
+import mpi.MPIException;
+
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
+import org.volante.abm.example.RegionalDemandModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.output.Outputs;
 import org.volante.abm.schedule.ScheduleStatusEvent.ScheduleStage;
 
 
-public class DefaultSchedule implements Schedule {
+public class DefaultSchedule implements WorldSyncSchedule {
 	Logger							log				= Logger.getLogger(this.getClass());
 	RegionSet						regions			= null;
 	int								tick			= 0;
@@ -47,8 +52,11 @@ public class DefaultSchedule implements Schedule {
 
 	Outputs							output			= new Outputs();
 	private RunInfo					info			= null;
+	protected ModelData				mData			= null;
 
 	List<ScheduleStatusListener>	listeners		= new ArrayList<ScheduleStatusListener>();
+
+	WorldSynchronisationModel		worldSyncModel;
 
 	/*
 	 * Constructors
@@ -64,8 +72,14 @@ public class DefaultSchedule implements Schedule {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.info = info;
+		this.mData = data;
 		output = info.outputs;
 		info.setSchedule(this);
+	}
+
+	@Override
+	public void setWorldSyncModel(WorldSynchronisationModel worldSyncModel) {
+		this.worldSyncModel = worldSyncModel;
 	}
 
 	@Override
@@ -74,6 +88,9 @@ public class DefaultSchedule implements Schedule {
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.PRE_TICK, true));
 		info.getPersister().setContext("y", tick + "");
 		preTickUpdates();
+
+
+		// all: receive demand from master
 
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.MAIN_LOOP, true));
 
@@ -113,9 +130,18 @@ public class DefaultSchedule implements Schedule {
 			a.updateSupply();
 		}
 
-		// Allow the demand model to update for global supply supply for each region
 		for (Region r : regions.getAllRegions()) {
 			r.getDemandModel().updateSupply();
+		}
+
+		// in order to recalculate residuals (which is done during updateSupply()) and to calculate
+		// competitiveness, the market-level residuals must be known:
+		this.worldSyncModel.synchronizeNumOfCells(regions);
+		this.worldSyncModel.synchronizeDemand(regions);
+		this.worldSyncModel.synchronizeSupply(regions);
+
+		for (Region r : regions.getAllRegions()) {
+			((RegionalDemandModel) r.getDemandModel()).recalculateResidual();
 		}
 
 		for (Agent a : regions.getAllAgents()) {
@@ -136,6 +162,12 @@ public class DefaultSchedule implements Schedule {
 	public void finish() {
 		output.finished();
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.FINISHING, true));
+		try {
+			MPI.Finalize();
+		} catch (MPIException exception) {
+			log.error("Error during MPI finilization: " + exception.getMessage());
+			exception.printStackTrace();
+		}
 	}
 
 	/*

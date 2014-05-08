@@ -34,6 +34,7 @@ import java.util.Map;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
 import org.volante.abm.data.Regions;
+import org.volante.abm.output.PRasterWriter;
 import org.volante.abm.schedule.RunInfo;
 
 import com.csvreader.CsvReader;
@@ -43,6 +44,15 @@ import com.moseph.modelutils.curve.LinearInterpolator;
 import com.moseph.modelutils.serialisation.EasyPersister;
 
 
+/**
+ * Note: The Raster class is not well implemented. Calling {@link Raster#getNDATA()} without a
+ * previous call to {@link Raster#setNDATA(String)} may cause a segmentation fault since the object
+ * it returns has not been initialised.
+ * 
+ * @author Dave Murray-Rust
+ * @author Sascha Holzhauer
+ * 
+ */
 public class ABMPersister extends EasyPersister {
 	static ABMPersister	instance	= null;
 
@@ -67,7 +77,7 @@ public class ABMPersister extends EasyPersister {
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
-		RasterWriter writer = new RasterWriter();
+		PRasterWriter writer = new PRasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);
 		} else if (writeInts) {
@@ -93,26 +103,28 @@ public class ABMPersister extends EasyPersister {
 		Map<String, LinearInterpolator> map = new LinkedHashMap<String, LinearInterpolator>();
 		CsvReader reader = getCSVReader(csvFile);
 
-		if (xCol == null) {
-			xCol = reader.getHeaders()[0];
+		String xColHeader = xCol;
+		Collection<String> columHeader = columns;
+
+		if (xColHeader == null) {
+			xColHeader = reader.getHeaders()[0];
 		}
 
-		if (columns == null || columns.size() == 0) {
-			columns = new ArrayList<String>(Arrays.asList(reader.getHeaders()));
+		if (columHeader == null || columHeader.size() == 0) {
+			columHeader = new ArrayList<String>(Arrays.asList(reader.getHeaders()));
 		}
-		columns.remove(xCol);
+		columHeader.remove(xCol);
 
-		for (String s : columns) {
+		for (String s : columHeader) {
 			map.put(s, new LinearInterpolator());
 		}
 
-		while (reader.readRecord() && reader.get(xCol).length() > 0) {
-			double year = Double.parseDouble(reader.get(xCol));
-			for (String s : columns) {
+		while (reader.readRecord() && reader.get(xColHeader).length() > 0) {
+			double year = Double.parseDouble(reader.get(xColHeader));
+			for (String s : columHeader) {
 				map.get(s).addPoint(year, BatchRunParser.parseDouble(reader.get(s), rInfo));
 			}
 		}
 		return map;
 	}
-
 }

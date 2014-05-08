@@ -26,6 +26,9 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import org.apache.log4j.Logger;
+
+
 /**
  * Keeps track of the extent of an area (e.g. a region) which can be extended by
  * calling {@link #update(Cell)}, {@link #update(Extent)} or
@@ -36,6 +39,12 @@ import static java.lang.Math.min;
  * 
  */
 public class Extent {
+
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(Extent.class);
+
 	int minX = Integer.MAX_VALUE;
 	int maxX = Integer.MIN_VALUE;
 	int minY = Integer.MAX_VALUE;
@@ -60,11 +69,30 @@ public class Extent {
 	}
 
 	public void update(int x, int y) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("update: " + x + " - " + y);
+		}
+		// LOGGING ->
+
 		minX = min(minX, x);
 		maxX = max(maxX, x);
 		minY = min(minY, y);
 		maxY = max(maxY, y);
+
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("updated");
+		}
+		// LOGGING ->
+
 		updateHeightWidth();
+
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("updateHeightWidth");
+		}
+		// LOGGING ->
 	}
 
 	public void update(Cell c) {
