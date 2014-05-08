@@ -156,7 +156,7 @@ public class Cell implements Initialisable {
 
 	@Override
 	public String toString() {
-		if (!id.equals("")) {
+		if (id != "") {
 			return id;
 		}
 		return super.toString();

@@ -27,10 +27,12 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.serialization.RegionLoader.CellInitialiser;
+import org.volante.abm.serialization.transform.IntTransformer;
 
 import com.csvreader.CsvReader;
 
@@ -50,6 +52,12 @@ public class CellCSVReader implements CellInitialiser {
 	String	xColumn		= "x";
 	@Attribute(required = false)
 	String	yColumn		= "y";
+
+	@Element(required = false)
+	IntTransformer	xTransformer	= null;
+
+	@Element(required = false)
+	IntTransformer	yTransformer	= null;
 
 	Logger	log			= Logger.getLogger(getClass());
 
@@ -74,8 +82,17 @@ public class CellCSVReader implements CellInitialiser {
 			}
 			// LOGGING ->
 
+
 			int x = Integer.parseInt(reader.get("x"));
+			if (xTransformer != null) {
+				x = xTransformer.transform(x);
+			}
+
 			int y = Integer.parseInt(reader.get("y"));
+			if (yTransformer != null) {
+				y = yTransformer.transform(y);
+			}
+
 			Cell c = rl.getCell(x, y);
 			for (Capital cap : data.capitals) {
 				String s = reader.get(cap.getName());
