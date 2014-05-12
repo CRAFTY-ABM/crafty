@@ -34,11 +34,11 @@ public class PRasterWriter {
 	static private Logger				logger			= Logger.getLogger(PRasterWriter.class);
 
 	NumberFormat						cellFormat		= null;
-	String								nodataString	= Raster.DEFAULT_NODATA;
+
 	public static final DecimalFormat	INT_FORMAT		= new DecimalFormat("0");
 
 	public void writeRaster(String filename, Raster r) throws IOException {
-		r.setNDATA("null");
+		r.setNDATA("-inf");
 
 		File f = new File(filename);
 		if (f.exists()) {

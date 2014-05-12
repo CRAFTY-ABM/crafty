@@ -75,7 +75,7 @@ public class AggregateDemandSupplyCSVOutputter extends AggregateCSVOutputter {
 
 		@Override
 		public String getHeader() {
-			return "ServiceSupply:" + service.getName();
+			return "Demand:" + service.getName();
 		}
 
 		@Override
