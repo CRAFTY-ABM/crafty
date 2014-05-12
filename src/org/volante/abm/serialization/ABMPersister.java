@@ -66,18 +66,20 @@ public class ABMPersister extends EasyPersister {
 	}
 	
 	public void regionsToRaster(String filename, Regions r, CellToDouble converter,
-			boolean writeInts) throws Exception {
-		this.regionsToRaster(filename, r, converter, writeInts, null);
+			boolean writeInts, String nDataString) throws Exception {
+		this.regionsToRaster(filename, r, converter, writeInts, null, nDataString);
 	}
 
 	public void regionsToRaster(String filename, Regions r, CellToDouble converter,
-			boolean writeInts, DecimalFormat format) throws Exception {
+			boolean writeInts, DecimalFormat format, String nDataString) throws Exception {
 		Extent e = r.getExtent();
 		Raster raster = new Raster(e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY());
+		raster.setNDATA(nDataString);
+		
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
-		PRasterWriter writer = new PRasterWriter();
+		RasterWriter writer = new RasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);
 		} else if (writeInts) {
