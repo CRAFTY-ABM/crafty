@@ -55,7 +55,11 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * 
  */
 public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction {
-	Region							region				= null;
+	Region							region;
+	
+	/**
+	 * If true, the demand will be updated every time an agent changes as owner of a cell.
+	 */
 	@Attribute(required = false)
 	boolean							updateOnAgentChange	= true;
 	Map<Cell, DoubleMap<Service>>	supply				= new HashMap<Cell, DoubleMap<Service>>();
@@ -67,8 +71,15 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	RunInfo							runInfo				= null;
 	ModelData						modelData			= null;
 
+	/**
+	 * Name of CSV file that contains per-year demand levels
+	 */
 	@Attribute(required = false)
 	String							demandCSV			= null;
+	
+	/**
+	 * Name of column in CSV file that specifies the year a row belongs to
+	 */
 	@Attribute(required = false)
 	String							yearCol				= "Year";
 
@@ -86,6 +97,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 		perCellResidual = data.serviceMap();
 		demand = data.serviceMap();
 		perCellDemand = data.serviceMap();
+		
 		if (updateOnAgentChange) {
 			for (Cell c : r.getCells()) {
 				supply.put(c, data.serviceMap());
@@ -124,6 +136,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	@Override
 	public void agentChange(Cell c) {
 		if (updateOnAgentChange) {
+			// substitutes the cell's former supply by the cell's new supply:
 			totalSupply.subtractInto(supply.get(c), totalSupply);
 			c.getSupply().copyInto(supply.get(c));
 			c.getSupply().addInto(totalSupply);
@@ -151,9 +164,12 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 			c.getSupply().addInto(totalSupply);
 		}
 		recalculateResidual();
-
 	}
 
+	/**
+	 * Assigns each cell an equal share of total demand. Calculates total residual and per cell
+	 * residual by subtracting totalSupply from demand.
+	 */
 	public void recalculateResidual() {
 		demand.multiplyInto(1.0 / supply.size(), perCellDemand);
 		demand.subtractInto(totalSupply, residual);
@@ -180,6 +196,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 		log.info("Marginal Utilities: " + getMarginalUtilities().prettyPrint());
 	}
 
+	// TODO check
 	// Generally shouldn't use the competition model directly as it ignores institutions, but it's
 	// OK here.
 	@Override

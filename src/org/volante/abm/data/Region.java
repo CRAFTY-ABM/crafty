@@ -152,9 +152,6 @@ public class Region implements Regions, PreTickAction {
 		logger.info("Initialise region " + this);
 		// LOGGING ->
 
-		this.random = new RegionalRandom(this);
-		this.random.init();
-
 		this.data = data;
 		this.rinfo = info;
 		for (Cell c : cells) {
