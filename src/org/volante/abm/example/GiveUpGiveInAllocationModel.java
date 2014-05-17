@@ -35,6 +35,7 @@ import java.util.Map;
 
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
@@ -150,7 +151,16 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel {
 				boolean canTake = c.getOwner().canTakeOver(c, competitiveness.get(c));
 				if (canTake) {
 					Agent agent = a.createAgent(r);
+					Agent old = c.getOwner();
 					r.setOwnership(agent, c);
+
+					if (r.getNetworkService() != null && old != null) {
+						if (r.getGeography() != null && agent instanceof GeoAgent) {
+							((GeoAgent) agent).addToGeography();
+						}
+						r.getNetworkService().addAndLinkNode(r.getNetwork(), agent);
+						old.die();
+					}
 
 					break;
 				}

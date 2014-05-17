@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Root;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
@@ -102,6 +103,18 @@ public class SimpleAllocationModel implements AllocationModel
 		if (p != null) {
 			Agent agent = p.createAgent(r);
 			r.setOwnership(agent, c);
+			if (r.getNetworkService() != null) {
+				if (r.getGeography() != null && agent instanceof GeoAgent) {
+					((GeoAgent) agent).addToGeography();
+				}
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linking agent " + agent);
+				}
+				// LOGGING ->
+
+				r.getNetworkService().addAndLinkNode(r.getNetwork(), agent);
+			}
 		}
 	}
 

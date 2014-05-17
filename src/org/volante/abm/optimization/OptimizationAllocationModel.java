@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
@@ -97,6 +98,13 @@ public abstract class OptimizationAllocationModel<T> implements AllocationModel 
 				// TODO
 				Agent agent = p.createAgent(region);
 				region.setOwnership(agent, c);
+				if (region.getNetworkService() != null) {
+					if (region.getGeography() != null && agent instanceof GeoAgent) {
+						((GeoAgent) agent).addToGeography();
+					}
+					region.getNetworkService().addAndLinkNode(region.getNetwork(),
+							agent);
+				}
 			}
 		}
 	}

@@ -1,0 +1,9 @@
+
+syntax: regexp
+^\.settings/org\.eclipse\.jdt\.ui\.prefs$
+syntax: regexp
+^\.settings/org\.eclipse\.jdt\.ui\.prefs$
+syntax: regexp
+^lib/CRAFTY\.jar$
+syntax: regexp
+^test-data/tmp$
