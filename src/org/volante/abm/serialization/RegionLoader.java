@@ -89,6 +89,9 @@ public class RegionLoader {
 	@Element(required = false)
 	PotentialAgentList				potentialAgents			= new PotentialAgentList();
 
+	@Element(required = false)
+	SocialNetworkLoaderList			socialNetworkLoaders	= new SocialNetworkLoaderList();
+
 	@ElementList(required = false, inline = true, entry = "agentFile")
 	List<String>					agentFileList			= new ArrayList<String>();
 
@@ -101,6 +104,13 @@ public class RegionLoader {
 	List<AgentInitialiser>			agentInitialisers		= new ArrayList<AgentInitialiser>();
 	@ElementList(required = false, inline = true, entry = "agentInitialiserFile")
 	List<String>					agentInitialiserFiles	= new ArrayList<String>();
+
+	/**
+	 * Location of XML parameter file for social network initialisations (it is possible to have
+	 * several networks of agents to build up a multiplex social network).
+	 */
+	@ElementList(required = false, inline = true, entry = "socialNetworkParamFile")
+	List<String>					socialNetworkFileList	= new ArrayList<String>();
 
 	@ElementList(inline = true, required = false, entry = "updater")
 	List<Updater>					updaters				= new ArrayList<Updater>();
@@ -137,6 +147,13 @@ public class RegionLoader {
 	public RegionLoader(String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers) {
+		this(id, competition, allocation, demand, potentialAgents, cellInitialisers,
+				agentInitialisers, null);
+	}
+
+	public RegionLoader(String id, String competition, String allocation,
+			String demand, String potentialAgents, String cellInitialisers,
+			String agentInitialisers, String socialNetworkFile) {
 		this.id = id;
 		this.competitionFile = competition;
 		this.allocationFile = allocation;
@@ -148,6 +165,10 @@ public class RegionLoader {
 		if (agentInitialisers != null) {
 			this.agentInitialiserFiles.addAll(ABMPersister
 					.splitTags(agentInitialisers));
+		}
+
+		if (socialNetworkFile != null) {
+			this.socialNetworkFileList.add(socialNetworkFile);
 		}
 	}
 
@@ -171,6 +192,24 @@ public class RegionLoader {
 		initialiseAgents();
 		loadInstitutions();
 		loadUpdaters();
+		loadSocialNetworks();
+	}
+
+	/**
+	 * Initialises {@link SocialNetworkLoader}s.
+	 * 
+	 * @throws Exception
+	 */
+	protected void loadSocialNetworks() throws Exception {
+		for (String socialNetworkFile : socialNetworkFileList) {
+			socialNetworkLoaders.loaders.addAll(persister.readXML(
+					SocialNetworkLoaderList.class, socialNetworkFile).loaders);
+		}
+
+		for (SocialNetworkLoader l : socialNetworkLoaders.loaders) {
+			log.info("Initialise social network loader: " + l.getName());
+			l.initialise(modelData, runInfo, region);
+		}
 	}
 
 	public void loadAgentTypes() throws Exception {

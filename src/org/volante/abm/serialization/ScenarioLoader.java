@@ -41,6 +41,7 @@ import org.volante.abm.schedule.Schedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
 import org.volante.abm.visualisation.ModelDisplays;
 
+import de.cesr.more.basic.MManager;
 
 /**
  * The scenario loader is responsible for setting up the following things:
@@ -138,6 +139,8 @@ public class ScenarioLoader {
 	 */
 	public void initialise(RunInfo info) throws Exception {
 		this.setSchedule(info.getSchedule());
+
+		MManager.init();
 
 		this.info = info;
 		persister = info.getPersister();
