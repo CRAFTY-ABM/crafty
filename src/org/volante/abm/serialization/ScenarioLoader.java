@@ -143,6 +143,10 @@ public class ScenarioLoader {
 		persister = info.getPersister();
 		persister.setContext("s", scenario);
 		persister.setContext("w", worldName);
+
+		schedule.setStartTick(startTick);
+		schedule.setEndTick(endTick);
+		
 		info.setUseInstitutions(useInstitutions);
 		if (capitals != null) {
 			log.info("Loading captials");
@@ -176,9 +180,6 @@ public class ScenarioLoader {
 			outputs = persister.readXML(Outputs.class, outputFile);
 		}
 		info.setOutputs(outputs);
-
-		schedule.setStartTick(startTick);
-		schedule.setEndTick(endTick);
 
 		schedule.initialise(modelData, info, null);
 

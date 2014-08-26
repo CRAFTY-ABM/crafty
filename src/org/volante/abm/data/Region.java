@@ -28,8 +28,11 @@ import static org.volante.abm.agent.Agent.NOT_MANAGED;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -73,6 +76,8 @@ public class Region implements Regions, PreTickAction {
 	String					id				= "UnknownRegion";
 
 	RegionalRandom			random			= null;
+
+	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
 
 	/**
 	 * @return the random
@@ -149,7 +154,7 @@ public class Region implements Regions, PreTickAction {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		// <- LOGGING
-		logger.info("Initialise region " + this);
+		logger.info("Initialise region " + this + "...");
 		// LOGGING ->
 
 		this.data = data;
@@ -353,6 +358,7 @@ public class Region implements Regions, PreTickAction {
 			if (cur.toRemove()) {
 				log.trace("also removing agent " + cur);
 				agents.remove(cur);
+				cur.die();
 			}
 			log.trace(" adding agent " + a + " to cell");
 			a.addCell(c);
@@ -427,14 +433,14 @@ public class Region implements Regions, PreTickAction {
 	public void cellsCreated()
 	{
 		log.info("Update Extent...");
-		for( Cell c : cells ) {
+		for (Cell c : cells) {
 			// <- LOGGING
 			if (log.isDebugEnabled()) {
 				log.error("Update extent by cell " + c);
 			}
 			// LOGGING ->
 
-			updateExtent( c );
+			updateExtent(c);
 		}
 		cellTable = TreeBasedTable.create(); // Would rather use the ArrayTable below, but requires
 												// setting up ranges, and the code below doesn't
@@ -493,11 +499,38 @@ public class Region implements Regions, PreTickAction {
 		return this.getID();
 	}
 
+	/**
+	 * @see org.volante.abm.schedule.PreTickAction#preTick()
+	 */
 	@Override
 	public void preTick() {
+		for (RegionHelper helper : this.helpers.values()) {
+			if (helper instanceof PreTickRegionHelper) {
+				((PreTickRegionHelper) helper).preTick();
+				;
+			}
+		}
+
 		for (Service s : data.services) {
 			rinfo.getParamRepos().addParameter(this, "Deamand_" + s,
 					demand.getDemand().get(s));
 		}
+	}
+
+	/**
+	 * @param id
+	 * @param rHelper
+	 * @return see {@link HashMap#put(Object, Object)}
+	 */
+	public RegionHelper registerHelper(Object id, RegionHelper rHelper) {
+		return this.helpers.put(id, rHelper);
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public RegionHelper getHelper(Object id) {
+		return this.helpers.get(id);
 	}
 }
