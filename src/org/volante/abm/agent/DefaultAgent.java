@@ -23,6 +23,7 @@
 package org.volante.abm.agent;
 
 
+import org.apache.log4j.Logger;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -41,6 +42,13 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * 
  */
 public class DefaultAgent extends AbstractAgent {
+
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(DefaultAgent.class);
+
+
 	/*
 	 * Characteristic fields (define an agent)
 	 */
@@ -53,28 +61,24 @@ public class DefaultAgent extends AbstractAgent {
 	}
 
 	public DefaultAgent(String id, ModelData data) {
-		this.id = id;
-		System.out.println();
-		initialise(data);
+		this(null, id, data, null, NullProductionModel.INSTANCE, -Double.MAX_VALUE,
+				Double.MAX_VALUE);
 	}
 
 	public DefaultAgent(PotentialAgent type, ModelData data, Region r, ProductionModel prod,
 			double givingUp, double givingIn) {
+		this(type, "NA", data, r, prod, givingUp, givingIn);
+	}
+
+	public DefaultAgent(PotentialAgent type, String id, ModelData data, Region r,
+			ProductionModel prod, double givingUp, double givingIn) {
+		this.id = id;
 		this.type = type;
 		this.region = r;
 		this.production = prod;
 		this.givingUp = givingUp;
 		this.givingIn = givingIn;
-		initialise(data);
-	}
 
-	public DefaultAgent(PotentialAgent type, String id, ModelData data, Region r,
-			ProductionModel prod, double givingUp, double givingIn) {
-		this(type, data, r, prod, givingUp, givingIn);
-		this.id = id;
-	}
-
-	public void initialise(ModelData data) {
 		productivity = new DoubleMap<Service>(data.services);
 	}
 
@@ -83,8 +87,20 @@ public class DefaultAgent extends AbstractAgent {
 		productivity.clear();
 		for (Cell c : cells) {
 			production.production(c, c.getModifiableSupply());
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(this + "(cell " + c.getX() + "|" + c.getY() + "): " + c.getModifiableSupply().prettyPrint());
+			}
 			c.getSupply().addInto(productivity);
 		}
+	}
+
+	/**
+	 * @see org.volante.abm.agent.Agent#getProductionModel()
+	 */
+	@Override
+	public ProductionModel getProductionModel() {
+		return this.production;
 	}
 
 	@Override

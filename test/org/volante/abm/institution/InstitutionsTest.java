@@ -184,7 +184,6 @@ public class InstitutionsTest extends BasicTests
 		
 		//And check they're used by the agent
 		DefaultAgent agent = (DefaultAgent) farming.createAgent( r, c11 );
-		agent.initialise(modelData);
 		agent.supply( c11 );
 		assertEqualMaps( expected, c11.getSupply() );
 	}
