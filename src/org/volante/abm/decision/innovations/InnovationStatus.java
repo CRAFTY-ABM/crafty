@@ -19,16 +19,25 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 06.03.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.decision.innovations;
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+public interface InnovationStatus {
+
+	public InnovationState getState();
+
+	public double getAdoptedNeighbourShare();
+
+	public void setAdoptedNeighbourShare(double share);
+
+	public void aware();
+
+	public void trial();
+
+	public void adopt();
 }

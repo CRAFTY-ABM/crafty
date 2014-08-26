@@ -19,16 +19,24 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 26.03.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.agent;
+
+import de.cesr.more.basic.agent.MoreNetworkAgent;
+import de.cesr.more.basic.edge.MoreEdge;
+import de.cesr.more.rs.building.MoreMilieuAgent;
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+public interface SocialAgent extends Agent, MoreNetworkAgent<SocialAgent, MoreEdge<SocialAgent>>,
+		MoreMilieuAgent {
+
+	/**
+	 * Agents perceive their social network, usually regarding their neighbours adoption of
+	 * innovations they are aware of.
+	 */
+	public void perceiveSocialNetwork();
 }

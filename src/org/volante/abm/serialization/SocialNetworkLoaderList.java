@@ -19,16 +19,25 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 04.03.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.serialization;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
+
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+@Root(name = "socialNetworks")
+public class SocialNetworkLoaderList {
+
+	@ElementList(inline = true, required = false, entry = "socialNetwork", empty = false)
+	List<SocialNetworkLoader>	loaders	= new ArrayList<SocialNetworkLoader>();
 }

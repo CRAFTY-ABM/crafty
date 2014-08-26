@@ -19,16 +19,36 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 11.03.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.output;
+
+import org.volante.abm.data.Cell;
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+public class AgentCompetitivenessRasterOutputter extends RasterOutputter {
+
+	/**
+	 * @see org.volante.abm.serialization.CellToDouble#apply(org.volante.abm.data.Cell)
+	 */
+	@Override
+	public double apply(Cell c) {
+		return c.getOwner().getCompetitiveness();
+	}
+
+	/**
+	 * @see org.volante.abm.output.AbstractOutputter#getDefaultOutputName()
+	 */
+	@Override
+	public String getDefaultOutputName() {
+		return "Agent-Competitiveness";
+	}
+
+	@Override
+	public boolean isInt() {
+		return false;
+	}
 }

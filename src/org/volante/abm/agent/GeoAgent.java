@@ -19,16 +19,18 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 26.03.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.agent;
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+public interface GeoAgent {
+
+	/**
+	 * Add the agent to the region's geography.
+	 */
+	public void addToGeography();
 }

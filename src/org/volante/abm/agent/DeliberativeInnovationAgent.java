@@ -19,16 +19,19 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2014
+ * Created by Sascha Holzhauer on 16.04.2014
  */
-package org.volante.abm.data;
+package org.volante.abm.agent;
+
+import org.volante.abm.decision.innovations.bo.InnovationBo;
+
+import de.cesr.lara.components.agents.LaraAgent;
 
 /**
- * RegionHelper can be registered at a region to execute specific actions. There are different types
- * of Region Helpers to be hooked into the various methods of {@link Region}.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface RegionHelper {
+public interface DeliberativeInnovationAgent extends
+		LaraAgent<DeliberativeInnovationAgent, InnovationBo> {
+
 }
