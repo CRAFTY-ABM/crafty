@@ -24,6 +24,10 @@
 package org.volante.abm.output;
 
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.HashSet;
@@ -35,6 +39,8 @@ import org.volante.abm.data.Regions;
 import org.volante.abm.param.ParameterRepository;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.GloballyInitialisable;
+
+import com.csvreader.CsvWriter;
 
 
 /**
@@ -79,6 +85,23 @@ public class ParameterCSVOutputter extends TableOutputter<Region> implements Glo
 		}
 	}
 	
+	/**
+	 * Override start to initialise an appending file output stream.
+	 * 
+	 * @see org.volante.abm.output.TableOutputter#startFile(java.lang.String,
+	 *      org.volante.abm.data.Regions)
+	 */
+	public void startFile(String filename, Regions r) throws IOException {
+		endFile(r);
+		writers.put(r, new CsvWriter(new BufferedWriter(new OutputStreamWriter(
+				new FileOutputStream(filename, true))), ','));
+		String[] headers = new String[columns.size()];
+		for (int i = 0; i < columns.size(); i++) {
+			headers[i] = columns.get(i).getHeader();
+		}
+		writers.get(r).writeRecord(headers);
+	}
+
 	@Override
 	public boolean filePerTick() {
 		return false;

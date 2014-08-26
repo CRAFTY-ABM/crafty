@@ -26,6 +26,7 @@ import static java.lang.Math.pow;
 import static org.volante.abm.example.SimpleCapital.simpleCapitals;
 import static org.volante.abm.example.SimpleService.simpleServices;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
@@ -49,6 +50,12 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  */
 public class SimpleProductionModel implements ProductionModel
 {
+
+	/**
+	 * Logger
+	 */
+	static private Logger			logger				= Logger.getLogger(SimpleProductionModel.class);
+
 	DoubleMatrix<Capital, Service> capitalWeights = 
 			new DoubleMatrix<Capital, Service>( simpleCapitals, simpleServices );
 	DoubleMap<Service> productionWeights = new DoubleMap<Service>( simpleServices, 1 );
@@ -121,16 +128,44 @@ public class SimpleProductionModel implements ProductionModel
 		UnmodifiableNumberMap<Capital> capitals = cell.getEffectiveCapitals();
 		production( capitals, production );
 	}
-	
-	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production)
+
+	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production) {
+		production( capitals, production , null);
+	}
+	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production, Cell cell)
 	{
-		for( Service s : capitalWeights.rows() )
-		{
-			double val = 1;
-			for( Capital c : capitalWeights.cols() ) {
-				val = val * pow( capitals.getDouble( c ), capitalWeights.get( c, s ) ) ;
+		if (logger.isDebugEnabled()) {
+			StringBuffer buffer = new StringBuffer();
+			if (cell != null) {
+				buffer.append("Cell " + cell.getX() + "|" + cell.getY() + " ");
 			}
-			production.putDouble( s, productionWeights.get(s) * val );
+			buffer.append("Production: ");
+
+			for( Service s : capitalWeights.rows() )
+			{
+				buffer.append(" Service " + s + "> ");
+
+				double val = 1;
+				for( Capital c : capitalWeights.cols() ) {
+					buffer.append( " * " + capitals.getDouble( c ) + "^" + capitalWeights.get( c, s ));
+
+					val = val * pow( capitals.getDouble( c ), capitalWeights.get( c, s ) ) ;
+				}
+				buffer.append(" = " + productionWeights.get(s) * val + " ");
+
+				production.putDouble( s, productionWeights.get(s) * val);
+			}
+			logger.debug(buffer.toString());
+
+		} else {
+			for( Service s : capitalWeights.rows() )
+			{
+				double val = 1;
+				for( Capital c : capitalWeights.cols() ) {
+					val = val * pow( capitals.getDouble( c ), capitalWeights.get( c, s ) ) ;
+				}
+				production.putDouble( s, productionWeights.get(s) * val );
+			}
 		}
 	}
 	
@@ -158,18 +193,33 @@ public class SimpleProductionModel implements ProductionModel
 		pout.productionWeights = productionWeights.duplicate();
 		for( Service s : data.services )
 		{
-			if( production == null ) {
+			if (production == null || productionWeights.getDouble(s) == 0.0) {
 				pout.setWeight( s, productionWeights.getDouble( s ) );
 			} else {
-				pout.setWeight(s, productionWeights.getDouble(s) + production.sample());
+				double randomSample = production.sample();
+				pout.setWeight(s, productionWeights.getDouble(s) + randomSample);
+
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Random sample: " + randomSample);
+				}
+				// LOGGING ->
+
 			}
 			
 			for( Capital c : data.capitals )
 			{
-				if( importance == null ) {
+				if (importance == null || capitalWeights.get(c, s) == 0.0) {
 					pout.setWeight( c, s, capitalWeights.get( c, s ) );
 				} else {
-					pout.setWeight(c, s, capitalWeights.get(c, s) + importance.sample());
+					double randomSample = importance.sample();
+					pout.setWeight(c, s, capitalWeights.get(c, s) + randomSample);
+
+					// <- LOGGING
+					if (logger.isDebugEnabled()) {
+						logger.debug("Random sample: " + randomSample);
+					}
+					// LOGGING ->
 				}
 			}
 		}

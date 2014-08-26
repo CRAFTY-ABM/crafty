@@ -13,7 +13,7 @@
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -42,12 +42,12 @@ import de.cesr.parma.core.PmParameterManager;
 
 public class ModelRunner
 {
-	
+
 	/**
 	 * Logger
 	 */
 	static private Logger logger = Logger.getLogger(ModelRunner.class);
-	
+
 	public static void main( String[] args ) throws Exception
 	{
 		CommandLineParser parser = new BasicParser();
@@ -94,6 +94,7 @@ public class ModelRunner
 						.parseInt(cmd.getOptionValue('o')))
 						: (int) System
 								.currentTimeMillis();
+				logger.info("Run " + i + " (of " + numRuns + ") with random seed " + randomSeed);
 				PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
 
 				// Worry about random seeds here...
@@ -106,7 +107,7 @@ public class ModelRunner
 			}
 		}
 	}
-	
+
 	public static void doRun(String filename, String directory, int start,
 			int end, RunInfo rInfo, boolean interactive) throws Exception
 	{
@@ -114,13 +115,16 @@ public class ModelRunner
 		if (interactive) {
 			interactiveRun(loader);
 		} else {
-			noninteractiveRun(loader, start, end);
+			noninteractiveRun(loader, start == Integer.MIN_VALUE ? loader.startTick : start,
+					end == Integer.MIN_VALUE ? loader.endTick : end);
 		}
 	}
-	
+
 	public static void noninteractiveRun( ScenarioLoader loader, int start, int end )
 	{
-		logger.info(String.format("Running from %d to %d\n", start, end));
+		logger.info(String.format("Running from %s to %s\n",
+				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start + ""),
+				(end == Integer.MIN_VALUE ? "<ScenarioFile>" : end + "")));
 		if (end != Integer.MIN_VALUE) {
 			if (start != Integer.MIN_VALUE) {
 				loader.schedule.runFromTo(start, end);
@@ -133,7 +137,7 @@ public class ModelRunner
 			loader.schedule.finish();
 		}
 	}
-	
+
 	public static void interactiveRun( ScenarioLoader loader )
 	{
 		logger.info("Setting up interactive run");
@@ -149,7 +153,7 @@ public class ModelRunner
 		controls.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		controls.setVisible( true );
 	}
-	
+
 	public static ScenarioLoader setupRun(String filename, String directory,
 			int start, int end, RunInfo rInfo) throws Exception
 	{
@@ -183,7 +187,7 @@ public class ModelRunner
 				.withLongOpt("directory")
 				.isRequired(false)
 				.create("d"));
-		
+
 		options.addOption(OptionBuilder.withArgName("scenarioFilename")
 				.hasArg()
 				.withDescription("Location and name of scenario file relative to directory")
@@ -206,7 +210,7 @@ public class ModelRunner
 				.withLongOpt("end")
 				.isRequired(false)
 				.create("e"));
-		
+
 		options.addOption(OptionBuilder.withArgName("numOfRuns")
 				.hasArg()
 				.withDescription("Number of runs with distinct configuration")

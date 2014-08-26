@@ -24,37 +24,56 @@ package org.volante.abm.output;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
 import org.volante.abm.data.Service;
+import org.volante.abm.example.SimpleProductionModel;
 import org.volante.abm.schedule.RunInfo;
 
 
 public class CellTable extends TableOutputter<Cell> {
 	@Attribute(required = false)
 	boolean			addTick				= true;
+	
 	@Attribute(required = false)
 	boolean			addRegion			= true;
+	
 	@Attribute(required = false)
 	boolean			addCellRegion		= true;
+	
 	@Attribute(required = false)
 	boolean			addServices			= true;
+	
 	@Attribute(required = false)
 	boolean			addCapitals			= true;
+	
 	@Attribute(required = false)
 	boolean			addLandUse			= true;
+	
 	@Attribute(required = false)
 	boolean			addLandUseIndex		= true;
+	
 	@Attribute(required = false)
 	boolean			addAgent			= true;
+	
 	@Attribute(required = false)
 	boolean			addXY				= true;
+	
 	@Attribute(required = false)
 	boolean			addCompetitiveness	= true;
+	
+	@Attribute(required = false)
+	boolean			addGiThreshold				= false;
+
+	@ElementList(required = false, inline = true, entry = "addServiceProductivity")
+	List<String>	addServiceProductivities	= new ArrayList<String>();
 
 	@Attribute(required = false)
 	String			doubleFormat		= "0.000";
@@ -88,6 +107,9 @@ public class CellTable extends TableOutputter<Cell> {
 				addColumn(new CellServiceColumn(s));
 			}
 		}
+		for (String serviceName : addServiceProductivities) {
+			addColumn(new ServiceProductivityColumn(serviceName));
+		}
 		if (addCapitals) {
 			for (Capital s : outputs.modelData.capitals) {
 				addColumn(new CellCapitalColumn(s));
@@ -98,6 +120,10 @@ public class CellTable extends TableOutputter<Cell> {
 		}
 		if (addCompetitiveness) {
 			addColumn(new CellCompetitivenessColumn());
+		}
+
+		if (addGiThreshold) {
+			addColumn(new CellGiThresholdColumn());
 		}
 	}
 
@@ -189,6 +215,30 @@ public class CellTable extends TableOutputter<Cell> {
 		}
 	}
 
+	public class ServiceProductivityColumn implements TableColumn<Cell> {
+		Service	service;
+
+		public ServiceProductivityColumn(String serviceName) {
+			this.service = modelData.services.forName(serviceName);
+		}
+
+		@Override
+		public String getHeader() {
+			return "Productivity:" + service.getName();
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			if (t.getOwner().getProductionModel() instanceof SimpleProductionModel) {
+				return doubleFmt.format(((SimpleProductionModel) t.getOwner().getProductionModel())
+						.
+						getProductionWeights().getDouble(service));
+			} else {
+				return doubleFmt.format(Double.NaN);
+			}
+		}
+	}
+
 	public class CellCapitalColumn implements TableColumn<Cell> {
 		Capital	capital;
 
@@ -216,6 +266,18 @@ public class CellTable extends TableOutputter<Cell> {
 		@Override
 		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
 			return doubleFmt.format(t.getOwner().getCompetitiveness());
+		}
+	}
+
+	public class CellGiThresholdColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "GivingInThreshold";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return doubleFmt.format(t.getOwner().getGivingIn());
 		}
 	}
 }

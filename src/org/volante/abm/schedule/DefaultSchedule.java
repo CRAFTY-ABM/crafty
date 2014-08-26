@@ -36,6 +36,11 @@ import org.volante.abm.schedule.ScheduleStatusEvent.ScheduleStage;
 
 
 public class DefaultSchedule implements Schedule {
+
+	static int						idCounter		= 0;
+
+	protected int					id				= idCounter++;
+
 	Logger							log				= Logger.getLogger(this.getClass());
 	RegionSet						regions			= null;
 	int								tick			= 0;
@@ -64,13 +69,13 @@ public class DefaultSchedule implements Schedule {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.info = info;
-		output = info.outputs;
+		output = info.getOutputs();
 		info.setSchedule(this);
 	}
 
 	@Override
 	public void tick() {
-		log.info("\n********************\nStart of tick " + tick + "\n********************");
+		log.info(this + ">\n********************\nStart of tick " + tick + "\n********************");
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.PRE_TICK, true));
 		info.getPersister().setContext("y", tick + "");
 		preTickUpdates();
@@ -208,14 +213,20 @@ public class DefaultSchedule implements Schedule {
 	 */
 
 	private void preTickUpdates() {
-		log.info("Pre Tick\t\t" + hashCode());
+		log.info("Pre Tick\t\t (DefaultSchedule ID " + id + ")");
 		for (PreTickAction p : preTickActions) {
+			// <- LOGGING
+			if (log.isDebugEnabled()) {
+				log.debug("Do PreTick action " + p);
+			}
+			// LOGGING ->
+
 			p.preTick();
 		}
 	}
 
 	private void postTickUpdates() {
-		log.info("Post Tick\t\t" + hashCode());
+		log.info("Post Tick\t\t (DefaultSchedule ID " + id + ")");
 		for (PostTickAction p : postTickActions) {
 			p.postTick();
 		}

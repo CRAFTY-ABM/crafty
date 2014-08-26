@@ -75,6 +75,16 @@ public abstract class AbstractAgent implements Agent {
 		return uCells;
 	}
 
+	/**
+	 * Return simply the first cell of an iterator of cells.
+	 * 
+	 * @see org.volante.abm.agent.Agent#getHomeCell()
+	 */
+	@Override
+	public Cell getHomeCell() {
+		return cells.size() > 0 ? cells.iterator().next() : null;
+	}
+
 	@Override
 	public boolean toRemove() {
 		return cells.size() == 0;

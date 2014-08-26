@@ -58,26 +58,23 @@ public class RegionalRandom {
 	public void init() {
 		if (!getURService().isGeneratorRegistered(RandomPa.RANDOM_SEED_INIT.name())) {
 			getURService().registerGenerator(RandomPa.RANDOM_SEED_INIT.name(),
-					new MersenneTwister(((Integer) PmParameterManager
-									.getParameter(RandomPa.RANDOM_SEED_INIT))));
+					new MersenneTwister(((Integer) pm.getParam(RandomPa.RANDOM_SEED_INIT))));
 		}
 
 		if (!getURService().isGeneratorRegistered(RandomPa.RANDOM_SEED_INIT_AGENTS.name())) {
 			getURService().registerGenerator(RandomPa.RANDOM_SEED_INIT_AGENTS.name(),
-					new MersenneTwister(((Integer) PmParameterManager
-									.getParameter(RandomPa.RANDOM_SEED_INIT_AGENTS))));
+					new MersenneTwister(((Integer) pm.getParam(RandomPa.RANDOM_SEED_INIT_AGENTS))));
 		}
 
 		if (!getURService().isGeneratorRegistered(RandomPa.RANDOM_SEED_RUN.name())) {
 			getURService().registerGenerator(RandomPa.RANDOM_SEED_RUN.name(),
-					new MersenneTwister(((Integer) PmParameterManager
-									.getParameter(RandomPa.RANDOM_SEED_RUN))));
+					new MersenneTwister(((Integer) pm.getParam(RandomPa.RANDOM_SEED_RUN))));
 		}
 
 		if (!getURService().isGeneratorRegistered(RandomPa.RANDOM_SEED_RUN_ALLOCATION.name())) {
 			getURService().registerGenerator(RandomPa.RANDOM_SEED_RUN_ALLOCATION.name(),
-					new MersenneTwister(((Integer) PmParameterManager
-									.getParameter(RandomPa.RANDOM_SEED_RUN_ALLOCATION))));
+					new MersenneTwister(
+							((Integer) pm.getParam(RandomPa.RANDOM_SEED_RUN_ALLOCATION))));
 		}
 	}
 }
