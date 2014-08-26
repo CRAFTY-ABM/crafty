@@ -1,24 +1,24 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.serialization;
 
@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
 import org.volante.abm.data.Regions;
@@ -43,7 +44,22 @@ import com.moseph.modelutils.curve.LinearInterpolator;
 import com.moseph.modelutils.serialisation.EasyPersister;
 
 
+/**
+ * Note: The Raster class is not well implemented. Calling {@link Raster#getNDATA()} without a
+ * previous call to {@link Raster#setNDATA(String)} may cause a segmentation fault since the object
+ * it returns has not been initialised.
+ *
+ * @author Dave Murray-Rust
+ * @author Sascha Holzhauer
+ *
+ */
 public class ABMPersister extends EasyPersister {
+	
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger.getLogger(ABMPersister.class);
+	
 	static ABMPersister	instance	= null;
 
 	RunInfo				rInfo		= null;
@@ -54,19 +70,31 @@ public class ABMPersister extends EasyPersister {
 		}
 		return instance;
 	}
-	
+
 	public void regionsToRaster(String filename, Regions r, CellToDouble converter,
-			boolean writeInts) throws Exception {
-		this.regionsToRaster(filename, r, converter, writeInts, null);
+			boolean writeInts, String nDataString) throws Exception {
+		this.regionsToRaster(filename, r, converter, writeInts, null, nDataString);
 	}
 
 	public void regionsToRaster(String filename, Regions r, CellToDouble converter,
-			boolean writeInts, DecimalFormat format) throws Exception {
+			boolean writeInts, DecimalFormat format, String nDataString) throws Exception {
+		
+		// <- LOGGING
+		logger.info("Regions to raster...");
+		// LOGGING ->
+		
 		Extent e = r.getExtent();
 		Raster raster = new Raster(e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY());
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
+		
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Point 1, 2): " + raster.getValue(raster.yToRow(2), raster.xToCol(1)));
+		}
+		// LOGGING ->
+			
 		RasterWriter writer = new RasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);
@@ -93,26 +121,29 @@ public class ABMPersister extends EasyPersister {
 		Map<String, LinearInterpolator> map = new LinkedHashMap<String, LinearInterpolator>();
 		CsvReader reader = getCSVReader(csvFile);
 
-		if (xCol == null) {
-			xCol = reader.getHeaders()[0];
+
+		String xColHeader = xCol;
+		Collection<String> columHeader = columns;
+
+		if (xColHeader == null) {
+			xColHeader = reader.getHeaders()[0];
 		}
 
-		if (columns == null || columns.size() == 0) {
-			columns = new ArrayList<String>(Arrays.asList(reader.getHeaders()));
+		if (columHeader == null || columHeader.size() == 0) {
+			columHeader = new ArrayList<String>(Arrays.asList(reader.getHeaders()));
 		}
-		columns.remove(xCol);
+		columHeader.remove(xCol);
 
-		for (String s : columns) {
+		for (String s : columHeader) {
 			map.put(s, new LinearInterpolator());
 		}
 
-		while (reader.readRecord() && reader.get(xCol).length() > 0) {
-			double year = Double.parseDouble(reader.get(xCol));
-			for (String s : columns) {
+		while (reader.readRecord() && reader.get(xColHeader).length() > 0) {
+			double year = Double.parseDouble(reader.get(xColHeader));
+			for (String s : columHeader) {
 				map.get(s).addPoint(year, BatchRunParser.parseDouble(reader.get(s), rInfo));
 			}
 		}
 		return map;
 	}
-
 }

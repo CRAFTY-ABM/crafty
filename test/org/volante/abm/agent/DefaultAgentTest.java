@@ -24,7 +24,6 @@ public class DefaultAgentTest extends BasicTests
 	public void setupAgent()
 	{
 		farmer = (DefaultAgent) farming.createAgent( r1, c11 );
-		farmer.initialise( modelData );
 	}
 
 	@Test

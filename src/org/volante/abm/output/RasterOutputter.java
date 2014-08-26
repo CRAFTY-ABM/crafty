@@ -38,6 +38,9 @@ public abstract class RasterOutputter extends AbstractOutputter implements CellT
 
 	@Attribute(required = false)
 	String	doubleFormat	= "0.000";
+	
+	@Attribute(required = false)
+	String nDataString = "-inf";
 
 	DecimalFormat	doubleFmt		= null;
 
@@ -67,7 +70,7 @@ public abstract class RasterOutputter extends AbstractOutputter implements CellT
 		String fn = tickFilename(r);
 		try
 		{
-			outputs.runInfo.getPersister().regionsToRaster(fn, r, this, isInt(), doubleFmt);
+			outputs.runInfo.getPersister().regionsToRaster(fn, r, this, isInt(), doubleFmt, nDataString);
 		} catch( Exception e )
 		{
 			log.error( "Couldn't write output raster '" + fn + "': " + e.getMessage(), e );

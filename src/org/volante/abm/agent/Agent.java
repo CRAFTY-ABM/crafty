@@ -29,8 +29,10 @@ import java.util.Set;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Service;
+import org.volante.abm.models.ProductionModel;
 
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+
 
 /**
  * An interface detailing all the methods an Agent has to provide.
@@ -47,6 +49,11 @@ public interface Agent {
 	public Set<Cell> getCells();
 
 	/**
+	 * @return the cell that is considered as the agent's base cell
+	 */
+	public Cell getHomeCell();
+
+	/**
 	 * Removes the cell from the set the agent manages
 	 * 
 	 * @param c
@@ -59,6 +66,13 @@ public interface Agent {
 	 * @return
 	 */
 	public double getCompetitiveness();
+
+	/**
+	 * Returns the production model of this agent.
+	 * 
+	 * @return
+	 */
+	public ProductionModel getProductionModel();
 
 	/**
 	 * Updates the agent's competitiveness, in response to demand changes etc.
@@ -153,7 +167,11 @@ public interface Agent {
 
 	public PotentialAgent getType();
 
+	public void setGivingUp(double threshold);
+
 	public double getGivingUp();
+
+	public void setGivingIn(double threshold);
 
 	public double getGivingIn();
 
@@ -276,6 +294,27 @@ public interface Agent {
 														@Override
 														public void die() {
 															// do nothing
+														}
+
+														@Override
+														public Cell getHomeCell() {
+															return null;
+														}
+
+														@Override
+														public ProductionModel getProductionModel() {
+															return null;
+														}
+
+														@Override
+														public void setGivingUp(double threshold) {
+															// Nothing to do
+
+														}
+
+														@Override
+														public void setGivingIn(double threshold) {
+															// Nothing to do
 														}
 													};
 

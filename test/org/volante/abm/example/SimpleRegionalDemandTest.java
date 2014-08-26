@@ -1,15 +1,16 @@
 package org.volante.abm.example;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.volante.abm.example.SimpleService.FOOD;
 
-
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.data.Service;
 
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.fastdata.DoubleMap;
-import static org.volante.abm.example.SimpleService.*;
 
 public class SimpleRegionalDemandTest extends BasicTests
 {
@@ -27,11 +28,9 @@ public class SimpleRegionalDemandTest extends BasicTests
 		
 		//Create a farmer, get it farming
 		farmer = (DefaultAgent) farming.createAgent( r1 );
-		farmer.initialise( modelData );
 		
 		//Create a farmer, get it farming
 		forester = (DefaultAgent) forestry.createAgent( r1 );
-		forester.initialise( modelData );
 	}
 	
 	@Test

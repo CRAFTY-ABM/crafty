@@ -1,24 +1,24 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.serialization;
 
@@ -57,14 +57,16 @@ import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
 import de.cesr.parma.core.PmParameterManager;
+import de.cesr.parma.definition.PmFrameworkPa;
+import de.cesr.parma.reader.PmXmlParameterReader;
 
 
 /**
  * Class to load Regions from serialised data. Needs to load: * competitiveness models * demand
  * model * allocation model * baseCapitals for all cells * initial agents for all cells
- * 
+ *
  * @author dmrust
- * 
+ *
  */
 @Root(name = "region")
 public class RegionLoader {
@@ -102,6 +104,9 @@ public class RegionLoader {
 	@ElementList(required = false, inline = true, entry = "agentInitialiserFile")
 	List<String>					agentInitialiserFiles	= new ArrayList<String>();
 
+	@Element(required = false)
+	String							pmParameterFile			= "	";
+	
 	@ElementList(inline = true, required = false, entry = "updater")
 	List<Updater>					updaters				= new ArrayList<Updater>();
 	@ElementList(inline = true, required = false, entry = "updaterFile")
@@ -137,6 +142,13 @@ public class RegionLoader {
 	public RegionLoader(String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers) {
+		this(id, competition, allocation, demand, potentialAgents, cellInitialisers,
+				agentInitialisers, null);
+	}
+
+	public RegionLoader(String id, String competition, String allocation,
+			String demand, String potentialAgents, String cellInitialisers,
+			String agentInitialisers, String institutionFile) {
 		this.id = id;
 		this.competitionFile = competition;
 		this.allocationFile = allocation;
@@ -145,9 +157,13 @@ public class RegionLoader {
 		this.cellInitialiserFiles.addAll(ABMPersister
 				.splitTags(cellInitialisers));
 
-		if (agentInitialisers != null) {
+		if (agentInitialisers != null && !agentInitialisers.equals("")) {
 			this.agentInitialiserFiles.addAll(ABMPersister
 					.splitTags(agentInitialisers));
+		}
+		
+		if (institutionFile != null && !institutionFile.equals("")) {
+			this.institutionFiles.add(institutionFile);
 		}
 	}
 
@@ -164,15 +180,25 @@ public class RegionLoader {
 		region.setID(id);
 		persister.setRegion(region);
 
+		readPmParameters();
 		loadAgentTypes();
 		loadModels();
 		initialiseCells();
 		passInfoToRegion();
-		initialiseAgents();
 		loadInstitutions();
+		initialiseAgents();
 		loadUpdaters();
 	}
 
+	/**
+	 * 
+	 */
+	protected void readPmParameters() {
+		PmParameterManager pm = PmParameterManager.getInstance(this.region);
+		pm.setParam(PmFrameworkPa.XML_PARAMETER_FILE, ABMPersister.getInstance().getFullPath(pmParameterFile));
+		new PmXmlParameterReader(pm, PmFrameworkPa.XML_PARAMETER_FILE).initParameters();
+	}
+	
 	public void loadAgentTypes() throws Exception {
 		for (String potentialAgentFile : agentFileList) {
 			// <- LOGGING
@@ -310,7 +336,9 @@ public class RegionLoader {
 		region.setAllocationModel(allocation);
 		region.setCompetitivenessModel(competition);
 		region.addPotentialAgents(potentialAgents.agents);
-		PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
+		if (this.randomSeed != Integer.MIN_VALUE) {
+			PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
+		}
 		region.initialise(modelData, runInfo, null);
 	}
 
