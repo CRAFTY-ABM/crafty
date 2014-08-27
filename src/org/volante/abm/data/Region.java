@@ -109,8 +109,6 @@ public class Region implements Regions, PreTickAction {
 
 	RegionalRandom			random			= null;
 
-	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
-
 	/**
 	 * @return the random
 	 */
