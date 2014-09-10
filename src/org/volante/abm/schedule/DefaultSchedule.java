@@ -45,6 +45,7 @@ public class DefaultSchedule implements Schedule {
 	RegionSet						regions			= null;
 	int								tick			= 0;
 	int								targetTick		= 0;
+	int								startTick		= 0;
 	int								endTick			= Integer.MAX_VALUE;
 
 	List<PreTickAction>				preTickActions	= new ArrayList<PreTickAction>();
@@ -204,6 +205,11 @@ public class DefaultSchedule implements Schedule {
 	}
 
 	@Override
+	public int getStartTick() {
+		return startTick;
+	}
+
+	@Override
 	public void setTargetToNextTick() {
 		setTargetTick(tick);
 	}
@@ -255,6 +261,7 @@ public class DefaultSchedule implements Schedule {
 	 */
 	@Override
 	public void setStartTick(int tick) {
+		this.startTick = tick;
 		this.tick = tick;
 	}
 

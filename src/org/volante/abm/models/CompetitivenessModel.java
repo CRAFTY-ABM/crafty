@@ -32,10 +32,10 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
 public interface CompetitivenessModel extends Initialisable, Displayable {
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			Cell cell);
 
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply);
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply);
 
 	public double addUpMarginalUtilities(UnmodifiableNumberMap<Service> demand,
 			UnmodifiableNumberMap<Service> supply);
