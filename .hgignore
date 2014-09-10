@@ -6,3 +6,13 @@ syntax: regexp
 ^\.settings/org\.eclipse\.jdt\.ui\.prefs$
 syntax: regexp
 ^lib/CRAFTY\.jar$
+syntax: regexp
+^CRAFTY_Social_java\.xmi$
+syntax: regexp
+^CRAFTY_Social_kdm\.xmi$
+syntax: regexp
+^CRAFTY_Social\.uml$
+syntax: regexp
+^java2kdmFragments$
+syntax: regexp
+^lib/CRAFTY\.jar$

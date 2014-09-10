@@ -49,6 +49,8 @@ import org.volante.abm.serialization.GloballyInitialisable;
  * the service. Furthermore, this way take-overs only need to be reported in case there is an
  * {@link TakeoverObserver} registered.
  * 
+ * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) == length(AFTs))
+ * 
  * @author Sascha Holzhauer
  * @param <T>
  * 
@@ -98,25 +100,25 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		addColumn(new TakeOverAfTColumn());
 	}
 
+	public void initTakeOvers(Region region) {
+		numTakeOvers.put(region, new int[region.getPotentialAgents().size()][region
+				.getPotentialAgents().size()]);
+		if (maxAftID + 1 < region.getPotentialAgents().size()) {
+			for (int i = maxAftID + 1; i < region.getPotentialAgents().size(); i++) {
+				for (PotentialAgent pa : region.getPotentialAgents()) {
+					if (pa.getSerialID() == i) {
+						addColumn(new TakeOverColumn(pa.getID(), i));
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * @see org.volante.abm.output.TakeoverObserver#setTakeover(org.volante.abm.data.Region,
 	 *      org.volante.abm.agent.Agent, org.volante.abm.agent.Agent)
 	 */
 	public void setTakeover(Region region, Agent previousAgent, Agent newAgent) {
-		if (!numTakeOvers.containsKey(region)) {
-			numTakeOvers.put(region, new int[region.getPotentialAgents().size()][region
-					.getPotentialAgents().size()]);
-			if (maxAftID + 1 < region.getPotentialAgents().size()) {
-				for (int i = maxAftID + 1; i < region
-						.getPotentialAgents().size(); i++) {
-					for (PotentialAgent pa : region.getPotentialAgents()) {
-						if (pa.getSerialID() == i) {
-							addColumn(new TakeOverColumn(pa.getID(), i));
-						}
-					}
-				}
-			}
-		}
 		numTakeOvers.get(region)[previousAgent.getType().getSerialID()][newAgent.getType()
 				.getSerialID()]++;
 	}

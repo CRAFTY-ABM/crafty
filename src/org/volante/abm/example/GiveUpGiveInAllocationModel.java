@@ -57,27 +57,51 @@ import com.moseph.modelutils.Utilities.ScoreComparator;
 /**
  * A very simple kind of allocation. Any abandoned cells get the most competitive agent assigned to
  * them.
- *
+ * 
  * @author dmrust
- *
+ * 
  */
 public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implements TakeoverMessenger {
 
 	/**
 	 * Logger
 	 */
-	static private Logger	logger	= Logger.getLogger(GiveUpGiveInAllocationModel.class);
+	static private Logger	logger				= Logger.getLogger(GiveUpGiveInAllocationModel.class);
 
 	@Attribute(required = false)
-	public int	numCells			= 30;			// The number of cells an agent (type) can
-													// search over to find maximum competitiveness
+	public int				numCells			= 30;													// The
+																										// number
+																										// of
+																										// cells
+																										// an
+																										// agent
+																										// (type)
+																										// can
+																										// search
+																										// over
+																										// to
+																										// find
+																										// maximum
+																										// competitiveness
 	@Attribute(required = false)
-	public int	numTakeovers		= 30;			// The number of times an agent (type) can
-													// search the above no. of cells
+	public int				numTakeovers		= 30;													// The
+																										// number
+																										// of
+																										// times
+																										// an
+																										// agent
+																										// (type)
+																										// can
+																										// search
+																										// the
+																										// above
+																										// no.
+																										// of
+																										// cells
 	@Attribute(required = false)
-	public int	probabilityExponent	= 2;
-	Cell		perfectCell			= new Cell();
-	ModelData	data				= null;
+	public int				probabilityExponent	= 2;
+	Cell					perfectCell			= new Cell();
+	ModelData				data				= null;
 
 	Set<TakeoverObserver>	takeoverObserver	= new HashSet<TakeoverObserver>();
 
@@ -96,6 +120,13 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 */
 	@Override
 	public void allocateLand(final Region r) {
+		if (r.getRinfo().getSchedule().getCurrentTick() == r.getRinfo().getSchedule()
+				.getStartTick()) {
+			for (TakeoverObserver o : takeoverObserver) {
+				o.initTakeOvers(r);
+			}
+		}
+
 		super.allocateLand(r); // Puts the best agent on any unmanaged cells
 		Score<PotentialAgent> compScore = new Score<PotentialAgent>()
 		{
@@ -109,7 +140,6 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 			// Resample this each time to deal with changes in supply affecting competitiveness
 			Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(), compScore);
 
-			// RANU improve performance by using distribution instance
 			tryToComeIn(
 					sample(scores, true, r.getRandom().getURService(),
 							RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()), r);
@@ -118,7 +148,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 
 	/**
 	 * Tries to create one of the given agents if it can take over a cell
-	 *
+	 * 
 	 * @param a
 	 * @param r
 	 */
@@ -130,8 +160,8 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 * r.getCompetitiveness( agent.supply( c ), c ); } }); List<Cell> sorted = new
 	 * ArrayList<Cell>(competitiveness.keySet()); Collections.sort( sorted, new
 	 * ScoreComparator<Cell>( competitiveness ) );
-	 *
-	 *
+	 * 
+	 * 
 	 * for( Cell c : sorted ) { if( competitiveness.get( c ) < a.getGivingUp() ) break; boolean
 	 * canTake = c.getOwner().canTakeOver( c, competitiveness.get(c) ); if( canTake ) {
 	 * r.setOwnership( agent, c ); break; } } }
@@ -142,17 +172,16 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 			return; // In the rare case that all have 0 competitiveness, a can be null
 		}
 
-		// RANU improve performance by using distribution instance
-		Map<Cell, Double> competitiveness = scoreMap(sampleN(r.getCells(), numCells, r.getRandom().getURService(),
+		Map<Cell, Double> competitiveness = scoreMap(
+				sampleN(r.getCells(), numCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
 				new Score<Cell>() {
 					@Override
 					public double getScore(Cell c)
-			{
-				return r.getCompetitiveness(a, c);
-			}
+					{
+						return r.getCompetitiveness(a, c);
+					}
 				});
-
 
 		List<Cell> sorted = new ArrayList<Cell>(competitiveness.keySet());
 		Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));

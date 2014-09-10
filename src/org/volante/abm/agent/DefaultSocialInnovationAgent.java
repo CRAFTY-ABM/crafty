@@ -140,6 +140,8 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 		}
 		innovations.get(i).setAdoptedNeighbourShare(shareAdopters
 				/ this.region.getNetwork().getInDegree(this));
+
+		// TODO trigger decideAdoption here (check Region)
 	}
 
 	/**
