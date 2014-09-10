@@ -105,7 +105,7 @@ public class InstitutionsTest extends BasicTests
 		DoubleMap<Service> farmSupply = farming.getPotentialSupply( c11 );
 		DoubleMap<Service> forestSupply = forestry.getPotentialSupply( c11 );
 		@SuppressWarnings("deprecation")
-		double baseComp = r.getCompetitionModel().getCompetitveness( r.getDemandModel(), farmSupply );
+		double baseComp = r.getCompetitionModel().getCompetitiveness( r.getDemandModel(), farmSupply );
 		assertEquals( farmComp, baseComp, 0.0001 );
 		
 		Institutions inst = new Institutions();
@@ -145,7 +145,7 @@ public class InstitutionsTest extends BasicTests
 		DoubleMap<Service> farmSupply = farming.getPotentialSupply( c11 );
 		DoubleMap<Service> forestSupply = forestry.getPotentialSupply( c11 );
 		@SuppressWarnings("deprecation")
-		double baseComp = r.getCompetitionModel().getCompetitveness( r.getDemandModel(), farmSupply );
+		double baseComp = r.getCompetitionModel().getCompetitiveness( r.getDemandModel(), farmSupply );
 		assertEquals( farmComp, baseComp, 0.0001 );
 		
 		assertEquals( farmComp, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted

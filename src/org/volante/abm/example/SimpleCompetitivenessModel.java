@@ -57,14 +57,14 @@ public class SimpleCompetitivenessModel implements CompetitivenessModel
 	
 	
 	@Override
-	public double getCompetitveness( DemandModel demand, UnmodifiableNumberMap<Service> supply )
+	public double getCompetitiveness( DemandModel demand, UnmodifiableNumberMap<Service> supply )
 	{
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
 		return addUpMarginalUtilities( residual, supply );
 	}
 	
 	@Override
-	public double getCompetitveness( DemandModel demand, UnmodifiableNumberMap<Service> supply, Cell cell )
+	public double getCompetitiveness( DemandModel demand, UnmodifiableNumberMap<Service> supply, Cell cell )
 	{
 		DoubleMap<Service> residual = demand.getResidualDemand( cell ).copy();
 		if( removeCurrentLevel ) {
