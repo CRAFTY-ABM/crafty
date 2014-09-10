@@ -211,7 +211,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 			if (comp instanceof CurveCompetitivenessModel) {
 				((CurveCompetitivenessModel) comp).getCompetitveness(this, serv, true);
 			}
-			double score = comp.getCompetitveness(this, serv);
+			double score = comp.getCompetitiveness(this, serv);
 			utilities.put(s, score);
 		}
 		return utilities;

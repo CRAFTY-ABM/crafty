@@ -57,25 +57,28 @@ public class InnovativeInstitution extends AbstractInstitution {
 			.getLogger(InnovativeInstitution.class);
 
 	/**
-	 *
+	 * Innovation to release
 	 */
 	@Element(required = true)
 	protected Innovation				innovation = null;
 
+	/**
+	 * Tick of release
+	 */
 	@Element(required = false)
 	protected int innovationReleaseTick = 0;
 
 	/**
-	 *
+	 * Probability of an agent to become initially aware. This is alternative to numInitialAdopters!
 	 */
 	@Element(required = false)
 	protected String		initialAwarenessProb	= "0.05";
 
+	/**
+	 * Number of agents that become initially aware. This is alternative to numInitialAdopters!
+	 */
 	@Element(required = false)
 	protected int		numInitialAdopters		= 0;
-
-	@Element(required = false)
-	protected double	innovationEffect		= 1.002;
 
 	/**
 	 * Comma-separated list of AFT IDs that are allowed to adopt.
@@ -115,9 +118,6 @@ public class InnovativeInstitution extends AbstractInstitution {
 		logger.info("Update " + this);
 		// LOGGING ->
 
-		RandomEngine rEngine = region.getRandom().getURService()
-				.getGenerator(RandomPa.RANDOM_SEED_RUN.name());
-
 		if (info.getSchedule().getCurrentTick() == this.innovationReleaseTick) {
 			// <- LOGGING
 			logger.info("Make agents aware...");
@@ -156,6 +156,9 @@ public class InnovativeInstitution extends AbstractInstitution {
 					innovationAgents.remove(index);
 				}
 			} else {
+				RandomEngine rEngine = region.getRandom().getURService()
+						.getGenerator(RandomPa.RANDOM_SEED_RUN.name());
+
 				for (Agent agent : innovationAgents) {
 					if (agent instanceof InnovationAgent
 							&& rEngine.nextDouble() <= BatchRunParser.parseDouble(

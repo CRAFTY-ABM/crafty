@@ -85,16 +85,11 @@ public class ABMPersister extends EasyPersister {
 		
 		Extent e = r.getExtent();
 		Raster raster = new Raster(e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY());
+		raster.setNDATA(nDataString);
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
-		
-		// <- LOGGING
-		if (logger.isDebugEnabled()) {
-			logger.debug("Point 1, 2): " + raster.getValue(raster.yToRow(2), raster.xToCol(1)));
-		}
-		// LOGGING ->
-			
+
 		RasterWriter writer = new RasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);

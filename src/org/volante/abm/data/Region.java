@@ -418,7 +418,7 @@ public class Region implements Regions, PreTickAction {
 	public double getCompetitiveness(PotentialAgent agent, Cell c) {
 		if (hasInstitutions()) {
 			UnmodifiableNumberMap<Service> provision = agent.getPotentialSupply(c);
-			double comp = competition.getCompetitveness(demand, provision, c);
+			double comp = competition.getCompetitiveness(demand, provision, c);
 			return institutions.adjustCompetitiveness(agent, c, provision, comp);
 		} else {
 			return getUnadjustedCompetitiveness(agent, c);
@@ -433,7 +433,7 @@ public class Region implements Regions, PreTickAction {
 	 * @return
 	 */
 	public double getUnadjustedCompetitiveness(PotentialAgent agent, Cell c) {
-		return competition.getCompetitveness(demand, agent.getPotentialSupply(c), c);
+		return competition.getCompetitiveness(demand, agent.getPotentialSupply(c), c);
 	}
 
 	/**
@@ -445,7 +445,7 @@ public class Region implements Regions, PreTickAction {
 	 */
 	public double getCompetitiveness(Cell c) {
 		if (hasInstitutions()) {
-			double comp = competition.getCompetitveness(demand, c.getSupply(), c);
+			double comp = competition.getCompetitiveness(demand, c.getSupply(), c);
 			PotentialAgent a = c.getOwner() == null ? null : c.getOwner().getType();
 			return institutions.adjustCompetitiveness(a, c, c.getSupply(), comp);
 		} else {
@@ -463,14 +463,14 @@ public class Region implements Regions, PreTickAction {
 		if (competition == null || demand == null) {
 			return Double.NaN;
 		}
-		return competition.getCompetitveness(demand, c.getSupply(), c);
+		return competition.getCompetitiveness(demand, c.getSupply(), c);
 	}
 
 	public double getUnadjustedCompetitiveness(UnmodifiableNumberMap<Service> supply) {
 		if (competition == null || demand == null) {
 			return Double.NaN;
 		}
-		return competition.getCompetitveness(demand, supply);
+		return competition.getCompetitiveness(demand, supply);
 	}
 
 	/**

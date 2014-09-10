@@ -115,7 +115,7 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	}
 
 	@Override
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
 		return getCompetitveness(demand, supply, false);
 	}
 
@@ -130,7 +130,7 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	}
 
 	@Override
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			Cell cell) {
 		DoubleMap<Service> residual = demand.getResidualDemand(cell).copy();
 		if (removeCurrentLevel) {

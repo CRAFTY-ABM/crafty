@@ -35,4 +35,11 @@ import org.volante.abm.data.Region;
 public interface TakeoverObserver {
 
 	public void setTakeover(Region region, Agent previousAgent, Agent newAgent);
+
+	/**
+	 * To be called before the first output.
+	 * 
+	 * @param region
+	 */
+	public void initTakeOvers(Region region);
 }
