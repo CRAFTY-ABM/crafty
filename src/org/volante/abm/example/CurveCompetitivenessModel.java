@@ -49,7 +49,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
 /**
- * A simple model of competitiveness
+ * A more complex model of competitiveness allowing the applications of functions.
  * 
  * @author dmrust
  * 

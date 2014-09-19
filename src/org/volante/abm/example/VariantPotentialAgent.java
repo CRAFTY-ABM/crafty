@@ -98,7 +98,7 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 	/**
 	 * Returns a noisy version of the production model. Uses the serviceLevelNoise distribution to
 	 * create variance in the optimal levels of service production, and capitalImportanceNoise to
-	 * create variance in the importance of the captials to this production.
+	 * create variance in the importance of the capitals to this production.
 	 * 
 	 * Only works on SimpleProduction models at the moment.
 	 * 

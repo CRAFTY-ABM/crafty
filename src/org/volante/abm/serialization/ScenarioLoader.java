@@ -68,6 +68,12 @@ public class ScenarioLoader {
 	/**
 	 * Scenario name (default: "Unknown")
 	 */
+	@Attribute(name = "version", required = false)
+	String					version			= "V0";
+
+	/**
+	 * Scenario name (default: "Unknown")
+	 */
 	@Attribute(name = "scenario", required = false)
 	String scenario = "Unknown";
 	
@@ -139,9 +145,12 @@ public class ScenarioLoader {
 	public void initialise(RunInfo info) throws Exception {
 		this.setSchedule(info.getSchedule());
 
+		this.scenario = BatchRunParser.parseString(scenario, info);
+
 		this.info = info;
 		persister = info.getPersister();
 		persister.setContext("s", scenario);
+		persister.setContext("v", version);
 		persister.setContext("w", worldName);
 
 		schedule.setStartTick(startTick);

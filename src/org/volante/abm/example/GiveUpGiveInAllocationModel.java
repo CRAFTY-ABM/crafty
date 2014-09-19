@@ -47,6 +47,7 @@ import org.volante.abm.output.TakeoverMessenger;
 import org.volante.abm.output.TakeoverObserver;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.serialization.BatchRunParser;
 
 import com.moseph.modelutils.Utilities;
 import com.moseph.modelutils.Utilities.Score;
@@ -67,36 +68,27 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 */
 	static private Logger	logger				= Logger.getLogger(GiveUpGiveInAllocationModel.class);
 
+	/**
+	 * The number of cells an agent (type) can search over to find maximum competitiveness
+	 */
 	@Attribute(required = false)
-	public int				numCells			= 30;													// The
-																										// number
-																										// of
-																										// cells
-																										// an
-																										// agent
-																										// (type)
-																										// can
-																										// search
-																										// over
-																										// to
-																										// find
-																										// maximum
-																										// competitiveness
+	public String			numCells			= "NaN";
+
+	public int				numSearchedCells	= Integer.MIN_VALUE;
+
+	/**
+	 * Alternative to {@link this#numCells}: specify the percentage of entire cells in the region to
+	 * search over.
+	 */
 	@Attribute(required = false)
-	public int				numTakeovers		= 30;													// The
-																										// number
-																										// of
-																										// times
-																										// an
-																										// agent
-																										// (type)
-																										// can
-																										// search
-																										// the
-																										// above
-																										// no.
-																										// of
-																										// cells
+	public String			percentageCells		= "NaN";
+
+	/**
+	 * The number of times an agent (type) can search the above no. of
+	 */
+	@Attribute(required = false)
+	public int				numTakeovers		= 30;
+
 	@Attribute(required = false)
 	public int				probabilityExponent	= 2;
 	Cell					perfectCell			= new Cell();
@@ -107,6 +99,27 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
 		super.initialise(data, info, r);
+
+		if (!numCells.equals("NaN") && !this.percentageCells.equals("Double.NaN")) {
+			logger.error("You may not specify both, numCells and percentageCells!");
+			throw new IllegalStateException(
+					"You may not specify both, numCells and percentageCells!");
+		}
+
+		if (numCells.equals("NaN")) {
+			if (this.percentageCells.equals("Double.NaN")) {
+				logger.error("You need to specify either numCells or percentageCells!");
+				throw new IllegalStateException(
+						"You need to specify either numCells or percentageCells!");
+			} else {
+				this.numSearchedCells = (int) (r.getNumCells()
+						* BatchRunParser.parseDouble(this.percentageCells, info) / 100.0);
+			}
+		} else {
+			this.numSearchedCells = BatchRunParser.parseInt(this.numCells, info);
+		}
+
+
 		this.data = data;
 		perfectCell.initialise(data, info, r);
 		for (Capital c : data.capitals) {
@@ -172,7 +185,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 		}
 
 		Map<Cell, Double> competitiveness = scoreMap(
-				sampleN(r.getCells(), numCells, r.getRandom().getURService(),
+				sampleN(r.getCells(), numSearchedCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
 				new Score<Cell>() {
 					@Override
@@ -189,6 +202,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 		// For checking cells randomly:
 		Utilities.shuffle(sorted, r.getRandom().getURService(),
 				RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
+
+		logger.debug("Allocate " + sorted.size() + " cells (region " + r.getID() + " has "
+				+ r.getNumCells() + " cells).");
 
 		for (Cell c : sorted) {
 			// if (competitiveness.get(c) < a.getGivingUp()) return;

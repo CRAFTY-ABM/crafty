@@ -64,7 +64,8 @@ public class WorldLoader {
 	@Attribute(required=false)
 	String potentialColumn = "Agents";
 	@Attribute(required=false)
-
+	String institutionsColumn = "Institutions";
+	@Attribute(required = false)
 	String cellColumn = "Cell Initialisers";
 	@Attribute(required=false)
 	String agentColumn = "Agent Initialisers";
@@ -87,7 +88,7 @@ public class WorldLoader {
 			loaders.add( persister.readXML( RegionLoader.class, l ) );
 		}
 		for( String c : regionCSV ) {
-			loaders.addAll( allLoaders( c ));
+			loaders.addAll(allLoaders(BatchRunParser.parseString(c, info)));
 		}
 	}
 	
@@ -127,7 +128,7 @@ public class WorldLoader {
 	RegionLoader loaderFromCSV( CsvReader reader ) throws IOException
 	{
 		return new RegionLoader( reader.get(idColumn), reader.get(competitionColumn), reader.get(allocationColumn),
-				reader.get(demandColumn), reader.get(potentialColumn), reader.get(cellColumn), null );
+				reader.get(demandColumn), reader.get(potentialColumn), reader.get(cellColumn), null, reader.get(institutionsColumn));
 	}
 	
 	public void setModelData( ModelData data ) { this.modelData = data; }

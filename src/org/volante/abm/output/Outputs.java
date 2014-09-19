@@ -62,11 +62,11 @@ import org.volante.abm.serialization.GloballyInitialisable;
  */
 public class Outputs implements GloballyInitialisable {
 	@Attribute(required = false, name = "outputDirectory")
-	String					outputDirectoryPattern	= "output";
+	String					outputDirectoryPattern	= "output/%w/%s/%i/%r";
 	@Attribute(required = false)
-	String					filePattern				= "%n-%i-%o";
+	String					filePattern				= "%s-%i-%r-%o";
 	@Attribute(required = false)
-	String					tickPattern				= "%n-%i-%o-%t";
+	String					tickPattern				= "%s-%i-%r-%o-%y";
 	@Attribute(required = false)
 	String					outputsFile				= "";
 	@ElementList(inline = true, required = false, entry = "output")
