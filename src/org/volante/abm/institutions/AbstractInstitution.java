@@ -38,9 +38,9 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  */
 public class AbstractInstitution implements Institution
 {
-	ModelData	data	= null;
-	RunInfo		info	= null;
-	Region		region	= null;
+	protected ModelData	modelData	= null;
+	protected RunInfo	rInfo	= null;
+	protected Region	region	= null;
 
 	@Override
 	public void adjustCapitals( Cell c )
@@ -58,8 +58,8 @@ public class AbstractInstitution implements Institution
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region extent ) throws Exception
 	{
-		this.data = data;
-		this.info = info;
+		this.modelData = data;
+		this.rInfo = info;
 		this.region = extent;
 	}
 }

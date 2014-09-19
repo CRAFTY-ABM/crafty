@@ -339,7 +339,6 @@ public class RegionLoader {
 		if (this.randomSeed != Integer.MIN_VALUE) {
 			PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
 		}
-		region.initialise(modelData, runInfo, null);
 	}
 
 	public Cell getCell(int x, int y) {

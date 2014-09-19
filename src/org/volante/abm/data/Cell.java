@@ -47,8 +47,11 @@ public class Cell implements Initialisable {
 	 */
 	DoubleMap<Capital>	baseCapitals		= null;				// Current levels of
 																	// baseCapitals
-	DoubleMap<Capital>	effectiveCapitals	= null;				// Current levels of
-																	// baseCapitals
+	DoubleMap<Capital>			effectiveCapitals	= null;				// Current levels of
+																			// effective capitals
+																			// (including
+																			// institutional
+																			// effects)
 	// DoubleMap<Service> demand; //Current levels of spatialised demand
 	DoubleMap<Service>	supply				= null;				// Current levels of spatialised
 																	// supply
