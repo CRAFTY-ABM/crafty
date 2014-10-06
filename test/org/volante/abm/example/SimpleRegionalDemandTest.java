@@ -28,7 +28,7 @@ public class SimpleRegionalDemandTest extends BasicTests
 		
 		//Create a farmer, get it farming
 		farmer = (DefaultAgent) farming.createAgent( r1 );
-		
+
 		//Create a farmer, get it farming
 		forester = (DefaultAgent) forestry.createAgent( r1 );
 	}

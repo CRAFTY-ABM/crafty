@@ -38,17 +38,29 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
+import org.volante.abm.decision.innovations.InnovationRegistry;
 import org.volante.abm.institutions.Institutions;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
+import org.volante.abm.param.GeoPa;
 import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
+
+import repast.simphony.space.gis.DefaultGeography;
+import repast.simphony.space.gis.Geography;
+import repast.simphony.space.gis.GeographyParameters;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
+import de.cesr.more.basic.edge.MoreEdge;
+import de.cesr.more.basic.network.MoreNetwork;
+import de.cesr.more.building.network.MoreNetworkService;
 import de.cesr.parma.core.PmParameterManager;
 
 
@@ -57,27 +69,45 @@ public class Region implements Regions, PreTickAction {
 	/**
 	 * Logger
 	 */
-	static private Logger	logger			= Logger.getLogger(Region.class);
+	static private Logger	logger						= Logger.getLogger(Region.class);
+
+	static final String		GEOGRAPHY_NAME_EXTENSION	= "_Geography";
 
 	/*
 	 * Main data fields
+	 * 
+	 * LinkedHashMaps are required to guarantee a defined order of agent creation
+	 * which usually involves random number generation (cells > available > allocation)
 	 */
-	Set<Cell>				cells			= new HashSet<Cell>();
-	Set<Agent>				agents			= new HashSet<Agent>();
-	Set<Agent>				agentsToRemove	= new HashSet<Agent>();
-	AllocationModel			allocation		= null;
-	CompetitivenessModel	competition		= null;
-	DemandModel				demand			= null;
-	Set<Cell>				available		= new HashSet<Cell>();
-	Set<PotentialAgent>		potentialAgents	= new LinkedHashSet<PotentialAgent>();
-	ModelData				data			= null;
-	RunInfo					rinfo			= null;
-	Institutions			institutions	= null;
-	String					id				= "UnknownRegion";
+	Set<Cell>				cells						= new LinkedHashSet<Cell>();
+	Set<Agent>				agents						= new LinkedHashSet<Agent>();
+	Set<Agent>				agentsToRemove				= new LinkedHashSet<Agent>();
+	AllocationModel			allocation;
+	CompetitivenessModel	competition;
+	DemandModel				demand;
+	Set<Cell>				available					= new LinkedHashSet<Cell>();
+	Set<PotentialAgent>		potentialAgents				= new LinkedHashSet<PotentialAgent>();
+	ModelData				data;
+	RunInfo					rinfo;
+	Institutions			institutions				= null;
+	String					id							= "UnknownRegion";
+
+
+	Map<Object, RegionHelper>	helpers					= new LinkedHashMap<Object, RegionHelper>();
+
+	InnovationRegistry		innovationRegistry			= new InnovationRegistry(this);
+
+	/**
+	 * @return the innovationRegistry
+	 */
+	public InnovationRegistry getInnovationRegistry() {
+		return innovationRegistry;
+	}
+
+	Geography<Object>	geography;
+	GeometryFactory		geoFactory;
 
 	RegionalRandom			random			= null;
-
-	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
 
 	/**
 	 * @return the random
@@ -87,10 +117,111 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
+	 * @return the geoFactory
+	 */
+	public GeometryFactory getGeoFactory() {
+		if (this.geoFactory == null) {
+			// geometry factory with floating precision model (default)
+			this.geoFactory =
+						new GeometryFactory(new PrecisionModel(), 32632);
+		}
+		return geoFactory;
+	}
+
+	/**
+	 * @return the geography
+	 */
+	public Geography<Object> getGeography() {
+		if (this.geography == null) {
+			// Causes the CRS factory to apply (longitude, latitude) order of
+			// axis:
+			// TODO
+			// System.setProperty(GeoTools.FORCE_LONGITUDE_FIRST_AXIS_ORDER,
+			// "true");
+			GeographyParameters<Object> geoParams = new GeographyParameters<Object>();
+			geoParams.setCrs((String) PmParameterManager
+					.getParameter(GeoPa.CRS));
+
+			String crsCode = geoParams.getCrs();
+			this.geography = new DefaultGeography<Object>(this.id
+					+ GEOGRAPHY_NAME_EXTENSION,
+					crsCode);
+
+			this.geography.setAdder(geoParams.getAdder());
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Geography CRS: " + this.geography.getCRS());
+			}
+			// LOGGING ->
+		}
+		return this.geography;
+	}
+
+	/**
 	 * @return the rinfo
 	 */
 	public RunInfo getRinfo() {
 		return rinfo;
+	}
+
+	MoreNetworkService<Agent, ? extends MoreEdge<Agent>>	networkService;
+
+	/**
+	 * @return the networkService
+	 */
+	public MoreNetworkService<Agent, ? extends MoreEdge<Agent>> getNetworkService() {
+		return networkService;
+	}
+
+	/**
+	 * Sets the network service.
+	 * 
+	 * @param networkService
+	 *        the networkService to set
+	 */
+	public void setNetworkService(
+			MoreNetworkService<Agent, ? extends MoreEdge<Agent>> networkService) {
+		this.networkService = networkService;
+	}
+
+	MoreNetwork<Agent, MoreEdge<Agent>>	network;
+
+	/**
+	 * @return the network
+	 */
+	public MoreNetwork<Agent, MoreEdge<Agent>> getNetwork() {
+		return network;
+	}
+
+	/**
+	 * @param network
+	 *        the network to set
+	 */
+	public void setNetwork(MoreNetwork<Agent, MoreEdge<Agent>> network) {
+		this.network = network;
+	}
+
+	/**
+	 * 
+	 */
+	public void perceiveSocialNetwork() {
+		if (this.getNetwork() != null) {
+
+			logger.info("Perceive social network.");
+
+			for (Agent a : this.getAgents()) {
+				if (a instanceof SocialAgent) {
+					((SocialAgent) a).perceiveSocialNetwork();
+				}
+			}
+
+			for (RegionHelper helper : this.helpers.values()) {
+				if (helper instanceof SocialRegionHelper) {
+					((SocialRegionHelper) helper).socialNetworkPerceived();
+				}
+			}
+		}
 	}
 
 	/*
@@ -430,7 +561,7 @@ public class Region implements Regions, PreTickAction {
 	/**
 	 * Called after all cells in the region have been created, to allow building a table of them
 	 */
-	public void cellsCreated()
+	public void cellsCreated() 
 	{
 		log.info("Update Extent...");
 		for (Cell c : cells) {
