@@ -13,7 +13,6 @@ import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
-import org.volante.abm.data.Service;
 import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.schedule.RunInfo;
 
@@ -51,7 +50,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	@Element(required = false)
 	String tickCol = "Year";
 
-	Map<Service, Curve> capitalFactorCurves = new HashMap<Service, Curve>();
+	Map<Capital, Curve>		capitalFactorCurves		= new HashMap<Capital, Curve>();
 
 	/**
 	 * @see org.volante.abm.institutions.AbstractInstitution#adjustCapitals(org.volante.abm.data.Cell)
@@ -64,6 +63,8 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 		
 		for (Capital capital : modelData.capitals) {
 			if (capitalFactorCurves.containsKey(capital)) {
+				double factor = capitalFactorCurves.get(capital).sample(tick);
+				double base = baseCapitals.getDouble(capital);
 				adjusted.put(capital, baseCapitals.getDouble(capital)
 						* capitalFactorCurves.get(capital).sample(tick));
 			}
@@ -77,6 +78,10 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	public void initialise(ModelData data, RunInfo info, Region extent)
 			throws Exception {
 		super.initialise(data, info, extent);
+
+		// <- LOGGING
+		logger.info("Initialise " + this);
+		// LOGGING ->
 
 		if (captialAdjustmentsCSV != null) {
 			loadCapitalFactorCurves();
@@ -92,13 +97,28 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 				+ captialAdjustmentsCSV);
 		// LOGGING ->
 
-		Map<String, LinearInterpolator> curves = rInfo.getPersister()
-				.csvVerticalToCurves(captialAdjustmentsCSV, tickCol,
-						modelData.services.names());
-		for (Service s : modelData.services) {
-			if (curves.containsKey(s.getName())) {
-				capitalFactorCurves.put(s, curves.get(s.getName()));
+		try {
+			Map<String, LinearInterpolator> curves = rInfo.getPersister()
+					.csvVerticalToCurves(captialAdjustmentsCSV, tickCol,
+							modelData.capitals.names());
+			for (Capital c : modelData.capitals) {
+				if (curves.containsKey(c.getName())) {
+					capitalFactorCurves.put(c, curves.get(c.getName()));
+				}
 			}
+		} catch (NumberFormatException e) {
+			logger.error("A required number could not be parsed from " + captialAdjustmentsCSV
+					+ ". Make "
+					+ "sure the CSV files contains columns " + modelData.services.names());
+			throw e;
 		}
+	}
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Capital Dynamics Institution";
 	}
 }

@@ -55,12 +55,19 @@ public class SimpleCompetitivenessModel implements CompetitivenessModel
 	@Attribute(required=false)
 	boolean removeNegative = false;
 	
+	Region	region				= null;
+
+	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
+		this.region = extent;
+	}
 	
 	@Override
-	public double getCompetitiveness( DemandModel demand, UnmodifiableNumberMap<Service> supply )
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply)
 	{
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
-		return addUpMarginalUtilities( residual, supply );
+		residual.multiplyInto(1.0 / region.getNumCells(), residual);
+
+		return addUpMarginalUtilities(residual, supply);
 	}
 	
 	@Override
@@ -89,8 +96,6 @@ public class SimpleCompetitivenessModel implements CompetitivenessModel
 	public void setRemoveCurrentLevel( boolean removeCurrentLevel ) { this.removeCurrentLevel = removeCurrentLevel; }
 	public boolean isRemoveNegative() { return removeNegative; }
 	public void setRemoveNegative( boolean removeNegative ) { this.removeNegative = removeNegative; }
-	@Override
-	public void initialise( ModelData data, RunInfo info, Region r ){}
 
 	@Override
 	public CompetitivenessDisplay getDisplay() { return new SimpleCompetitivenessDisplay( this ); }

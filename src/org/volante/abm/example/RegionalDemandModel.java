@@ -186,6 +186,8 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 			}
 		}
 		log.info("Demand: " + demand.prettyPrint());
+		// important to adapt residual-per-cell values to new demands:
+		recalculateResidual();
 	}
 
 	@Override

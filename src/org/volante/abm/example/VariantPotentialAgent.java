@@ -23,6 +23,8 @@
 package org.volante.abm.example;
 
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
@@ -44,6 +46,11 @@ import com.moseph.modelutils.distribution.Distribution;
  */
 public class VariantPotentialAgent extends SimplePotentialAgent
 {
+	/**
+	 * Logger
+	 */
+	static private Logger	logger					= Logger.getLogger(VariantPotentialAgent.class);
+
 	@Element(required = false)
 	Distribution	givingUpDistribution	= null;
 	@Element(required = false)
@@ -64,10 +71,32 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 		if (givingUpDistribution != null) {
 			this.givingUpDistribution.init(r.getRandom().getURService(),
 					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
+			// make sure that potential agent's GU value correspond to the normal distribution's
+			// mean:
+			if (this.givingUpDistribution instanceof NormalDistribution) {
+				if (this.givingUp != ((NormalDistribution) this.givingUpDistribution).getMean()) {
+					// <- LOGGING
+					logger.warn("Distirbution mean did not correspond to potential agent's value for givingUp threshold: "
+							+ "Set givingUp treshold to distribution mean!");
+					// LOGGING ->
+					this.givingUp = ((NormalDistribution) this.givingUpDistribution).getMean();
+				}
+			}
 		}
 		if (givingInDistribution != null) {
 			this.givingInDistribution.init(r.getRandom().getURService(),
 					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
+			// make sure that potential agent's GI value correspond to the normal distribution's
+			// mean:
+			if (this.givingInDistribution instanceof NormalDistribution) {
+				if (this.givingIn != ((NormalDistribution) this.givingInDistribution).getMean()) {
+					// <- LOGGING
+					logger.warn("Distirbution mean did not correspond to potential agent's value for givingIn threshold: "
+							+ "Set givingIn treshold to distribution mean!");
+					// LOGGING ->
+					this.givingIn = ((NormalDistribution) this.givingInDistribution).getMean();
+				}
+			}
 		}
 	}
 

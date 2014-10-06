@@ -135,9 +135,9 @@ public class CsvBatchRunParser {
 						run = Integer.parseInt(reader.get(0));
 					} catch (NumberFormatException e) {
 						logger.error("CSV parameter file >" + filename
-								+ "< has not a first column parable to integer");
+								+ "< has not a first column parsable to integer");
 						throw new IllegalStateException("CSV parameter file >" + filename
-								+ "< has not a first column parable to integer");
+								+ "< has not a first column parsable to integer");
 					}
 					for (int i = 0; i < reader.getColumnCount(); i++) {
 						fileMap.get(reader.getHeaders()[i]).put(new Integer(run), reader.get(i));

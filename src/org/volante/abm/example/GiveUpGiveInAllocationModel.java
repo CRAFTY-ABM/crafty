@@ -74,7 +74,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	@Attribute(required = false)
 	public String			numCells			= "NaN";
 
-	public int				numSearchedCells	= Integer.MIN_VALUE;
+	protected int			numSearchedCells	= Integer.MIN_VALUE;
 
 	/**
 	 * Alternative to {@link this#numCells}: specify the percentage of entire cells in the region to
@@ -87,8 +87,20 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 * The number of times an agent (type) can search the above no. of
 	 */
 	@Attribute(required = false)
-	public int				numTakeovers		= 30;
-
+	public int				numTakeovers		= 30;													// The
+																										// number
+																										// of
+																										// times
+																										// an
+																										// agent
+																										// (type)
+																										// can
+																										// search
+																										// the
+																										// above
+																										// no.
+																										// of
+																										// cells
 	@Attribute(required = false)
 	public int				probabilityExponent	= 2;
 	Cell					perfectCell			= new Cell();
@@ -100,14 +112,14 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	public void initialise(ModelData data, RunInfo info, Region r) {
 		super.initialise(data, info, r);
 
-		if (!numCells.equals("NaN") && !this.percentageCells.equals("Double.NaN")) {
+		if (!numCells.equals("NaN") && !this.percentageCells.equals("NaN")) {
 			logger.error("You may not specify both, numCells and percentageCells!");
 			throw new IllegalStateException(
 					"You may not specify both, numCells and percentageCells!");
 		}
 
 		if (numCells.equals("NaN")) {
-			if (this.percentageCells.equals("Double.NaN")) {
+			if (this.percentageCells.equals("NaN")) {
 				logger.error("You need to specify either numCells or percentageCells!");
 				throw new IllegalStateException(
 						"You need to specify either numCells or percentageCells!");
