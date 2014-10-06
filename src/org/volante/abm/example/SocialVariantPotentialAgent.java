@@ -19,24 +19,34 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 09.04.2014
+ * Created by Sascha Holzhauer on 29 Sep 2014
  */
-package org.volante.abm.decision.innovations;
+package org.volante.abm.example;
+
+
+import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.DefaultAgent;
+import org.volante.abm.agent.DefaultSocialInnovationAgent;
+import org.volante.abm.data.Cell;
+import org.volante.abm.data.Region;
+
 
 /**
  * @author Sascha Holzhauer
  *
  */
-public enum InnovationStates implements InnovationState {
+public class SocialVariantPotentialAgent extends VariantPotentialAgent {
 
-	UNAWARE,
-	AWARE,
-	TRIAL,
-	ADOPTED,
-	REJECTED;
+	public Agent createAgent(Region region, Cell... cells)
+	{
+		DefaultAgent da = new DefaultSocialInnovationAgent(this, id, data, region, productionModel(
+				production,
+				region), givingUp(), givingIn());
+		if (ageDistribution != null) {
+			da.setAge((int) ageDistribution.sample());
+		}
+		region.setOwnership(da, cells);
 
-	@Override
-	public int getID() {
-		return this.ordinal();
+		return da;
 	}
 }

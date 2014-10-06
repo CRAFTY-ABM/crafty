@@ -48,5 +48,4 @@ public class SimpleAllocationTest extends BasicTests
 		r1.getAllocationModel().allocateLand( r1 );
 		assertEquals( forestry.getID(), c11.getOwner().getID() ); //Make sure that demand for food gives a farmer
 	}
-
 }

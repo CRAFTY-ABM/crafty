@@ -40,7 +40,15 @@ public class BatchRunParser {
 	static private Logger	logger	= Logger.getLogger(BatchRunParser.class);
 
 	public static double parseDouble(String text, RunInfo rInfo) {
-		if (text.contains("(")) {
+		if (text.contains("@")) {
+			return CsvBatchRunParser.parseDouble(text, rInfo);
+
+		} else if (text.contains("|")) {
+			int run = rInfo.getCurrentRun();
+			String[] values = text.split("\\|");
+			return Double.parseDouble(values[run]);
+
+		} else if (text.contains("(")) {
 			int run = rInfo.getCurrentRun();
 			double[] values;
 
@@ -49,13 +57,54 @@ public class BatchRunParser {
 
 			return values[run];
 
+		} else {
+			return Double.parseDouble(text);
+		}
+	}
+
+	public static int parseInt(String text, RunInfo rInfo) {
+		if (text.startsWith("@")) {
+			return CsvBatchRunParser.parseInt(text, rInfo);
+
 		} else if (text.contains("|")) {
 			int run = rInfo.getCurrentRun();
 			String[] values = text.split("\\|");
-			return Double.parseDouble(values[run]);
+			return Integer.parseInt(values[run]);
+
+		} else if (text.contains("(")) {
+			int run = rInfo.getCurrentRun();
+			int[] values;
+
+			// parse parameters for all run configurations:
+			values = parseRIntArray(text, rInfo);
+
+			return values[run];
 
 		} else {
-			return Double.parseDouble(text);
+			return Integer.parseInt(text);
+		}
+	}
+
+	public static String parseString(String text, RunInfo rInfo) {
+		if (text.contains("@")) {
+			return CsvBatchRunParser.parseString(text, rInfo);
+
+		} else if (text.contains("|")) {
+			int run = rInfo.getCurrentRun();
+			String[] values = text.split("\\|");
+			return values[run];
+
+		} else if (text.contains("(")) {
+			int run = rInfo.getCurrentRun();
+			String[] values;
+
+			// parse parameters for all run configurations:
+			values = parseRStringArray(text, rInfo);
+
+			return values[run];
+
+		} else {
+			return text;
 		}
 	}
 
@@ -64,14 +113,28 @@ public class BatchRunParser {
 
 		REXP result;
 
-		// <- LOGGING
-		if (logger.isDebugEnabled()) {
-			re.eval("print(g)");
-		}
-		// LOGGING ->
-
 		result = re.eval(text);
 		logger.info("Result: " + result);
 		return result.asDoubleArray();
+	}
+
+	private static int[] parseRIntArray(String text, RunInfo rInfo) {
+		Rengine re = RService.getRengine(rInfo);
+
+		REXP result;
+
+		result = re.eval(text);
+		logger.info("Result: " + result);
+		return result.asIntArray();
+	}
+
+	private static String[] parseRStringArray(String text, RunInfo rInfo) {
+		Rengine re = RService.getRengine(rInfo);
+
+		REXP result;
+
+		result = re.eval(text);
+		logger.info("Result: " + result);
+		return result.asStringArray();
 	}
 }

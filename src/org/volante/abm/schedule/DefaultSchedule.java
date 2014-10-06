@@ -105,7 +105,7 @@ public class DefaultSchedule implements Schedule {
 		log.info("Update agents' competitiveness and consider giving up ...");
 		for (Agent a : regions.getAllAgents()) {
 			if (a instanceof InnovationAgent) {
-				((InnovationAgent) a).decideAdoption();
+				((InnovationAgent) a).considerInnovationsNextStep();
 			}
 
 			a.tickStartUpdate();

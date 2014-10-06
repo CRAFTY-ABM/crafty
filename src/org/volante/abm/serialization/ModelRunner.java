@@ -94,16 +94,21 @@ public class ModelRunner
 						.parseInt(cmd.getOptionValue('o')))
 						: (int) System
 								.currentTimeMillis();
-				logger.info("Run " + i + " (of " + numRuns + ") with random seed " + randomSeed);
-				PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
-
 				// Worry about random seeds here...
 				RunInfo rInfo = new RunInfo();
 				rInfo.setNumRuns(numRuns);
 				rInfo.setNumRandomVariations(numOfRandVariation);
 				rInfo.setCurrentRun(i);
 				rInfo.setCurrentRandomSeed(randomSeed);
-				doRun(filename, directory, start, end, rInfo, interactive);
+
+				ABMPersister.getInstance().setBaseDir(directory);
+				if (cmd.hasOption("se") ? BatchRunParser.parseInt(cmd.getOptionValue("se"), rInfo) == 1
+						: true) {
+					logger.info("Run " + i + " (of " + numRuns + ") with random seed " + randomSeed);
+					PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
+
+					doRun(filename, directory, start, end, rInfo, interactive);
+				}
 			}
 		}
 	}
@@ -221,7 +226,7 @@ public class ModelRunner
 
 		options.addOption(OptionBuilder.withArgName("startRun")
 				.hasArg()
-				.withDescription("Number of run to start with")
+				.withDescription("Number of run to start with (first one is 0)")
 				.withType(Integer.class)
 				.withLongOpt("startRun")
 				.isRequired(false)
@@ -243,6 +248,13 @@ public class ModelRunner
 				.isRequired(false)
 				.create("o"));
 
+		options.addOption(OptionBuilder.withArgName("subset")
+				.hasArg()
+				.withDescription("Expression that is checked to return 1 for each started run.")
+				.withType(Integer.class)
+				.withLongOpt("subsetExpression")
+				.isRequired(false)
+				.create("se"));
 		return options;
 	}
 }

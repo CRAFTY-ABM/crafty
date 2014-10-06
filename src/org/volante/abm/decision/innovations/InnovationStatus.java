@@ -40,4 +40,6 @@ public interface InnovationStatus {
 	public void trial();
 
 	public void adopt();
+
+	public void reject();
 }

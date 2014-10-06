@@ -50,6 +50,18 @@ public interface InnovationAgent extends Agent {
 	public void makeAware(Innovation innovation);
 
 	/**
+	 * Checks each registered innovation for its status in order to consider taking the next status.
+	 * Calls {@link this#considerTrial(Innovation)} or {@link this#considerAdoption(Innovation)} as
+	 * appropriate.
+	 */
+	public void considerInnovationsNextStep();
+
+	/**
+	 * Lets this agent decide whether to trial the given innovation.
+	 */
+	public void considerTrial(Innovation innovation);
+
+	/**
 	 * Gives the given innovation a trial. Sets the innovation's state to
 	 * {@link InnovationStates#TRIAL}.
 	 * 
@@ -58,9 +70,33 @@ public interface InnovationAgent extends Agent {
 	public void makeTrial(Innovation innovation);
 
 	/**
-	 * TODO make more generic
+	 * Lets this agent decide whether to adopt the given innovation.
+	 * 
+	 * @param innovation
 	 */
-	public void decideAdoption();
+	public void considerAdoption(Innovation innovation);
+
+	/**
+	 * Adopts the given innovation. Sets the innovation's state to {@link InnovationStates#ADOPTED}.
+	 * 
+	 * @param innovation
+	 */
+	public void makeAdopted(Innovation innovation);
+
+	/**
+	 * Lets this agent decide whether to reject the given innovation.
+	 * 
+	 * @param innovation
+	 */
+	public void considerRejection(Innovation innovation);
+
+	/**
+	 * Rejects the given innovation. Sets the innovation's state to
+	 * {@link InnovationStates#REJECTED}.
+	 * 
+	 * @param innovation
+	 */
+	public void rejectInnovation(Innovation innovation);
 
 	/**
 	 * 

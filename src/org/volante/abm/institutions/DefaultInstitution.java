@@ -38,7 +38,6 @@ import org.volante.abm.schedule.RunInfo;
 import com.moseph.modelutils.fastdata.DoubleMap;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
-
 public class DefaultInstitution extends AbstractInstitution {
 	DoubleMap<Service>			subsidies				= null;
 	DoubleMap<Capital>			adjustments				= null;

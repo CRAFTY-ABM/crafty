@@ -35,7 +35,7 @@ import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.testutils.CraftyTestUtils;
 
 import de.cesr.more.param.MMilieuNetworkParameterMap;
-import de.cesr.more.param.MNetBuildWsPa;
+import de.cesr.more.param.MNetBuildWbSwPa;
 import de.cesr.more.param.MNetworkBuildingPa;
 import de.cesr.more.param.MRandomPa;
 import de.cesr.parma.core.PmParameterManager;
@@ -79,14 +79,14 @@ public class SocialNetworkLoaderTest extends BasicTests {
 		PmParameterManager pm = loader.getPm();
 		MMilieuNetworkParameterMap pmap = (MMilieuNetworkParameterMap) pm
 				.getParam(MNetworkBuildingPa.MILIEU_NETWORK_PARAMS);
-		assertEquals(10, pmap.getMilieuParam(MNetBuildWsPa.K, 1));
-		assertEquals(5, pmap.getMilieuParam(MNetBuildWsPa.K, 2));
-		assertEquals(4, pmap.getMilieuParam(MNetBuildWsPa.K, 3));
-		assertEquals(8, pmap.getMilieuParam(MNetBuildWsPa.K, 4));
+		assertEquals(10, pmap.getMilieuParam(MNetBuildWbSwPa.K, 1));
+		assertEquals(5, pmap.getMilieuParam(MNetBuildWbSwPa.K, 2));
+		assertEquals(4, pmap.getMilieuParam(MNetBuildWbSwPa.K, 3));
+		assertEquals(8, pmap.getMilieuParam(MNetBuildWbSwPa.K, 4));
 		
 		assertEquals(42, ((Integer) pm.getParam(MRandomPa.RANDOM_SEED_NETWORK_BUILDING)).intValue());
 
-		assertEquals("de.cesr.more.building.network.MWattsBetaSwBuilder",
+		assertEquals("de.cesr.more.building.network.MWattsBetaSwNetworkService",
 				loader.getNetworkGeneratorClass());
 	}
 

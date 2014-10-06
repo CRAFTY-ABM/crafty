@@ -50,23 +50,43 @@ public class SimpleInnovationStatus implements InnovationStatus {
 		this.adoptedNeighbourShare = adoptedNeighbourShare;
 	}
 
+	/**
+	 * @see org.volante.abm.decision.innovations.InnovationStatus#getState()
+	 */
 	@Override
 	public InnovationState getState() {
 		return this.state;
 	}
 
+	/**
+	 * @see org.volante.abm.decision.innovations.InnovationStatus#aware()
+	 */
 	@Override
 	public void aware() {
 		this.state = InnovationStates.AWARE;
 	}
 
+	/**
+	 * @see org.volante.abm.decision.innovations.InnovationStatus#trial()
+	 */
 	@Override
 	public void trial() {
 		this.state = InnovationStates.TRIAL;
 	}
 
+	/**
+	 * @see org.volante.abm.decision.innovations.InnovationStatus#adopt()
+	 */
 	@Override
 	public void adopt() {
 		this.state = InnovationStates.ADOPTED;
+	}
+
+	/**
+	 * @see org.volante.abm.decision.innovations.InnovationStatus#reject()
+	 */
+	@Override
+	public void reject() {
+		this.state = InnovationStates.REJECTED;
 	}
 }

@@ -115,6 +115,12 @@ public class CellTable extends TableOutputter<Cell> {
 				addColumn(new CellCapitalColumn(s));
 			}
 		}
+		if (addLandUse) {
+			addColumn(new CellLandUseColumn());
+		}
+		if (addLandUseIndex) {
+			addColumn(new CellLandUseIndexColumn());
+		}
 		if (addAgent) {
 			addColumn(new CellAgentColumn());
 		}
@@ -181,7 +187,19 @@ public class CellTable extends TableOutputter<Cell> {
 
 		@Override
 		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
-			return "Not implemented";
+			return t.getOwnerID();
+		}
+	}
+
+	public static class CellLandUseIndexColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "LandUseIndex";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			return "" + (t.getOwner() != null ? t.getOwner().getType().getSerialID() : "None");
 		}
 	}
 

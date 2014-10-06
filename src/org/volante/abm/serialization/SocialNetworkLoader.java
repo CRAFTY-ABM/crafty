@@ -265,7 +265,7 @@ public class SocialNetworkLoader {
 	/**
 	 * @return the network service
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected MoreNetworkService<Agent, MoreEdge<Agent>> initNetworkInitialiser() {
 		MoreNetworkService<Agent, MoreEdge<Agent>> networkInitializer = null;
 		try {
@@ -281,6 +281,7 @@ public class SocialNetworkLoader {
 				((MoreGeoNetworkService<Agent, MoreEdge<Agent>>) networkInitializer).
 						setGeoRequestClass(Agent.class);
 			}
+			networkInitializer.setEdgeModifier(new MGeoNotifyingNetworkEdgeModifier());
 
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
@@ -299,7 +300,6 @@ public class SocialNetworkLoader {
 			exception.printStackTrace();
 		}
 		
-		networkInitializer.setEdgeModifier(new MGeoNotifyingNetworkEdgeModifier());
 		return networkInitializer;
 	}
 }

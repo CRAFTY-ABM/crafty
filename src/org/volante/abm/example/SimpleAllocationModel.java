@@ -83,6 +83,8 @@ public class SimpleAllocationModel implements AllocationModel
 		PotentialAgent p = null;
 		for( PotentialAgent a : potential )
 		{
+			// TODO Check institutions for allowance
+
 			double s = r.getCompetitiveness( a, c );
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {

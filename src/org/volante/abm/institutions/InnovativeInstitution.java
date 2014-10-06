@@ -105,8 +105,6 @@ public class InnovativeInstitution extends AbstractInstitution {
 			aft = aft.trim();
 			affectedAftSet.add(aft);
 		}
-
-		innovation.initialise(data, info, extent);
 	}
 
 	/**
@@ -118,7 +116,9 @@ public class InnovativeInstitution extends AbstractInstitution {
 		logger.info("Update " + this);
 		// LOGGING ->
 
-		if (info.getSchedule().getCurrentTick() == this.innovationReleaseTick) {
+		if (rInfo.getSchedule().getCurrentTick() == this.innovationReleaseTick) {
+			innovation.initialise(this.modelData, this.rInfo, this.region);
+
 			// <- LOGGING
 			logger.info("Make agents aware...");
 			// LOGGING ->
@@ -159,10 +159,11 @@ public class InnovativeInstitution extends AbstractInstitution {
 				RandomEngine rEngine = region.getRandom().getURService()
 						.getGenerator(RandomPa.RANDOM_SEED_RUN.name());
 
+				double awarenessProb = BatchRunParser.parseDouble(
+						this.initialAwarenessProb, rInfo);
 				for (Agent agent : innovationAgents) {
 					if (agent instanceof InnovationAgent
-							&& rEngine.nextDouble() <= BatchRunParser.parseDouble(
-									this.initialAwarenessProb, info)) {
+							&& (awarenessProb == 1.0 || rEngine.nextDouble() <= awarenessProb)) {
 						((InnovationAgent) agent).makeAware(innovation);
 						((InnovationAgent) agent).makeTrial(innovation);
 					}

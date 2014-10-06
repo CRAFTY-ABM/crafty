@@ -63,10 +63,16 @@ public class ABMPersister extends EasyPersister {
 	static ABMPersister	instance	= null;
 
 	RunInfo				rInfo		= null;
+	BatchModeParseFilter	filter		= null;
+
+	private ABMPersister(BatchModeParseFilter filter) {
+		super(filter);
+		this.filter = filter;
+	}
 
 	public static ABMPersister getInstance() {
 		if (instance == null) {
-			instance = new ABMPersister();
+			instance = new ABMPersister(new BatchModeParseFilter());
 		}
 		return instance;
 	}
@@ -107,6 +113,7 @@ public class ABMPersister extends EasyPersister {
 
 	public void setRunInfo(RunInfo info) {
 		this.rInfo = info;
+		this.filter.setRunInfo(info);
 	}
 
 	@Override
