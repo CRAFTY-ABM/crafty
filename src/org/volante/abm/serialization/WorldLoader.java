@@ -127,8 +127,15 @@ public class WorldLoader {
 	
 	RegionLoader loaderFromCSV( CsvReader reader ) throws IOException
 	{
-		return new RegionLoader( reader.get(idColumn), reader.get(competitionColumn), reader.get(allocationColumn),
-				reader.get(demandColumn), reader.get(potentialColumn), reader.get(cellColumn), null, reader.get(institutionsColumn));
+		return new RegionLoader(
+				BatchRunParser.parseString(reader.get(idColumn), info),
+				BatchRunParser.parseString(reader.get(competitionColumn), info),
+				BatchRunParser.parseString(reader.get(allocationColumn), info),
+				BatchRunParser.parseString(reader.get(demandColumn), info),
+				BatchRunParser.parseString(reader.get(potentialColumn), info),
+				BatchRunParser.parseString(reader.get(cellColumn), info),
+				null,
+				BatchRunParser.parseString(reader.get(institutionsColumn), info));
 	}
 	
 	public void setModelData( ModelData data ) { this.modelData = data; }

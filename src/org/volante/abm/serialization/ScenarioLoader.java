@@ -72,6 +72,12 @@ public class ScenarioLoader {
 	String					version			= "V0";
 
 	/**
+	 * Regionalisation (default: "Unknown")
+	 */
+	@Attribute(name = "regionalisation", required = false)
+	String					regionalisation	= "Unknown";
+
+	/**
 	 * Scenario name (default: "Unknown")
 	 */
 	@Attribute(name = "scenario", required = false)
@@ -152,6 +158,7 @@ public class ScenarioLoader {
 		persister.setContext("s", scenario);
 		persister.setContext("v", version);
 		persister.setContext("w", worldName);
+		persister.setContext("k", regionalisation);
 
 		schedule.setStartTick(startTick);
 		schedule.setEndTick(endTick);

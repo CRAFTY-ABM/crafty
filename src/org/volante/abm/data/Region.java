@@ -428,7 +428,7 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Called afeter all cells in the region have been created, to allow building a table of them
+	 * Called after all cells in the region have been created, to allow building a table of them
 	 */
 	public void cellsCreated()
 	{
