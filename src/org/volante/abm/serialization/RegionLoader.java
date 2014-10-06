@@ -177,7 +177,9 @@ public class RegionLoader {
 		}
 
 		if (institutionFile != null && !institutionFile.equals("")) {
-			this.institutionFiles.add(institutionFile);
+			for (String iFile : institutionFile.split("\\|")) {
+				this.institutionFiles.add(iFile.trim());
+			}
 		}
 	}
 
@@ -192,6 +194,7 @@ public class RegionLoader {
 
 		region = new Region();
 		region.setID(id);
+
 		persister.setRegion(region);
 
 		readPmParameters();
@@ -244,7 +247,6 @@ public class RegionLoader {
 		for (PotentialAgent p : potentialAgents.agents) {
 			agentsByID.put(p.getID(), p);
 			agentsBySerialID.put(p.getSerialID(), p);
-			storeAgentParameters(p);
 		}
 		for (PotentialAgent a : agentsByID.values()) {
 			log.info("Initialise agent type: " + a.getID());

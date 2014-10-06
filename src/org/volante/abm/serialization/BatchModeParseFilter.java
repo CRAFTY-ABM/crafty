@@ -19,24 +19,41 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 09.04.2014
+ * Created by Sascha Holzhauer on 16 Sep 2014
  */
-package org.volante.abm.decision.innovations;
+package org.volante.abm.serialization;
+
+
+import org.apache.log4j.Logger;
+import org.simpleframework.xml.filter.Filter;
+import org.volante.abm.schedule.RunInfo;
 
 /**
  * @author Sascha Holzhauer
  *
  */
-public enum InnovationStates implements InnovationState {
+public class BatchModeParseFilter implements Filter {
 
-	UNAWARE,
-	AWARE,
-	TRIAL,
-	ADOPTED,
-	REJECTED;
+	/**
+	 * Logger
+	 */
+	static private Logger	logger	= Logger.getLogger(BatchModeParseFilter.class);
 
+	protected RunInfo	info;
+
+	public void setRunInfo(RunInfo info) {
+		this.info = info;
+	}
+
+	/**
+	 * @see org.simpleframework.xml.filter.Filter#replace(java.lang.String)
+	 */
 	@Override
-	public int getID() {
-		return this.ordinal();
+	public String replace(String arg0) {
+		if (info == null) {
+			logger.error("RunInfo has not been set!");
+			throw new IllegalStateException("RunInfo has not been set!");
+		}
+		return BatchRunParser.parseString(arg0, info);
 	}
 }

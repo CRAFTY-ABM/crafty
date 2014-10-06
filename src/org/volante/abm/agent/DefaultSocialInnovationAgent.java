@@ -63,17 +63,15 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	 */
 	static private Logger logger = Logger.getLogger(DefaultSocialInnovationAgent.class);
 
-	static public int numberAdoptions = 0;
-	static public int					numberAgents		= 0;
+	static public int											numberAdoptions	= 0;
+	static public int											numberAgents	= 0;
+	
 
-	static final double PROBABILITY_ADOPTER = 0.05;
+	protected Map<Innovation, InnovationStatus>					innovations		= new LinkedHashMap<Innovation, InnovationStatus>();
 
-	protected Map<Innovation, InnovationStatus>					innovations			= new LinkedHashMap<Innovation, InnovationStatus>();
-
-	MoreAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>	netComp				=
-																							new MAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>(
+	MoreAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>	netComp			= new MAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>(
 																									this);
-	protected MNodeMeasures										measures			= new MNodeMeasures();
+	protected MNodeMeasures										measures		= new MNodeMeasures();
 
 	public DefaultSocialInnovationAgent() {
 		super();
@@ -140,10 +138,195 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 		}
 		innovations.get(i).setAdoptedNeighbourShare(shareAdopters
 				/ this.region.getNetwork().getInDegree(this));
-
-		// TODO trigger decideAdoption here (check Region)
 	}
 
+	
+	/********************************
+	 *  Innovation actions
+	 *******************************/
+	
+	/**
+	 * @see org.volante.abm.agent.InnovationAgent#makeAware(org.volante.abm.decision.innovations.Innovation)
+	 */
+	@Override
+	public void makeAware(Innovation innovation) {
+		if (!this.innovations.containsKey(innovation)) {
+			this.innovations.put(innovation, new SimpleInnovationStatus());
+			this.innovations.get(innovation).aware();
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public void considerInnovationsNextStep() {
+		for (Map.Entry<Innovation, InnovationStatus> entry : this.innovations.entrySet()) {
+			if(entry.getValue().getState().equals(InnovationStates.AWARE)) {
+				this.considerTrial(entry.getKey());
+			} else if (entry.getValue().getState().equals(InnovationStates.TRIAL)) {
+				this.considerAdoption(entry.getKey());
+			} else if (entry.getValue().getState().equals(InnovationStates.ADOPTED)) {
+				this.considerRejection(entry.getKey());
+			}
+		}
+	}
+
+	/**
+	 * Checks whether this agent is in {@link InnovationStates#AWARE} mode and raises a warning
+	 * otherwise.
+	 * 
+	 * @param innovation
+	 */
+	@Override
+	public void considerTrial(Innovation innovation) {
+		// TODO implement BOs
+		if (innovations.get(innovation).getState() == InnovationStates.AWARE) {
+			if (innovations.get(innovation).getAdoptedNeighbourShare() *
+					innovation.getAdoptionFactor() >= this.region.getRandom()
+					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
+					.nextDouble()) {
+
+				this.makeTrial(innovation);
+			}
+		} else {
+			// <- LOGGING
+			logger.warn(this + "> considered trial, but the innovation >" + innovation
+					+ "< is not in State AWARE!");
+			// LOGGING ->
+		}
+	}
+
+	/**
+	 * Sets {@link InnovationStates#TRIAL}, performs the innovation and makes social network
+	 * partners aware.
+	 * 
+	 * @param innovation
+	 */
+	@Override
+	public void makeTrial(Innovation innovation) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug(this + "> trials " + innovation);
+		}
+		// LOGGING ->
+
+		this.innovations.get(innovation).trial();
+		innovation.perform(this);
+
+		for (Agent n : this.region.getNetwork().getSuccessors(this)) {
+			if (n instanceof InnovationAgent) {
+				((InnovationAgent) n).makeAware(innovation);
+			}
+		}
+	}
+
+	/**
+	 * Checks whether this agent is in {@link InnovationStates#AWARE} or mode
+	 * {@link InnovationStates#TRIAL} and raises a warning otherwise.
+	 * 
+	 * Adoption is steered by probability (applying {@link Innovation#.getAdoptionFactor()}.
+	 * 
+	 * @see org.volante.abm.agent.SocialAgent#considerAdoption()
+	 */
+	@Override
+	public void considerAdoption(Innovation innovation) {
+		if (innovations.get(innovation).getState() == InnovationStates.AWARE ||
+				innovations.get(innovation).getState() == InnovationStates.TRIAL) {
+			
+			if(innovation.getAdoptionFactor() >= this.region.getRandom()
+					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
+					.nextDouble()) {
+				this.makeAdopted(innovation);
+			}
+		} else {
+			// <- LOGGING
+			logger.warn(this + "> considered adoption, but the innovation >" + innovation
+					+ "< is not in State AWARE or TRIAL!");
+			// LOGGING ->
+		}
+	}
+
+	/**
+	 * Sets {@link InnovationStates#ADOPTED} and increases adoption counter.
+	 * 
+	 * @param innovation
+	 */
+	@Override
+	public void makeAdopted(Innovation innovation) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug(this + "> adopts " + innovation);
+		}
+		// LOGGING ->
+
+		this.innovations.get(innovation).adopt();
+		numberAdoptions++;
+	}
+
+	/**
+	 * Does nothing
+	 * 
+	 * @param innovation
+	 */
+	@Override
+	public void considerRejection(Innovation innovation) {
+	}
+
+	/**
+	 * @param innovation
+	 */
+	@Override
+	public void rejectInnovation(Innovation innovation) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug(this + "> rejects " + innovation);
+		}
+		// LOGGING ->
+		
+		this.innovations.get(innovation).reject();
+		innovation.unperform(this);
+	}
+
+	
+	/********************************
+	 *  Basic agent methods
+	 *******************************/
+	
+	/**
+	 * Preliminary!
+	 *
+	 * @see org.volante.abm.agent.GeoAgent#addToGeography()
+	 */
+	@Override
+	public void addToGeography() {
+		Cell c = this.cells.iterator().next();
+		Geometry geom = getRegion().getGeoFactory().createPoint(
+				new Coordinate(c.getX()
+						*
+						((Double) PmParameterManager.getInstance(region).getParam(
+								GeoPa.AGENT_COORD_FACTOR)).doubleValue(),
+						c.getY()
+								* ((Double) PmParameterManager.getInstance(region)
+										.getParam(GeoPa.AGENT_COORD_FACTOR))
+										.doubleValue()));
+		this.getRegion().getGeography().move(this, geom);
+	}
+
+	/**
+	 * @see org.volante.abm.agent.AbstractAgent#toString()
+	 */
+	@Override
+	public String toString() {
+		// TODO adapt to base cell when implemented
+		if (this.cells.size() > 0) {
+			Cell c = this.cells.iterator().next();
+			return this.id + "_" + c.getX() + "-" + c.getY();
+		} else {
+			return this.id;
+		}
+	}
+	
 	/**
 	 * @see org.volante.abm.agent.DefaultAgent#die()
 	 */
@@ -158,32 +341,10 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 		}
 	}
 
-	/**
-	 * @see org.volante.abm.agent.SocialAgent#decideAdoption()
-	 */
-	@Override
-	public void decideAdoption() {
-		for (Map.Entry<Innovation, InnovationStatus> i : this.innovations.entrySet()) {
 
-			// TODO implement BOs
-			if (i.getValue().getState() == InnovationStates.AWARE) {
-				if (i.getValue().getAdoptedNeighbourShare() * i.getKey().getAdoptionFactor()
-				>= this.region.getRandom()
-							.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
-							.nextDouble()) {
-					i.getValue().adopt();
-					i.getKey().perform(this);
-					numberAdoptions++;
-
-					// <- LOGGING
-					if (logger.isDebugEnabled()) {
-						logger.debug(this + "> Adopted " + i.getKey());
-					}
-					// LOGGING ->
-				}
-			}
-		}
-	}
+	/********************************
+	 *  GETTER and SETTER
+	 *******************************/
 
 	/**
 	 * @see de.cesr.more.basic.agent.MoreNetworkAgent#setNetworkComp(de.cesr.more.basic.agent.MoreAgentNetworkComp)
@@ -236,75 +397,11 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	}
 
 	/**
-	 * @see org.volante.abm.agent.InnovationAgent#makeAware(org.volante.abm.decision.innovations.Innovation)
-	 */
-	@Override
-	public void makeAware(Innovation innovation) {
-		if (!this.innovations.containsKey(innovation)) {
-			this.innovations.put(innovation, new SimpleInnovationStatus());
-			this.innovations.get(innovation).aware();
-		}
-	}
-
-	/**
-	 * TODO Check concept!
-	 *
-	 * @param innovation
-	 */
-	@Override
-	public void makeTrial(Innovation innovation) {
-		// <- LOGGING
-		logger.info(this + "> adopts " + innovation);
-		// LOGGING ->
-
-		this.innovations.get(innovation).adopt();
-		for (Agent n : this.region.getNetwork().getSuccessors(this)) {
-			if (n instanceof InnovationAgent) {
-				((InnovationAgent) n).makeAware(innovation);
-			}
-		}
-	}
-
-	/**
-	 * Preliminary!
-	 *
-	 * @see org.volante.abm.agent.GeoAgent#addToGeography()
-	 */
-	@Override
-	public void addToGeography() {
-		Cell c = this.cells.iterator().next();
-		Geometry geom = getRegion().getGeoFactory().createPoint(
-				new Coordinate(c.getX()
-						*
-						((Double) PmParameterManager.getInstance(region).getParam(
-								GeoPa.AGENT_COORD_FACTOR)).doubleValue(),
-						c.getY()
-								* ((Double) PmParameterManager.getInstance(region)
-										.getParam(GeoPa.AGENT_COORD_FACTOR))
-										.doubleValue()));
-		this.getRegion().getGeography().move(this, geom);
-	}
-
-	/**
-	 * @see org.volante.abm.agent.AbstractAgent#toString()
-	 */
-	@Override
-	public String toString() {
-		// TODO adapt to base cell when implemented
-		if (this.cells.size() > 0) {
-			Cell c = this.cells.iterator().next();
-			return this.id + "_" + c.getX() + "-" + c.getY();
-		} else {
-			return this.id;
-		}
-	}
-
-	/**
 	 * @see de.cesr.more.rs.building.MoreMilieuAgent#getMilieuGroup()
 	 */
 	@Override
 	public int getMilieuGroup() {
-		return 1;
+		return this.getType().getSerialID();
 	}
 
 	/**

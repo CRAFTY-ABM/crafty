@@ -1,24 +1,24 @@
 /**
  * This file is part of
- *
+ * 
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- *
+ * 
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
+ * terms of the GNU General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ *  
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- *
+ * 
  */
 package org.volante.abm.serialization;
 
@@ -52,7 +52,7 @@ public class WorldLoader {
 	List<String> regionFiles = new ArrayList<String>();
 	@ElementList(required=false,inline=true,entry="regionCSV")
 	List<String> regionCSV = new ArrayList<String>();
-
+	
 	@Attribute(required=false)
 	String idColumn = "ID";
 	@Attribute(required=false)
@@ -63,23 +63,20 @@ public class WorldLoader {
 	String demandColumn = "Demand";
 	@Attribute(required=false)
 	String potentialColumn = "Agents";
-
 	@Attribute(required=false)
+	String institutionsColumn = "Institutions";
+	@Attribute(required = false)
 	String cellColumn = "Cell Initialisers";
-
 	@Attribute(required=false)
 	String socNetColumn = "Social Network";
 
 	@Attribute(required=false)
 	String agentColumn = "Agent Initialisers";
-
-	@Attribute(required=false)
-	String institutionColumn = "Institutions";
-
+	
 	ABMPersister persister = ABMPersister.getInstance();
 	ModelData modelData = new ModelData();
 	RunInfo					info				= null;
-
+	
 	public WorldLoader() {}
 	public WorldLoader( ModelData data, ABMPersister persister )
 	{
@@ -94,10 +91,10 @@ public class WorldLoader {
 			loaders.add( persister.readXML( RegionLoader.class, l ) );
 		}
 		for( String c : regionCSV ) {
-			loaders.addAll( allLoaders( c ));
+			loaders.addAll(allLoaders(BatchRunParser.parseString(c, info)));
 		}
 	}
-
+	
 	public RegionSet getWorld() throws Exception
 	{
 		RegionSet rs = new RegionSet();
@@ -106,7 +103,7 @@ public class WorldLoader {
 		}
 		return rs;
 	}
-
+	
 	Region loadRegion( RegionLoader l ) throws Exception
 	{
 		l.setPersister( persister );
@@ -114,7 +111,7 @@ public class WorldLoader {
 		l.initialise( info );
 		return l.getRegion();
 	}
-
+	
 	Set<RegionLoader> allLoaders( String csvFile ) throws IOException
 	{
 		Set<RegionLoader> loaders = new HashSet<RegionLoader>();
@@ -130,13 +127,20 @@ public class WorldLoader {
 		}
 		return loaders;
 	}
-
+	
 	RegionLoader loaderFromCSV( CsvReader reader ) throws IOException
 	{
-		return new RegionLoader( reader.get(idColumn), reader.get(competitionColumn), reader.get(allocationColumn),
-				reader.get(demandColumn), reader.get(potentialColumn), reader.get(cellColumn), null, reader.get(socNetColumn),
-				reader.get(institutionColumn));
+		return new RegionLoader(
+				BatchRunParser.parseString(reader.get(idColumn), info),
+				BatchRunParser.parseString(reader.get(competitionColumn), info),
+				BatchRunParser.parseString(reader.get(allocationColumn), info),
+				BatchRunParser.parseString(reader.get(demandColumn), info),
+				BatchRunParser.parseString(reader.get(potentialColumn), info),
+				BatchRunParser.parseString(reader.get(cellColumn), info),
+				null,
+				BatchRunParser.parseString(reader.get(socNetColumn), info),
+				BatchRunParser.parseString(reader.get(institutionsColumn), info));
 	}
-
+	
 	public void setModelData( ModelData data ) { this.modelData = data; }
 }

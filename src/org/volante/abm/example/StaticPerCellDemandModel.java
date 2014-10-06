@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
-import org.volante.abm.data.Regions;
 import org.volante.abm.data.Service;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
@@ -39,6 +38,12 @@ import com.moseph.modelutils.fastdata.DoubleMap;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
+/**
+ * Keeps maps for demands and residuals with keys for each cell.
+ * 
+ * @author Dave Murray-Rust
+ * 
+ */
 public class StaticPerCellDemandModel implements DemandModel {
 	/**
 	 * Logger
@@ -47,8 +52,9 @@ public class StaticPerCellDemandModel implements DemandModel {
 
 	Map<Cell, DoubleMap<Service>>	demand		= new HashMap<Cell, DoubleMap<Service>>();
 	Map<Cell, DoubleMap<Service>>	residual	= new HashMap<Cell, DoubleMap<Service>>();
+
 	ModelData						data		= null;
-	Regions							region		= null;
+	Region							region		= null;
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
@@ -62,19 +68,27 @@ public class StaticPerCellDemandModel implements DemandModel {
 
 	@Override
 	public DoubleMap<Service> getDemand() {
-		log.fatal("Regional demand not implemented in per cell demand model");
+		log.fatal("Regional demand not implemented in StaticPerCellDemandModel");
 		return null;
 	}
 
 	@Override
 	public DoubleMap<Service> getSupply() {
-		log.fatal("Regional supply not implemented in per cell demand model");
+		log.fatal("Regional supply not implemented in StaticPerCellDemandModel");
 		return null;
 	}
 
 	@Override
 	public DoubleMap<Service> getMarginalUtilities() {
-		log.fatal("Regional marginal utilities not implemented in per cell demand model");
+		log.fatal("Regional marginal utilities not implemented StaticPerCellDemandModel");
+		return null;
+	}
+
+	/**
+	 */
+	@Override
+	public DoubleMap<Service> getResidualDemand() {
+		log.fatal("Regional marginal utilities not implemented StaticPerCellDemandModel");
 		return null;
 	}
 
@@ -86,14 +100,6 @@ public class StaticPerCellDemandModel implements DemandModel {
 	@Override
 	public DoubleMap<Service> getResidualDemand(Cell c) {
 		return residual.get(c);
-	}
-
-	/**
-	 * Not implemented yet!
-	 */
-	@Override
-	public DoubleMap<Service> getResidualDemand() {
-		return null;
 	}
 
 	@Override

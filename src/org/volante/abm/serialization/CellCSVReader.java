@@ -49,9 +49,9 @@ public class CellCSVReader implements CellInitialiser {
 	@Attribute(required = false)
 	String	agentColumn	= "Agent";
 	@Attribute(required = false)
-	String	xColumn		= "x";
+	String			xColumn			= "X";
 	@Attribute(required = false)
-	String	yColumn		= "y";
+	String			yColumn			= "Y";
 
 	@Element(required = false)
 	IntTransformer	xTransformer	= null;
@@ -82,13 +82,12 @@ public class CellCSVReader implements CellInitialiser {
 			}
 			// LOGGING ->
 
-
-			int x = Integer.parseInt(reader.get("x"));
+			int x = Integer.parseInt(reader.get(xColumn));
 			if (xTransformer != null) {
 				x = xTransformer.transform(x);
 			}
 
-			int y = Integer.parseInt(reader.get("y"));
+			int y = Integer.parseInt(reader.get(yColumn));
 			if (yTransformer != null) {
 				y = yTransformer.transform(y);
 			}
