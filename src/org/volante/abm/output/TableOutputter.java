@@ -44,7 +44,7 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 
 	@Attribute(required = false)
 	boolean					perRegion	= false;
-	
+
 	@Attribute(required = false)
 	boolean					filePerTick	= true;
 
@@ -58,6 +58,7 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 	@Override
 	public void doOutput(Regions regions) {
 		if (perRegion) {
+
 			for (Region r : regions.getAllRegions()) {
 				writeFile(r);
 			}
@@ -165,6 +166,9 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 		}
 	}
 
+	/**
+	 * @see org.volante.abm.output.TableOutputter#filePerTick()
+	 */
 	public boolean filePerTick() {
 		return filePerTick;
 	}
