@@ -42,7 +42,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	 * relative to the base capitals.
 	 */
 	@Element(required = true)
-	String captialAdjustmentsCSV = null;
+	String					capitalAdjustmentsCSV	= null;
 
 	/**
 	 * Name of column in CSV file that specifies the year a row belongs to
@@ -63,8 +63,6 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 		
 		for (Capital capital : modelData.capitals) {
 			if (capitalFactorCurves.containsKey(capital)) {
-				double factor = capitalFactorCurves.get(capital).sample(tick);
-				double base = baseCapitals.getDouble(capital);
 				adjusted.put(capital, baseCapitals.getDouble(capital)
 						* capitalFactorCurves.get(capital).sample(tick));
 			}
@@ -83,7 +81,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 		logger.info("Initialise " + this);
 		// LOGGING ->
 
-		if (captialAdjustmentsCSV != null) {
+		if (capitalAdjustmentsCSV != null) {
 			loadCapitalFactorCurves();
 		}
 	}
@@ -94,12 +92,12 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	void loadCapitalFactorCurves() throws IOException {
 		// <- LOGGING
 		logger.info("Load capital adjustment factors from "
-				+ captialAdjustmentsCSV);
+				+ capitalAdjustmentsCSV);
 		// LOGGING ->
 
 		try {
 			Map<String, LinearInterpolator> curves = rInfo.getPersister()
-					.csvVerticalToCurves(captialAdjustmentsCSV, tickCol,
+					.csvVerticalToCurves(capitalAdjustmentsCSV, tickCol,
 							modelData.capitals.names());
 			for (Capital c : modelData.capitals) {
 				if (curves.containsKey(c.getName())) {
@@ -107,7 +105,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 				}
 			}
 		} catch (NumberFormatException e) {
-			logger.error("A required number could not be parsed from " + captialAdjustmentsCSV
+			logger.error("A required number could not be parsed from " + capitalAdjustmentsCSV
 					+ ". Make "
 					+ "sure the CSV files contains columns " + modelData.services.names());
 			throw e;
