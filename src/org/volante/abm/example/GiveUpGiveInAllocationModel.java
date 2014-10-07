@@ -88,9 +88,12 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 * The number of times an agent (type) can search the above no. of
 	 */
 	@Attribute(required = false)
-	public int				numTakeovers		= 30;													// The
-																										// number
-																										// of
+	public String			numTakeovers		= "NaN";
+
+	public int				numTakeoversDerived	= Integer.MIN_VALUE;
+
+	@Attribute(required = false)
+	public String			percentageTakeOvers	= "NaN";												// of
 																										// times
 																										// an
 																										// agent
@@ -112,6 +115,25 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
 		super.initialise(data, info, r);
+
+		if (!numTakeovers.equals("NaN") && !this.percentageTakeOvers.equals("NaN")) {
+			logger.error("You may not specify both, numTakeovers and percentageTakeOvers!");
+			throw new IllegalStateException(
+					"You may not specify both, numTakeovers and percentageTakeOvers!");
+		}
+
+		if (numTakeovers.equals("NaN")) {
+			if (this.percentageTakeOvers.equals("NaN")) {
+				logger.error("You need to specify either numTakeovers or percentageTakeOvers!");
+				throw new IllegalStateException(
+						"You need to specify either numTakeovers or percentageTakeOvers!");
+			} else {
+				this.numTakeoversDerived = (int) (r.getNumCells()
+						* BatchRunParser.parseDouble(this.percentageTakeOvers, info) / 100.0);
+			}
+		} else {
+			this.numTakeoversDerived = BatchRunParser.parseInt(this.numTakeovers, info);
+		}
 
 		if (!numCells.equals("NaN") && !this.percentageCells.equals("NaN")) {
 			logger.error("You may not specify both, numCells and percentageCells!");
@@ -161,7 +183,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 				return pow(r.getCompetitiveness(a, perfectCell), probabilityExponent);
 			}
 		};
-		for (int i = 0; i < numTakeovers; i++) {
+		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
 			Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(), compScore);
 
