@@ -50,7 +50,7 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 	{
 		//Make an allocation model etc.
 		GiveUpGiveInAllocationModel allocation = new GiveUpGiveInAllocationModel();
-		allocation.numTakeovers = 1;
+		allocation.numTakeovers = "1";
 		allocation.numCells = "10";
 		allocation.probabilityExponent = 1;
 		allocation = persister.roundTripSerialise( allocation );
@@ -104,7 +104,7 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 	{	
 		//Models to use
 		GiveUpGiveInAllocationModel allocation = new GiveUpGiveInAllocationModel();
-		allocation.numTakeovers = 1;
+		allocation.numTakeovers = "1";
 		allocation.numCells = "1";
 		allocation.probabilityExponent = 1;
 		allocation = persister.roundTripSerialise( allocation );
