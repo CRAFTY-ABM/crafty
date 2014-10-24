@@ -43,10 +43,21 @@ import de.cesr.parma.core.PmParameterManager;
 public class ModelRunner
 {
 
+	static final String		CONFIG_LOGGER_NAME	= "crafty.config";
+
 	/**
 	 * Logger
 	 */
 	static private Logger logger = Logger.getLogger(ModelRunner.class);
+	static private Logger	clogger				= Logger.getLogger(CONFIG_LOGGER_NAME);
+
+	public static void clog(String property, String value) {
+		clogger.info(property + ": \t" + value);
+	}
+
+	public static Logger getConfigLogger() {
+		return clogger;
+	}
 
 	public static void main( String[] args ) throws Exception
 	{
@@ -74,9 +85,13 @@ public class ModelRunner
 
 		int numOfRandVariation = cmd.hasOption("r") ? Integer.parseInt(cmd.getOptionValue('r')) : 1;
 
-		logger.info(String.format("File: %s, Dir: %s, Start: %s, End: %s\n", filename, directory,
-				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start),
-				(end == Integer.MIN_VALUE ? "<ScenarioFile>" : end)));
+		clog("Scenario-File", filename);
+		clog("DataDir", directory);
+		clog("StartTick", "" + (start == Integer.MIN_VALUE ? "<ScenarioFile>" : start));
+		clog("EndTick", "" + (end == Integer.MIN_VALUE ? "<ScenarioFile>" : end));
+
+		clog("CRAFY_SocialRevision", CVersionInfo.REVISION_NUMBER);
+		clog("CRAFY_SocialBuildDate", CVersionInfo.TIMESTAMP);
 
 		if (end < start) {
 			logger.error("End tick must not be larger than start tick!");
@@ -104,7 +119,10 @@ public class ModelRunner
 				ABMPersister.getInstance().setBaseDir(directory);
 				if (cmd.hasOption("se") ? BatchRunParser.parseInt(cmd.getOptionValue("se"), rInfo) == 1
 						: true) {
-					logger.info("Run " + i + " (of " + numRuns + ") with random seed " + randomSeed);
+					clog("CurrentRun", "" + i);
+					clog("TotalRuns", "" + numRuns);
+					clog("RandomSeed", "" + randomSeed);
+
 					PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
 
 					doRun(filename, directory, start, end, rInfo, interactive);
@@ -130,6 +148,7 @@ public class ModelRunner
 		logger.info(String.format("Running from %s to %s\n",
 				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start + ""),
 				(end == Integer.MIN_VALUE ? "<ScenarioFile>" : end + "")));
+
 		if (end != Integer.MIN_VALUE) {
 			if (start != Integer.MIN_VALUE) {
 				loader.schedule.runFromTo(start, end);
@@ -164,11 +183,11 @@ public class ModelRunner
 	{
 		ABMPersister p = ABMPersister.getInstance();
 
-		p.setBaseDir( directory );
+		p.setBaseDir(directory);
 		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename);
 		loader.setRunID(rInfo.getCurrentRun() + "-" + rInfo.getCurrentRandomSeed());
 		loader.initialise(rInfo);
-		loader.schedule.setRegions( loader.regions );
+		loader.schedule.setRegions(loader.regions);
 		return loader;
 	}
 

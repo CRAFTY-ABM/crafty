@@ -313,12 +313,12 @@ public class Region implements Regions, PreTickAction {
 	 * @return
 	 */
 	public double getCompetitiveness(Cell c) {
+		double comp = getUnadjustedCompetitiveness(c);
 		if (hasInstitutions()) {
-			double comp = competition.getCompetitiveness(demand, c.getSupply(), c);
 			PotentialAgent a = c.getOwner() == null ? null : c.getOwner().getType();
 			return institutions.adjustCompetitiveness(a, c, c.getSupply(), comp);
 		} else {
-			return getUnadjustedCompetitiveness(c);
+			return comp;
 		}
 	}
 

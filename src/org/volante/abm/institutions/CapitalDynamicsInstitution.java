@@ -15,16 +15,18 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.update.CSVCapitalUpdater;
 
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.curve.LinearInterpolator;
 import com.moseph.modelutils.fastdata.DoubleMap;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
+
 /**
- * Reads change factors for ticks from a CSV file and adjusts cells' capital
- * levels accordingly. The given tick values are interpolated into curves
- * similar as for {@link RegionalDemandModel}.
+ * Reads change factors for ticks from a CSV file and adjusts cells' capital levels accordingly. The
+ * given tick values are interpolated into curves similar as for {@link RegionalDemandModel}. See
+ * also {@link CSVCapitalUpdater} for updates with absolute values.
  * 
  * @author Sascha Holzhauer
  * 

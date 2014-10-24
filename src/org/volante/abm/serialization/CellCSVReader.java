@@ -70,6 +70,8 @@ public class CellCSVReader implements CellInitialiser {
 			return;
 		}
 		log.info("Loading cell CSV from " + csvFile);
+		ModelRunner.clog("CapitalCSVFile", csvFile);
+
 		CsvReader reader = rl.persister.getCSVReader(csvFile);
 		if (!Arrays.asList(reader.getHeaders()).contains(agentColumn)) {
 			hasAgentColumn = false;

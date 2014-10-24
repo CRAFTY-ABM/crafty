@@ -66,7 +66,8 @@ public class CSVCapitalUpdaterTest extends BasicTests
 		CsvReader target = runInfo.getPersister().getCSVReader( csvFile );
 		while( target.readRecord() )
 		{
-			Cell cell = r.getCell( Integer.parseInt(target.get("x")), Integer.parseInt(target.get("y")) );
+			Cell cell = r.getCell(Integer.parseInt(target.get("X")),
+					Integer.parseInt(target.get("Y")));
 			for( Capital c : modelData.capitals )
 			{
 				if( target.get( c.getName() ) != null )

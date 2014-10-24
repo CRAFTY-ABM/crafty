@@ -41,7 +41,6 @@ import org.volante.abm.schedule.Schedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
 import org.volante.abm.visualisation.ModelDisplays;
 
-
 /**
  * The scenario loader is responsible for setting up the following things:
  * <ul>
@@ -156,9 +155,19 @@ public class ScenarioLoader {
 		this.info = info;
 		persister = info.getPersister();
 		persister.setContext("s", scenario);
+		ModelRunner.clog("Scenario", scenario);
+
 		persister.setContext("v", version);
+		ModelRunner.clog("Version", version);
+
 		persister.setContext("w", worldName);
+		ModelRunner.clog("WorldName", worldName);
+
 		persister.setContext("k", regionalisation);
+		ModelRunner.clog("Regionalisation", regionalisation);
+
+		persister.setContext("c", "" + this.info.getCurrentRun());
+		ModelRunner.clog("CurrentRun", "" + this.info.getCurrentRun());
 
 		schedule.setStartTick(startTick);
 		schedule.setEndTick(endTick);
