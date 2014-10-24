@@ -121,11 +121,14 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 
 	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			boolean showWorking) {
+
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
 		residual.multiplyInto(1.0 / region.getNumCells(), residual);
+
 		if (showWorking) {
 			log.info("Using residual: " + residual.prettyPrint());
 		}
+
 		return addUpMarginalUtilities(residual, supply, showWorking);
 	}
 
