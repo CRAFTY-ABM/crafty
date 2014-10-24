@@ -84,7 +84,19 @@ public class CsvBatchRunParser {
 	 * @return
 	 */
 	protected static String getValue(String text, RunInfo rInfo) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Parse expression: " + text);
+		}
+		// LOGGING ->
+
 		String preText = text.substring(0, text.indexOf("@"));
+		if (!text.contains(")")) {
+			logger.error("Text to parse (" + text
+					+ ") does not contain closing parenthesis!");
+			throw new IllegalStateException("Text to parse (" + text
+					+ ") does not contain closing parenthesis!");
+		}
 		String text2parse = text.substring(text.indexOf("@") + 2, text.indexOf(")"));
 		String postText = text.substring(text.indexOf(")") + 1, text.length());
 		
@@ -107,12 +119,33 @@ public class CsvBatchRunParser {
 			checkCsvData(secondFilename, colName, fileMapSec, null);
 			String idCol = firstColumns.get(secondFilename);
 
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("\t1st Colum: " + idCol);
+				logger.debug("\tID: " + fileMap.get(idCol).get(run));
+				logger.debug("\t2nd Colum: " + colName);
+			}
+			// LOGGING ->
+
 			checkCsvData(filename, idCol, fileMap, run);
-			return preText
+
+			String returnValue = preText
 					+ fileMapSec.get(colName).get(Integer.parseInt(fileMap.get(idCol).get(run)))
 					+ postText;
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("\tReturn value: " + returnValue);
+			}
+			// LOGGING ->
+
+			ModelRunner.clog(colName, returnValue + " (" + textParsed[0].trim() + ")");
+			return returnValue;
 		} else {
 			checkCsvData(filename, colName, fileMap, run);
+
+			ModelRunner.clog(colName, preText + fileMap.get(colName).get(run) + postText + " ("
+					+ textParsed[0].trim() + ")");
 			return preText + fileMap.get(colName).get(run) + postText;
 		}
 	}
