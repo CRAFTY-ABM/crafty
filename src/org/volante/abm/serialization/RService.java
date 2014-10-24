@@ -94,7 +94,7 @@ public class RService implements RMainLoopCallbacks, ScheduleStatusListener {
 			logger.debug("REngine-Version: " + Rengine.getVersion());
 			re = new Rengine(R_ARGS, false, getInstance(rInfo));
 
-			// the engine creates R is a new thread, so we should wait until it's ready
+			// the engine creates R in a new thread, so we should wait until it's ready
 			if (!re.waitForR()) {
 				logger.error("Cannot load R");
 				throw new IllegalStateException("Cannot load R");

@@ -230,7 +230,7 @@ public class RegionLoader {
 			for (Service s : modelData.services) {
 				this.runInfo.getParamRepos().addParameter(
 						region,
-						"AFT" + pa.getSerialID() + "_Productivity",
+						"AFT" + pa.getSerialID() + "_" + s + "_Productivity",
 						((SimpleProductionModel) pa.getProduction()).getProductionWeights()
 								.getDouble(s));
 			}
@@ -318,7 +318,7 @@ public class RegionLoader {
 		}
 		region.cellsCreated();
 		log.info("Loaded " + cellTable.size() + " cells from "
-				+ cellInitialisers.size() + " loaders");
+				+ cellInitialisers.size() + " loader(s)");
 	}
 
 	public void initialiseAgents() throws Exception {
