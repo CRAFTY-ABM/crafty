@@ -40,6 +40,7 @@ import org.volante.abm.schedule.RunInfo;
 public class SimpleAllocationDisplay extends AbstractDisplay implements AllocationDisplay
 {
 	private static final long	serialVersionUID	= -3347503064117103098L;
+
 	SimpleAllocationModel		model				= null;
 
 	public SimpleAllocationDisplay(SimpleAllocationModel model) {
@@ -48,49 +49,46 @@ public class SimpleAllocationDisplay extends AbstractDisplay implements Allocati
 
 	@Override
 	public void update() {
-		this.removeAll();
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-		// TODO change when implemented for GiveIn...
-		JLabel modelName = new JLabel("Allocation Model");
-		add(modelName);
-
-		Region r = region.getAllRegions().iterator().next();
-
-		if (r.getAgents().size() > 0) {
-			// calculate numbers of agents per AFT
-			int[] pagentNumbers = new int[r.getPotentialAgents().size()];
-			for (Agent a : r.getAgents()) {
-				pagentNumbers[a.getType().getSerialID()]++;
-			}
-
-			// calculate overall sum
-			int sum = 0;
-			for (int i = 0; i < pagentNumbers.length; i++) {
-				sum += pagentNumbers[i];
-			}
-
-			for (PotentialAgent p : r.getPotentialAgents()) {
-				Box b = new Box(BoxLayout.X_AXIS);
-				JLabel lab = new JLabel(p.getID() + ": ");
-				lab.setPreferredSize(new Dimension(170, 15));
-				b.add(lab);
-
-				JLabel disp = new JLabel(format(pagentNumbers[p.getSerialID()] / sum));
-				// disp.setPreferredSize(new Dimension(80, 15));
-				// disp.setMinimumSize(new Dimension(80, 15));
-				b.add(disp);
-				b.setAlignmentX(1);
-				add(b);
-			}
-		}
-		invalidate();
 	}
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
 		super.initialise(data, info, region);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+		JLabel modelName = new JLabel("SimpleAllocationModel");
+		add(modelName);
+		
+		
+		Region r = region.getAllRegions().iterator().next();
+		
+		// calculate numbers of agents per AFT
+		int[] pagentNumbers = new int[r.getPotentialAgents().size()];
+		for (Agent a : r.getAgents()) {
+			pagentNumbers[a.getType().getSerialID()]++;
+		}
+
+		// calculate overall sum
+		int sum = 0;
+		for (int i = 0; i < pagentNumbers.length; i++) {
+			sum += pagentNumbers[i];
+		}
+		
+		
+		for (PotentialAgent p : r.getPotentialAgents()) {
+			Box b = new Box(BoxLayout.X_AXIS);
+			JLabel lab = new JLabel(p.getID() + ": ");
+			lab.setPreferredSize(new Dimension(170, 15));
+			b.add(lab);
+
+			JLabel disp = new JLabel(format(pagentNumbers[p.getSerialID()] / sum));
+			// disp.setPreferredSize(new Dimension(80, 15));
+			// disp.setMinimumSize(new Dimension(80, 15));
+			b.add(disp);
+			b.setAlignmentX(1);
+			add(b);
+		}
+		invalidate();
 	}
 
 	public String format(double d) {
