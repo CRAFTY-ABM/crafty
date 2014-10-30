@@ -21,6 +21,13 @@
  */
 package org.volante.abm.visualisation;
 
+
+import java.awt.Dimension;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
 import org.volante.abm.example.SimpleCompetitivenessModel;
@@ -31,7 +38,10 @@ public class SimpleCompetitivenessDisplay extends AbstractDisplay implements Com
 {
 	private static final long	serialVersionUID	= 5425101587105776270L;
 
+	SimpleCompetitivenessModel	model				= null;
+
 	public SimpleCompetitivenessDisplay(SimpleCompetitivenessModel model) {
+		this.model = model;
 	}
 
 	@Override
@@ -40,5 +50,36 @@ public class SimpleCompetitivenessDisplay extends AbstractDisplay implements Com
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
+		super.initialise(data, info, region);
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+		JLabel modelName = new JLabel("SimpleCompetitivenessModel");
+
+		Box b = new Box(BoxLayout.X_AXIS);
+		JLabel lab = new JLabel("removeCurrentLevel: ");
+		lab.setPreferredSize(new Dimension(170, 15));
+		b.add(lab);
+
+		JLabel disp = new JLabel("" + model.isRemoveCurrentLevel());
+		// disp.setPreferredSize(new Dimension(80, 15));
+		// disp.setMinimumSize(new Dimension(80, 15));
+		b.add(disp);
+		b.setAlignmentX(1);
+
+		Box b2 = new Box(BoxLayout.X_AXIS);
+		JLabel lab2 = new JLabel("removeNegative: ");
+		lab.setPreferredSize(new Dimension(170, 15));
+		b2.add(lab2);
+
+		JLabel disp2 = new JLabel("" + model.isRemoveNegative());
+		// disp.setPreferredSize(new Dimension(80, 15));
+		// disp.setMinimumSize(new Dimension(80, 15));
+		b2.add(disp2);
+		b2.setAlignmentX(1);
+
+		add(modelName);
+		add(b);
+		add(b2);
+		invalidate();
 	}
 }
