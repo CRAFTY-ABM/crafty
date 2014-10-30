@@ -205,6 +205,11 @@ public class DefaultSchedule implements Schedule {
 	}
 
 	@Override
+	public int getTargetTick() {
+		return targetTick;
+	}
+
+	@Override
 	public int getStartTick() {
 		return startTick;
 	}

@@ -185,7 +185,7 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	}
 
 	@Override
-	public JComponent getPanel() {
+	public JComponent getEastSidePanel() {
 		return cellInfo;
 	}
 

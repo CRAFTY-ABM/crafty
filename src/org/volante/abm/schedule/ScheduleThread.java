@@ -54,7 +54,7 @@ public class ScheduleThread implements Runnable
 	
 	public boolean shouldRun()
 	{
-		if (schedule.getCurrentTick() <= schedule.getEndTick())
+		if (schedule.getCurrentTick() <= schedule.getTargetTick())
 		{
 			return true;
 		}

@@ -77,6 +77,8 @@ public interface Schedule extends Initialisable {
 	 */
 	public void setEndTick(int end);
 
+	public int getTargetTick();
+
 	public int getStartTick();
 
 	public int getEndTick();

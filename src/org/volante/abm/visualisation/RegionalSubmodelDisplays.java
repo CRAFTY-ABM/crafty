@@ -24,7 +24,6 @@ package org.volante.abm.visualisation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +31,11 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Logger;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
@@ -44,18 +45,45 @@ import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.RunInfo;
 
 
-public class SubmodelDisplays extends AbstractDisplay {
+/**
+ * {@link Displayable} models (e.g. {@link DemandModel} can be added to the
+ * {@link RegionalSubmodelDisplays} by calling {@link #setAllocationModel(AllocationModel)},
+ * {@link #setCompetitivenessModel(CompetitivenessModel)}, or {@link #setDemandModel(DemandModel)}.
+ * However, the standard way of assigning models is by {@link #cellChanged(Cell)} which invokes
+ * above methods.
+ * 
+ * The agent panel is currently not implemented!
+ * 
+ * @author Dave Murray-Rust
+ * @author Sascha Holzhauer
+ * 
+ */
+public class RegionalSubmodelDisplays extends AbstractDisplay {
+
+	/**
+	 * Logger
+	 */
+	static private Logger			logger				= Logger.getLogger(RegionalSubmodelDisplays.class);
+
 	private static final long		serialVersionUID	= -3289966236130005751L;
+
+	JTabbedPane						tabbedPane			= null;
 
 	JComponent						competitionPanel	= null;
 	JComponent						allocationPanel		= null;
 	JComponent						demandPanel			= null;
 	JComponent						agentsPanel			= null;
 
+	// submodels:
+	// TODO not used
 	Display							competitionDisplay	= null;
 	CompetitivenessModel			competition			= null;
+
+	// TODO not used
 	Display							demandDisplay		= null;
+	// TODO not used
 	DemandModel						demand				= null;
+
 	AllocationModel					allocation			= null;
 
 	CellDisplay						map					= null;
@@ -64,7 +92,7 @@ public class SubmodelDisplays extends AbstractDisplay {
 	Map<JComponent, Displayable>	currentSelection	= new HashMap<JComponent, Displayable>();
 	JPanel							displaysPanel		= new JPanel();
 
-	public SubmodelDisplays() {
+	public RegionalSubmodelDisplays() {
 		map = new CellDisplay()
 		{
 			private static final long	serialVersionUID	= -3240414837859608881L;
@@ -75,23 +103,41 @@ public class SubmodelDisplays extends AbstractDisplay {
 			}
 
 			@Override
-			public void initialise(ModelData data, RunInfo info, Regions region) throws Exception
-		{
-			super.initialise(data, info, region);
-			log.info("Initialised: " + this.region.getExtent() + ", height: " + height
-					+ ", width: " + width);
-		}
-
+			public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
+				super.initialise(data, info, region);
+				log.info("Initialised: " + this.region.getExtent() + ", height: " + height
+						+ ", width: " + width);
+			}
 		};
+
 		displaysPanel.setLayout(new GridLayout(2, 2));
-		map.getMainPanel().setPreferredSize(new Dimension(200, 400));
+		// map.getMainPanel().setPreferredSize(new Dimension(200, 400));
+
 		competitionPanel = modelPanel("Competition");
 		allocationPanel = modelPanel("Allocation");
 		demandPanel = modelPanel("Demand");
 		agentsPanel = modelPanel("Agents");
+
 		setLayout(new BorderLayout());
 		add(displaysPanel, BorderLayout.CENTER);
-		add(map, BorderLayout.EAST);
+
+		// out-commented since currently submodel displays do not consider cell selection
+		// (they are meant to provide aggregate information
+		// add(map, BorderLayout.WEST);
+	}
+
+	@Override
+	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
+		super.initialise(data, info, region);
+
+		this.title = region.getID();
+		map.initialise(data, info, region);
+		map.update();
+		if (region.getAllCells().iterator().hasNext()) {
+			cellChanged(region.getAllCells().iterator().next());
+		} else {
+			logger.warn("Region " + region + " does not contain any cells!");
+		}
 	}
 
 	JComponent modelPanel(String title) {
@@ -105,6 +151,10 @@ public class SubmodelDisplays extends AbstractDisplay {
 
 	@Override
 	public void update() {
+		for (Display display : displays.values()) {
+			display.update();
+		}
+
 		if (competitionDisplay != null) {
 			competitionDisplay.update();
 		}
@@ -138,30 +188,6 @@ public class SubmodelDisplays extends AbstractDisplay {
 		}
 	}
 
-	public void addDisplay(Displayable s, JComponent target) {
-		if (currentSelection.get(target) == s) {
-			displays.get(s).update();
-			return;
-		}
-		target.removeAll();
-		try {
-			if (!displays.containsKey(s)) {
-				Display compDisp = s.getDisplay();
-				compDisp.initialise(data, info, region);
-				displays.put(s, compDisp);
-			}
-			Display com = displays.get(s);
-			com.update();
-			target.add(com.getDisplay(), BorderLayout.CENTER);
-			target.invalidate();
-			repaint();
-			currentSelection.put(target, s);
-		} catch (Exception e) {
-			log.error("Couldn't set s display: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
-
 	public void setDemandModel(DemandModel c) {
 		demand = c;
 		if (demand != null) {
@@ -169,17 +195,41 @@ public class SubmodelDisplays extends AbstractDisplay {
 		}
 	}
 
-	@Override
-	public JComponent getPanel() {
-		return map.getMainPanel();
+	/**
+	 * The target component that needs to be passed is usually one of demandPanel, competitionPanel,
+	 * allocationPanel, agentsPanel
+	 * 
+	 * @param submodel
+	 * @param target
+	 */
+	public void addDisplay(Displayable submodel, JComponent target) {
+		if (currentSelection.get(target) == submodel) {
+			displays.get(submodel).update();
+			return;
+		}
+		target.removeAll();
+		try {
+			if (!displays.containsKey(submodel)) {
+				Display compDisp = submodel.getDisplay();
+				compDisp.initialise(data, info, region);
+				displays.put(submodel, compDisp);
+			}
+			Display com = displays.get(submodel);
+			com.update();
+			target.add(com.getDisplay(), BorderLayout.CENTER);
+			target.invalidate();
+			repaint();
+			currentSelection.put(target, submodel);
+		} catch (Exception e) {
+			log.error("Couldn't set s display: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
-		super.initialise(data, info, region);
-		map.initialise(data, info, region);
-		map.update();
-		cellChanged(region.getAllCells().iterator().next());
+	public JComponent getEastSidePanel() {
+		// return map.getMainPanel();
+		return null;
 	}
 
 	@Override
@@ -187,5 +237,4 @@ public class SubmodelDisplays extends AbstractDisplay {
 		super.setModelDisplays(d);
 		d.registerDisplay(map);
 	}
-
 }

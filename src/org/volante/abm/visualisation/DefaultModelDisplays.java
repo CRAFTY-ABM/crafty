@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
@@ -44,11 +45,6 @@ import org.volante.abm.schedule.RunInfo;
  */
 public class DefaultModelDisplays extends ModelDisplays {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 6914665248590637679L;
-
 	@ElementList(inline = true, entry = "display", required = false)
 	List<Display>				displays			= new ArrayList<Display>();
 	JFrame						frame				= new JFrame("Model Displays");
@@ -57,7 +53,7 @@ public class DefaultModelDisplays extends ModelDisplays {
 
 	public DefaultModelDisplays() {
 		this.tabbedPane = new JTabbedPane();
-		frame.add(this.tabbedPane);
+		frame.add(new JScrollPane(this.tabbedPane));
 		frame.setSize(new Dimension(800, 1200));
 	}
 
@@ -75,6 +71,7 @@ public class DefaultModelDisplays extends ModelDisplays {
 		for (Display d : displays) {
 			registerDisplay(d);
 		}
+
 	}
 
 	@Override

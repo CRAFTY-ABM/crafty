@@ -211,7 +211,6 @@ public class RegionLoader {
 		for (PotentialAgent p : potentialAgents.agents) {
 			agentsByID.put(p.getID(), p);
 			agentsBySerialID.put(p.getSerialID(), p);
-			storeAgentParameters(p);
 		}
 		for (PotentialAgent a : agentsByID.values()) {
 			log.info("Initialise agent type: " + a.getID());

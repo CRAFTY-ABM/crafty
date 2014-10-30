@@ -115,6 +115,6 @@ public class SimpleAllocationModel implements AllocationModel
 	@Override
 	public AllocationDisplay getDisplay()
 	{
-		return new SimpleAllocationDisplay();
+		return new SimpleAllocationDisplay(this);
 	}
 }
