@@ -78,6 +78,8 @@ public class Outputs implements GloballyInitialisable {
 	protected ModelData		modelData				= null;
 	List<CloseableOutput>	outputsToClose			= new ArrayList<CloseableOutput>();
 
+	Thread					shutdownHookThread;
+
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
 		runInfo = info;
@@ -221,13 +223,20 @@ public class Outputs implements GloballyInitialisable {
 	}
 
 	void setupClosingOutputs() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		this.shutdownHookThread = new Thread() {
 			@Override
 			public void run() {
 				for (CloseableOutput c : outputsToClose) {
 					c.close();
 				}
 			}
-		});
+		};
+		Runtime.getRuntime().addShutdownHook(this.shutdownHookThread);
+	}
+
+	public void removeClosingOutputThreads() {
+		log.info("Closing outputs and remove shutdown hook...");
+		this.shutdownHookThread.run();
+		Runtime.getRuntime().removeShutdownHook(this.shutdownHookThread);
 	}
 }

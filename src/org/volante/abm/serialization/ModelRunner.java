@@ -127,6 +127,8 @@ public class ModelRunner
 
 					doRun(filename, directory, start, end, rInfo, interactive);
 				}
+				rInfo.getOutputs().removeClosingOutputThreads();
+				PmParameterManager.reset();
 			}
 		}
 	}

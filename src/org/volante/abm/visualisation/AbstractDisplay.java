@@ -143,6 +143,7 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 	}
 
 	public void postUpdate() {
+		this.invalidate();
 	}
 
 	@Override
