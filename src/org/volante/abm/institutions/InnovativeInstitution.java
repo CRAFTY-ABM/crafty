@@ -25,8 +25,6 @@ package org.volante.abm.institutions;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Element;
@@ -81,14 +79,6 @@ public class InnovativeInstitution extends AbstractInstitution {
 	protected int		numInitialAdopters		= 0;
 
 	/**
-	 * Comma-separated list of AFT IDs that are allowed to adopt.
-	 */
-	@Element(required = false)
-	protected String	affectedAFTs			= "all";
-
-	protected Set<String>	affectedAftSet			= null;
-
-	/**
 	 * @see org.volante.abm.institutions.AbstractInstitution#initialise(org.volante.abm.data.ModelData, org.volante.abm.schedule.RunInfo, org.volante.abm.data.Region)
 	 */
 	@Override
@@ -98,13 +88,6 @@ public class InnovativeInstitution extends AbstractInstitution {
 		// LOGGING ->
 
 		super.initialise(data, info, extent);
-
-		affectedAftSet = new HashSet<String>();
-
-		for (String aft : affectedAFTs.split(",")) {
-			aft = aft.trim();
-			affectedAftSet.add(aft);
-		}
 	}
 
 	/**
@@ -125,7 +108,7 @@ public class InnovativeInstitution extends AbstractInstitution {
 
 			ArrayList<InnovationAgent> innovationAgents = new ArrayList<InnovationAgent>();
 
-			if (affectedAFTs.equals("all")) {
+			if (innovation.getAffectedAFTs().contains("all")) {
 				for (Agent agent : this.region.getAllAgents()) {
 					if (agent instanceof InnovationAgent) {
 						innovationAgents.add((InnovationAgent) agent);
@@ -133,13 +116,15 @@ public class InnovativeInstitution extends AbstractInstitution {
 				}
 			} else {
 				for (Agent agent : this.region.getAllAgents()) {
-					if (agent instanceof InnovationAgent && affectedAftSet.contains(agent.getID())) {
+					if (agent instanceof InnovationAgent
+							&& innovation.getAffectedAFTs().contains(agent.getID())) {
 						innovationAgents.add((InnovationAgent) agent);
 					}
 				}
 
 				if (innovationAgents.size() == 0) {
-					logger.warn("List of innovative agents is empty - no agents can be affected (affectedAFTs = " + affectedAFTs + ")!");
+					logger.warn("List of innovative agents is empty - no agents can be affected (affectedAFTs = "
+							+ innovation.getAffectedAFTs() + ")!");
 				}
 			}
 

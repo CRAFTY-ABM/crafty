@@ -23,6 +23,7 @@
  */
 package org.volante.abm.agent;
 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,9 +52,10 @@ import de.cesr.more.measures.node.MNodeMeasures;
 import de.cesr.more.measures.node.MoreNodeMeasureSupport;
 import de.cesr.parma.core.PmParameterManager;
 
+
 /**
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class DefaultSocialInnovationAgent extends DefaultAgent implements SocialAgent,
 		InnovationAgent, GeoAgent {
@@ -61,16 +63,15 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	/**
 	 * Logger
 	 */
-	static private Logger logger = Logger.getLogger(DefaultSocialInnovationAgent.class);
+	static private Logger										logger			= Logger.getLogger(DefaultSocialInnovationAgent.class);
 
 	static public int											numberAdoptions	= 0;
 	static public int											numberAgents	= 0;
-	
 
 	protected Map<Innovation, InnovationStatus>					innovations		= new LinkedHashMap<Innovation, InnovationStatus>();
 
 	MoreAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>	netComp			= new MAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>(
-																									this);
+																						this);
 	protected MNodeMeasures										measures		= new MNodeMeasures();
 
 	public DefaultSocialInnovationAgent() {
@@ -91,7 +92,7 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 
 	/**
 	 * Mainly used for testing purposes
-	 *
+	 * 
 	 * @param type
 	 *        potential agent
 	 * @param id
@@ -114,16 +115,35 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	}
 
 	/**
-	 * @see org.volante.abm.agent.SocialAgent#perceiveSocialNetwork()
+	 * @see org.volante.abm.agent.DefaultAgent#receiveNotification(de.cesr.more.basic.agent.MoreObservingNetworkAgent.NetworkObservation,
+	 *      org.volante.abm.agent.Agent)
 	 */
 	@Override
-	public void perceiveSocialNetwork() {
-		for (Innovation i : innovations.keySet()) {
-			perceiveSocialNetwork(i);
+	public void receiveNotification(NetworkObservation observation, Agent object) {
+		for (InnovationStatus istate : innovations.values()) {
+			istate.setNetworkChanged(true);
 		}
 	}
 
 	/**
+	 * Perceive social network regarding each innovation the agent is aware of.
+	 * 
+	 * @see org.volante.abm.agent.SocialAgent#perceiveSocialNetwork()
+	 */
+	@Override
+	public void perceiveSocialNetwork() {
+		for (Map.Entry<Innovation, InnovationStatus> entry : innovations.entrySet()) {
+			if (entry.getValue().hasNetworkChanged()) {
+				perceiveSocialNetwork(entry.getKey());
+				entry.getValue().setNetworkChanged(false);
+			}
+		}
+	}
+
+	/**
+	 * Observe and set the share of social network partners that adopted the given
+	 * {@link Innovation}. Considers only incoming relations.
+	 * 
 	 * @param i
 	 *        innovation to consider
 	 */
@@ -136,33 +156,22 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 				}
 			}
 		}
-		innovations.get(i).setAdoptedNeighbourShare(shareAdopters
+		innovations.get(i).setAdoptedNeighbourShare(
+				this.region.getNetwork().getInDegree(this) == 0 ? 0 : shareAdopters
 				/ this.region.getNetwork().getInDegree(this));
 	}
 
-	
 	/********************************
-	 *  Innovation actions
+	 * Innovation actions
 	 *******************************/
-	
+
 	/**
-	 * @see org.volante.abm.agent.InnovationAgent#makeAware(org.volante.abm.decision.innovations.Innovation)
-	 */
-	@Override
-	public void makeAware(Innovation innovation) {
-		if (!this.innovations.containsKey(innovation)) {
-			this.innovations.put(innovation, new SimpleInnovationStatus());
-			this.innovations.get(innovation).aware();
-		}
-	}
-	
-	/**
-	 * 
+	 * @see org.volante.abm.agent.InnovationAgent#considerInnovationsNextStep()
 	 */
 	@Override
 	public void considerInnovationsNextStep() {
 		for (Map.Entry<Innovation, InnovationStatus> entry : this.innovations.entrySet()) {
-			if(entry.getValue().getState().equals(InnovationStates.AWARE)) {
+			if (entry.getValue().getState().equals(InnovationStates.AWARE)) {
 				this.considerTrial(entry.getKey());
 			} else if (entry.getValue().getState().equals(InnovationStates.TRIAL)) {
 				this.considerAdoption(entry.getKey());
@@ -173,6 +182,21 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	}
 
 	/**
+	 * @see org.volante.abm.agent.InnovationAgent#makeAware(org.volante.abm.decision.innovations.Innovation)
+	 */
+	@Override
+	public void makeAware(Innovation innovation) {
+		if (!this.innovations.containsKey(innovation)) {
+			this.innovations.put(innovation, new SimpleInnovationStatus());
+			this.innovations.get(innovation).aware();
+		}
+	}
+
+	/**
+	 * Checks whether the share of social network partners that currently apply the given innovation
+	 * multiplied by the innocation's adoption factor is equal to or greater than a random number
+	 * ]0,1[.
+	 * 
 	 * Checks whether this agent is in {@link InnovationStates#AWARE} mode and raises a warning
 	 * otherwise.
 	 * 
@@ -182,8 +206,18 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	public void considerTrial(Innovation innovation) {
 		// TODO implement BOs
 		if (innovations.get(innovation).getState() == InnovationStates.AWARE) {
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Probablilty to adopt: "
+						+ innovations.get(innovation).getAdoptedNeighbourShare() *
+						innovation.getTrialFactor(this) + "(social network partner share: "
+						+ innovations.get(innovation).getAdoptedNeighbourShare() + ")");
+			}
+			// LOGGING ->
+
 			if (innovations.get(innovation).getAdoptedNeighbourShare() *
-					innovation.getAdoptionFactor() >= this.region.getRandom()
+					innovation.getTrialFactor(this) >= this.region.getRandom()
 					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
 					.nextDouble()) {
 
@@ -215,7 +249,8 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 		innovation.perform(this);
 
 		for (Agent n : this.region.getNetwork().getSuccessors(this)) {
-			if (n instanceof InnovationAgent) {
+			if (n instanceof InnovationAgent
+					&& innovation.getAffectedAFTs().contains(this.getType().getID())) {
 				((InnovationAgent) n).makeAware(innovation);
 			}
 		}
@@ -233,8 +268,8 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 	public void considerAdoption(Innovation innovation) {
 		if (innovations.get(innovation).getState() == InnovationStates.AWARE ||
 				innovations.get(innovation).getState() == InnovationStates.TRIAL) {
-			
-			if(innovation.getAdoptionFactor() >= this.region.getRandom()
+
+			if (innovation.getAdoptionFactor(this) >= this.region.getRandom()
 					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
 					.nextDouble()) {
 				this.makeAdopted(innovation);
@@ -283,19 +318,18 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 			logger.debug(this + "> rejects " + innovation);
 		}
 		// LOGGING ->
-		
+
 		this.innovations.get(innovation).reject();
 		innovation.unperform(this);
 	}
 
-	
 	/********************************
-	 *  Basic agent methods
+	 * Basic agent methods
 	 *******************************/
-	
+
 	/**
 	 * Preliminary!
-	 *
+	 * 
 	 * @see org.volante.abm.agent.GeoAgent#addToGeography()
 	 */
 	@Override
@@ -326,7 +360,7 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 			return this.id;
 		}
 	}
-	
+
 	/**
 	 * @see org.volante.abm.agent.DefaultAgent#die()
 	 */
@@ -335,15 +369,15 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements Social
 		if (this.region.getNetworkService() != null && this.region.getNetwork() != null) {
 			this.region.getNetworkService().removeNode(this.region.getNetwork(), this);
 		}
-		
-		if (this.region.getGeography() != null && this.region.getGeography().getGeometry(this) != null) {
+
+		if (this.region.getGeography() != null
+				&& this.region.getGeography().getGeometry(this) != null) {
 			this.region.getGeography().move(this, null);
 		}
 	}
 
-
 	/********************************
-	 *  GETTER and SETTER
+	 * GETTER and SETTER
 	 *******************************/
 
 	/**

@@ -25,11 +25,13 @@ package org.volante.abm.visualisation;
 
 
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GraphicsConfiguration;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
@@ -37,6 +39,8 @@ import org.simpleframework.xml.ElementList;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
+
+import sun.java2d.SunGraphicsEnvironment;
 
 
 /**
@@ -53,7 +57,7 @@ public class DefaultModelDisplays extends ModelDisplays {
 
 	public DefaultModelDisplays() {
 		this.tabbedPane = new JTabbedPane();
-		frame.add(new JScrollPane(this.tabbedPane));
+		frame.add(this.tabbedPane);
 		frame.setSize(new Dimension(800, 1200));
 	}
 
@@ -72,6 +76,10 @@ public class DefaultModelDisplays extends ModelDisplays {
 			registerDisplay(d);
 		}
 
+		GraphicsConfiguration config = frame.getGraphicsConfiguration();
+		Rectangle usableBounds = SunGraphicsEnvironment.getUsableBounds(config.getDevice());
+		frame.setMaximizedBounds(usableBounds);
+		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
 	@Override

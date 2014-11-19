@@ -36,10 +36,12 @@ import org.volante.abm.models.ProductionModel;
 public interface InnovationAgent extends Agent {
 
 	/**
-	 * @param innovation
-	 * @return the given innovation's current state
+	 * Checks each registered innovation for its status in order to consider taking the next status.
+	 * Calls {@link this#considerTrial(Innovation)}, {@link this#considerAdoption(Innovation)}, or
+	 * {@link this#considerRejection(Innovation)} as appropriate. This method is usually called by
+	 * the schedule.
 	 */
-	public InnovationState getState(Innovation innovation);
+	public void considerInnovationsNextStep();
 
 	/**
 	 * Make this agent aware of the given innovation, i.e. set the innovation status to
@@ -49,12 +51,6 @@ public interface InnovationAgent extends Agent {
 	 */
 	public void makeAware(Innovation innovation);
 
-	/**
-	 * Checks each registered innovation for its status in order to consider taking the next status.
-	 * Calls {@link this#considerTrial(Innovation)} or {@link this#considerAdoption(Innovation)} as
-	 * appropriate.
-	 */
-	public void considerInnovationsNextStep();
 
 	/**
 	 * Lets this agent decide whether to trial the given innovation.
@@ -83,6 +79,7 @@ public interface InnovationAgent extends Agent {
 	 */
 	public void makeAdopted(Innovation innovation);
 
+
 	/**
 	 * Lets this agent decide whether to reject the given innovation.
 	 * 
@@ -97,6 +94,16 @@ public interface InnovationAgent extends Agent {
 	 * @param innovation
 	 */
 	public void rejectInnovation(Innovation innovation);
+
+	/********************************
+	 * GETTER and SETTER
+	 *******************************/
+
+	/**
+	 * @param innovation
+	 * @return the given innovation's current state
+	 */
+	public InnovationState getState(Innovation innovation);
 
 	/**
 	 * 

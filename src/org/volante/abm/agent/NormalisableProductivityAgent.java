@@ -32,5 +32,12 @@ import org.volante.abm.data.Service;
  *
  */
 public interface NormalisableProductivityAgent {
+
+	/**
+	 * Subtracts the given amount from the given service's production weight.
+	 * 
+	 * @param service
+	 * @param amount
+	 */
 	public void normaliseProductivity(Service service, double amount);
 }

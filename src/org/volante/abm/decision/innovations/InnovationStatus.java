@@ -35,6 +35,10 @@ public interface InnovationStatus {
 
 	public void setAdoptedNeighbourShare(double share);
 
+	public boolean hasNetworkChanged();
+
+	public void setNetworkChanged(boolean networkChanged);
+
 	public void aware();
 
 	public void trial();

@@ -24,8 +24,12 @@
 package org.volante.abm.decision.innovations;
 
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.ModelData;
@@ -40,7 +44,6 @@ import org.volante.abm.serialization.Initialisable;
  * this innovation at the {@link InnovationRegistry}.
  * 
  * @author Sascha Holzhauer
- * 
  */
 public abstract class Innovation implements Initialisable{
 
@@ -51,10 +54,49 @@ public abstract class Innovation implements Initialisable{
 	@Attribute(name = "id", required = true)
 	protected String	identifier;
 
+	/**
+	 * Factor in the decision of trial. Values > 1 cause the trial to be likelier, values < 1 cause
+	 * to adoption to be less likely. Default is 1.0
+	 */
+	@Element(name = "trialFactor", required = false)
+	protected double		trialFactor		= 1.0;
+
+	/**
+	 * Factor in the decision of adoption. Values > 1 cause the adoption to be likelier, values < 1
+	 * cause to adoption to be less likely. Default is 1.0
+	 */
 	@Element(name = "adoptionFactor", required = false)
 	protected double	adoptionFactor	= 1.0;
 
-	public double getAdoptionFactor() {
+	/**
+	 * Comma-separated list of AFT IDs that are allowed to adopt.
+	 */
+	@Element(required = false)
+	protected String		affectedAFTs	= "all";
+
+	protected Set<String>	affectedAftSet	= null;
+
+	protected Region	region;
+	protected RunInfo	rInfo;
+	protected ModelData	modelData;
+
+	/**
+	 * Factor in the decision of trial. Values > 1 cause the trial to be likelier, values < 1 cause
+	 * to adoption to be less likely.
+	 * 
+	 * @return
+	 */
+	public double getTrialFactor(Agent agent) {
+		return trialFactor;
+	}
+
+	/**
+	 * Factor in the decision of adoption. Values > 1 cause the adoption to be likelier, values < 1
+	 * cause to adoption to be less likely.
+	 * 
+	 * @return
+	 */
+	public double getAdoptionFactor(Agent agent) {
 		return adoptionFactor;
 	}
 
@@ -64,11 +106,46 @@ public abstract class Innovation implements Initialisable{
 
 	public abstract InnovationBo getWaitingBo(SocialAgent agent);
 
+	/**
+	 * Let this innovation take effect for the given agent.
+	 * 
+	 * @param agent
+	 */
 	public abstract void perform(InnovationAgent agent);
 
+	/**
+	 * Undo the effect of this innovation for the given agent.
+	 * 
+	 * @param agent
+	 */
 	public abstract void unperform(InnovationAgent agent);
 
+	/**
+	 * Assign model data, run info, and region. Register this innovation at the region's
+	 * {@link InnovationRegistry}.
+	 * 
+	 * 
+	 * @see org.volante.abm.serialization.Initialisable#initialise(org.volante.abm.data.ModelData,
+	 *      org.volante.abm.schedule.RunInfo, org.volante.abm.data.Region)
+	 */
 	public void initialise(ModelData data, RunInfo info, Region r) {
+		this.modelData = data;
+		this.rInfo = info;
+		this.region = r;
+
+		affectedAftSet = new LinkedHashSet<String>();
+		for (String aft : affectedAFTs.split(",")) {
+			aft = aft.trim();
+			affectedAftSet.add(aft);
+		}
+
 		r.getInnovationRegistry().registerInnovation(this, identifier);
+	}
+
+	/**
+	 * @return
+	 */
+	public Set<String> getAffectedAFTs() {
+		return affectedAftSet;
 	}
 }

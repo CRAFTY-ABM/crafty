@@ -23,6 +23,8 @@ package org.volante.abm.visualisation;
 
 
 import java.awt.Dimension;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -43,12 +45,32 @@ public class SimpleAllocationDisplay extends AbstractDisplay implements Allocati
 
 	SimpleAllocationModel		model				= null;
 
+	Region						r;
+
+
+	Map<String, JLabel>			disps				= new HashMap<String, JLabel>();
+
 	public SimpleAllocationDisplay(SimpleAllocationModel model) {
 		this.model = model;
 	}
 
 	@Override
 	public void update() {
+		int[] pagentNumbers = new int[r.getPotentialAgents().size()];
+		for (Agent a : r.getAgents()) {
+			pagentNumbers[a.getType().getSerialID()]++;
+		}
+
+		// calculate overall sum
+		int sum = 0;
+		for (int i = 0; i < pagentNumbers.length; i++) {
+			sum += pagentNumbers[i];
+		}
+
+		for (PotentialAgent p : r.getPotentialAgents()) {
+			disps.get(p.getID()).setText(format((double) pagentNumbers[p.getSerialID()] / sum));
+		}
+		invalidate();
 	}
 
 	@Override
@@ -60,19 +82,7 @@ public class SimpleAllocationDisplay extends AbstractDisplay implements Allocati
 		add(modelName);
 		
 		
-		Region r = region.getAllRegions().iterator().next();
-		
-		// calculate numbers of agents per AFT
-		int[] pagentNumbers = new int[r.getPotentialAgents().size()];
-		for (Agent a : r.getAgents()) {
-			pagentNumbers[a.getType().getSerialID()]++;
-		}
-
-		// calculate overall sum
-		int sum = 0;
-		for (int i = 0; i < pagentNumbers.length; i++) {
-			sum += pagentNumbers[i];
-		}
+		r = region.getAllRegions().iterator().next();
 		
 		
 		for (PotentialAgent p : r.getPotentialAgents()) {
@@ -81,13 +91,14 @@ public class SimpleAllocationDisplay extends AbstractDisplay implements Allocati
 			lab.setPreferredSize(new Dimension(170, 15));
 			b.add(lab);
 
-			JLabel disp = new JLabel(format(pagentNumbers[p.getSerialID()] / sum));
+			disps.put(p.getID(), new JLabel(format(10.0)));
 			// disp.setPreferredSize(new Dimension(80, 15));
 			// disp.setMinimumSize(new Dimension(80, 15));
-			b.add(disp);
+			b.add(disps.get(p.getID()));
 			b.setAlignmentX(1);
 			add(b);
 		}
+		this.update();
 		invalidate();
 	}
 
