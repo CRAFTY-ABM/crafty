@@ -233,6 +233,9 @@
         <styles xmi:type="notation:FilteringStyle" xmi:id="_CU-7uDGmEeSqaonJ_8gtAQ"/>
         <layoutConstraint xmi:type="notation:Bounds" xmi:id="_CU-7uTGmEeSqaonJ_8gtAQ"/>
       </children>
+      <styles xmi:type="notation:StringListValueStyle" xmi:id="_uvrt8GQXEeS3k5XvgptldQ" name="cssClass">
+        <stringListValue>test</stringListValue>
+      </styles>
       <element xmi:type="uml:Interface" href="institutions.uml#_dY1HhjFdEeSqaonJ_8gtAQ"/>
       <layoutConstraint xmi:type="notation:Bounds" xmi:id="_CU9tkDGmEeSqaonJ_8gtAQ" x="333" y="29"/>
     </children>

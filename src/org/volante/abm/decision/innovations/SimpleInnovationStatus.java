@@ -31,6 +31,8 @@ public class SimpleInnovationStatus implements InnovationStatus {
 
 	protected InnovationState	state					= InnovationStates.UNAWARE;
 
+	boolean						networkChanged			= true;
+
 	double	adoptedNeighbourShare	= Double.NaN;
 
 	/**
@@ -48,6 +50,14 @@ public class SimpleInnovationStatus implements InnovationStatus {
 	@Override
 	public void setAdoptedNeighbourShare(double adoptedNeighbourShare) {
 		this.adoptedNeighbourShare = adoptedNeighbourShare;
+	}
+
+	public boolean hasNetworkChanged() {
+		return networkChanged;
+	}
+
+	public void setNetworkChanged(boolean networkChanged) {
+		this.networkChanged = networkChanged;
 	}
 
 	/**

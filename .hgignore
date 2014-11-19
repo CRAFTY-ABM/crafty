@@ -16,3 +16,5 @@ syntax: regexp
 ^java2kdmFragments$
 syntax: regexp
 ^lib/CRAFTY\.jar$
+syntax: regexp
+^target$

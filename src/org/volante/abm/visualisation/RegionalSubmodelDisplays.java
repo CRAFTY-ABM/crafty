@@ -105,8 +105,8 @@ public class RegionalSubmodelDisplays extends AbstractDisplay {
 			@Override
 			public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
 				super.initialise(data, info, region);
-				log.info("Initialised: " + this.region.getExtent() + ", height: " + height
-						+ ", width: " + width);
+				log.info("Initialised: " + this.region.getExtent() + ", height: " + regionHeight
+						+ ", width: " + regionWidth);
 			}
 		};
 

@@ -53,7 +53,7 @@ public class CellInfoDisplay extends JPanel {
 	DoubleMapDisplay			productionDisplay					= new DoubleMapTextDisplay();
 	DoubleMapDisplay			competitivenessDisplay				= new DoubleMapTextDisplay();
 	DoubleMapDisplay			unadjustedCompetitivenessDisplay	= new DoubleMapTextDisplay();
-	JTextArea					owner								= new JTextArea("Unknown");
+	JTextArea					owner								= new JTextArea("Unknown", 5, 0);
 	JLabel						xLoc								= new JLabel("X=?");
 	JLabel						yLoc								= new JLabel("Y=?");
 	JLabel						cellRegion							= new JLabel("Region=?");
@@ -76,16 +76,17 @@ public class CellInfoDisplay extends JPanel {
 		addPanel(productionDisplay.getDisplay(), "Productivity");
 		addPanel(competitivenessDisplay.getDisplay(), "Competitiveness");
 		addPanel(unadjustedCompetitivenessDisplay.getDisplay(), "Unadjusted Competitiveness");
-		setPreferredSize(new Dimension(250, 400));
-		setMaximumSize(new Dimension(250, 4000));
+		setPreferredSize(new Dimension(250, 700));
 		clearCell();
 
 	}
 
 	public void addPanel(JComponent cDisp, String title) {
 		cDisp.setBorder(new TitledBorder(new EtchedBorder(), title));
-		cDisp.setPreferredSize(new Dimension(250, 500));
-		cDisp.setMaximumSize(new Dimension(250, 1000));
+		// TODO assign the height that is required for contained text (seems challenging...)
+		// int height = cDisp.getHeight();
+		cDisp.setPreferredSize(new Dimension(250, 170));
+		cDisp.setMaximumSize(new Dimension(250, 170));
 		cDisp.setAlignmentX(0.5f);
 		add(cDisp);
 	}
