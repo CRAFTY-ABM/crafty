@@ -233,5 +233,4 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	public RegionalDemandDisplay getDisplay() {
 		return new RegionalDemandDisplay(this);
 	}
-
 }
