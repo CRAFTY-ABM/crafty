@@ -95,7 +95,22 @@ public class ScenarioLoader {
 	 */
 	@Attribute(name = "runID", required = false)
 	String					runID			= "SET_INTERNAL";
+
+	/**
+	 * After the scenario configuration file has been parsed, this string is appended to the
+	 * persister's basedir. This is useful is a configuration adapts some parameters and points to
+	 * the super directory otherwise.
+	 */
+	@Attribute(name = "basedirAdaptation", required = false)
+	String					basedirAdaptation			= "";
 	
+	/**
+	 * This is appended to the adapted basedir to enable pointings to parameters in batch model CSV
+	 * parameter files e.g. in the same directory as the scenario file.
+	 */
+	@Attribute(name = "csvParamBasedirCorrection", required = false)
+	String					csvParamBasedirCorrection	= "";
+
 	/**
 	 * startTick (int, default: 2000)
 	 */
@@ -195,6 +210,9 @@ public class ScenarioLoader {
 
 		info.setScenario(scenario);
 		info.setRunID(runID);
+
+		this.persister.setBaseDir(this.persister.getBaseDir() + this.basedirAdaptation);
+		this.info.setCsvParamBasedirCorrection(this.csvParamBasedirCorrection);
 
 		if (worldLoader == null && worldLoaderFile != null) {
 			worldLoader = persister.readXML(WorldLoader.class, worldLoaderFile);

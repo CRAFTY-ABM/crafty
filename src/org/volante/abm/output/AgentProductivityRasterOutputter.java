@@ -26,32 +26,44 @@ package org.volante.abm.output;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Service;
+import org.volante.abm.example.SimpleProductionModel;
 
 
-public class SupplyRasterOutput extends RasterOutputter {
+/**
+ * Currently only supports {@link SimpleProductionModel}.
+ * 
+ * @author Sascha Holzhauer
+ *
+ */
+public class AgentProductivityRasterOutputter extends RasterOutputter {
 	@Attribute(name = "service", required = true)
 	String	serviceName	= "HUMAN";
 	Service	service		= null;
 
-	public SupplyRasterOutput() {
+	public AgentProductivityRasterOutputter() {
 	}
 
-	public SupplyRasterOutput(String serviceName) {
+	public AgentProductivityRasterOutputter(String serviceName) {
 		this.serviceName = serviceName;
 	}
 
-	public SupplyRasterOutput(Service service) {
+	public AgentProductivityRasterOutputter(Service service) {
 		this.service = service;
 	}
 
 	@Override
 	public double apply(Cell c) {
-		return c.getSupply().getDouble(service);
+		if (c.getOwner().getProductionModel() instanceof SimpleProductionModel) {
+			return ((SimpleProductionModel) c.getOwner().getProductionModel())
+					.getProductionWeights().getDouble(service);
+		} else {
+			return Double.NaN;
+		}
 	}
 
 	@Override
 	public String getDefaultOutputName() {
-		return "Supply-" + service.getName();
+		return "Productivity-" + service.getName();
 	}
 
 	@Override

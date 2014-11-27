@@ -109,12 +109,17 @@ public class CsvBatchRunParser {
 			filename = filename.split("~")[0].trim();
 		}
 
+
+		filename = rInfo.getCsvParamBasedirCorrection() + filename;
+
 		String colName = textParsed[1].trim();
 
 		Map<String, Map<Integer, String>> fileMap = readCsvFile(filename, rInfo);
 		Integer run = rInfo.getCurrentRun();
 
 		if (secondFilename != null) {
+			secondFilename = rInfo.getCsvParamBasedirCorrection() + secondFilename;
+
 			Map<String, Map<Integer, String>> fileMapSec = readCsvFile(secondFilename, rInfo);
 			checkCsvData(secondFilename, colName, fileMapSec, null);
 			String idCol = firstColumns.get(secondFilename);
