@@ -89,21 +89,15 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	@Attribute(required = false)
 	public String			numTakeovers		= "NaN";
 
+	/**
+	 * Alternative to {@link this#numTakeovers}: specify the percentage of take overs per single
+	 * agent (type).
+	 */
+	@Attribute(required = false)
+	public String			percentageTakeOvers	= "NaN";
+
 	public int				numTakeoversDerived	= Integer.MIN_VALUE;
 
-	@Attribute(required = false)
-	public String			percentageTakeOvers	= "NaN";												// of
-																										// times
-																										// an
-																										// agent
-																										// (type)
-																										// can
-																										// search
-																										// the
-																										// above
-																										// no.
-																										// of
-																										// cells
 	@Attribute(required = false)
 	public int				probabilityExponent	= 2;
 	Cell					perfectCell			= new Cell();
@@ -182,6 +176,10 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 				return pow(r.getCompetitiveness(a, perfectCell), probabilityExponent);
 			}
 		};
+
+		logger.info("Number of derived take overs: " + numTakeoversDerived
+					+ " (specified percentage: " + this.percentageTakeOvers + ")");
+
 		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
 			Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(), compScore);

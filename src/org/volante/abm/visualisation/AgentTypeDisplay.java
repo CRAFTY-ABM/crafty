@@ -47,7 +47,7 @@ public class AgentTypeDisplay extends CellDisplay {
 	private static final long	serialVersionUID	= 722528466121585081L;
 
 
-	@ElementMap(entry = "aftColor", key = "aft", attribute = true, inline = true)
+	@ElementMap(entry = "aftColor", key = "aft", attribute = true, inline = true, required = false)
 	protected Map<String, Color>	agentColours		= new LinkedHashMap<String, Color>();
 
 	@Attribute(required = false)
