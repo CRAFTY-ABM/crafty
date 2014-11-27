@@ -126,7 +126,7 @@ public class ModelRunner
 
 					PmParameterManager.getInstance(null).setParam(RandomPa.RANDOM_SEED, randomSeed);
 
-					doRun(filename, directory, start, end, rInfo, interactive);
+					doRun(filename, start, end, rInfo, interactive);
 				}
 				rInfo.getOutputs().removeClosingOutputThreads();
 				PmParameterManager.reset();
@@ -135,10 +135,10 @@ public class ModelRunner
 		}
 	}
 
-	public static void doRun(String filename, String directory, int start,
+	public static void doRun(String filename, int start,
 			int end, RunInfo rInfo, boolean interactive) throws Exception
 	{
-		ScenarioLoader loader = setupRun(filename, directory, start, end, rInfo);
+		ScenarioLoader loader = setupRun(filename, start, end, rInfo);
 		if (interactive) {
 			interactiveRun(loader);
 		} else {
@@ -182,12 +182,9 @@ public class ModelRunner
 		controls.setVisible( true );
 	}
 
-	public static ScenarioLoader setupRun(String filename, String directory,
+	public static ScenarioLoader setupRun(String filename,
 			int start, int end, RunInfo rInfo) throws Exception
 	{
-		ABMPersister p = ABMPersister.getInstance();
-
-		p.setBaseDir(directory);
 		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename);
 		loader.setRunID(rInfo.getCurrentRun() + "-" + rInfo.getCurrentRandomSeed());
 		loader.initialise(rInfo);
