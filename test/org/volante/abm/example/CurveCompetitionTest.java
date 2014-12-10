@@ -33,7 +33,7 @@ import org.junit.Test;
 import com.moseph.modelutils.curve.LinearFunction;
 
 
-public class CurveCompetitionTest extends BasicTests {
+public class CurveCompetitionTest extends BasicTestsUtils {
 	CurveCompetitivenessModel	comp;
 
 	public void setupModel() throws Exception {

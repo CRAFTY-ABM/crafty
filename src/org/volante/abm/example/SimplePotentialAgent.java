@@ -75,6 +75,10 @@ public class SimplePotentialAgent implements PotentialAgent, Initialisable {
 		return map;
 	}
 
+	/**
+	 * @see org.volante.abm.agent.PotentialAgent#createAgent(org.volante.abm.data.Region,
+	 *      org.volante.abm.data.Cell[])
+	 */
 	@Override
 	public Agent createAgent(Region region, Cell... cells) {
 		DefaultAgent da = new DefaultAgent(this, id, data, region,

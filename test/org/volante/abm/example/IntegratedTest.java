@@ -46,7 +46,7 @@ import org.volante.abm.schedule.RunInfo;
  * @author dmrust
  *
  */
-public class IntegratedTest extends BasicTests
+public class IntegratedTest extends BasicTestsUtils
 {
 	public static double [] farmingProduction = new double[] { 0, 0, 1, 0 };
 	public static double [][] farmingCapital = new double[][] {

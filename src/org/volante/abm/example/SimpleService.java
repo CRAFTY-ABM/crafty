@@ -29,6 +29,12 @@ import com.moseph.modelutils.fastdata.NamedArrayIndexSet;
 import com.moseph.modelutils.fastdata.NamedIndexSet;
 
 
+/**
+ * Simple set of four services.
+ * 
+ * @author Dave Murray-Rust
+ *
+ */
 public enum SimpleService implements Service {
 	HOUSING(0),
 	TIMBER(1),

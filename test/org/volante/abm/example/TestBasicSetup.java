@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-public class TestBasicSetup extends BasicTests
+public class TestBasicSetup extends BasicTestsUtils
 {
 
 	@Test

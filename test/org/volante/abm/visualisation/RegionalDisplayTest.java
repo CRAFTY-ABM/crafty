@@ -19,45 +19,38 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 16 Sep 2014
+ * Created by Sascha Holzhauer on 9 Dec 2014
  */
-package org.volante.abm.serialization;
+package org.volante.abm.visualisation;
 
-import static org.junit.Assert.assertEquals;
+import java.awt.Dimension;
 
-import org.junit.Before;
-import org.junit.Test;
+import javax.swing.JFrame;
+
 import org.volante.abm.data.Region;
 import org.volante.abm.example.BasicTestsUtils;
-import org.volante.abm.example.SimplePotentialAgent;
-import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.example.RegionalDemandModel;
 
 /**
  * @author Sascha Holzhauer
  *
  */
-public class BatchModeParseFilterTest extends BasicTestsUtils {
+public class RegionalDisplayTest {
+	public static void main(String[] args) throws Exception {
+		BasicTestsUtils bt = new BasicTestsUtils();
+		Region r = bt.r1;
+		RegionalDemandModel dem = new RegionalDemandModel();
+		r.setDemandModel(dem);
+		r.initialise(BasicTestsUtils.modelData, BasicTestsUtils.runInfo, r);
+		RegionalDisplay rd = new RegionalDisplay();
+		rd.initialise(BasicTestsUtils.modelData, BasicTestsUtils.runInfo, r);
+		rd.setRegion(r);
 
-	static final String	XML_FILE	= "xml/BatchModeParseFilterTestingAgent.xml";
+		JFrame frame = new JFrame("Regional Display Test");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	protected RunInfo	rInfo;
-	protected Region	region		= new Region();
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		rInfo = new RunInfo();
-		rInfo.setCurrentRun(42);
-	}
-
-	@Test
-	public void test() throws Exception {
-		ABMPersister persister = ABMPersister.getInstance();
-		SimplePotentialAgent agent = persister.readXML(SimplePotentialAgent.class, XML_FILE);
-		agent.initialise(modelData, rInfo, region);
-		assertEquals(0.3, agent.getGivingIn(), 0.01);
-		assertEquals(0.5, agent.getGivingUp(), 0.01);
+		frame.getContentPane().add(rd.getDisplay());
+		frame.setSize(new Dimension(600, 1000));
+		frame.setVisible(true);
 	}
 }

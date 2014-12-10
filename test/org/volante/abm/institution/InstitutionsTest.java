@@ -15,14 +15,14 @@ import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Service;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.institutions.DefaultInstitution;
 import org.volante.abm.institutions.Institutions;
 
 import com.moseph.modelutils.fastdata.DoubleMap;
 
-public class InstitutionsTest extends BasicTests
+public class InstitutionsTest extends BasicTestsUtils
 {
 
 	/**

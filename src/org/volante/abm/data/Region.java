@@ -280,9 +280,9 @@ public class Region implements Regions, PreTickAction {
 	 * Gets the competitiveness of the given services on the given cell for the current demand model
 	 * and level of demand
 	 * 
-	 * @param services
+	 * @param agent
 	 * @param c
-	 * @return
+	 * @return competitiveness for the given potential agent on the given cell
 	 */
 	public double getCompetitiveness(PotentialAgent agent, Cell c) {
 		if (hasInstitutions()) {
@@ -299,7 +299,8 @@ public class Region implements Regions, PreTickAction {
 	 * 
 	 * @param agent
 	 * @param c
-	 * @return
+	 * @return unadjusted competitiveness for the given potential agent on the
+	 *         given cell
 	 */
 	public double getUnadjustedCompetitiveness(PotentialAgent agent, Cell c) {
 		return competition.getCompetitiveness(demand, agent.getPotentialSupply(c), c);
@@ -310,7 +311,7 @@ public class Region implements Regions, PreTickAction {
 	 * levels of demand
 	 * 
 	 * @param c
-	 * @return
+	 * @return get competitiveness of given cell
 	 */
 	public double getCompetitiveness(Cell c) {
 		double comp = getUnadjustedCompetitiveness(c);
@@ -326,7 +327,7 @@ public class Region implements Regions, PreTickAction {
 	 * Just used for displays and checking, so see the effect without institutions
 	 * 
 	 * @param c
-	 * @return
+	 * @return unadjusted competitiveness for the given cell
 	 */
 	public double getUnadjustedCompetitiveness(Cell c) {
 		if (competition == null || demand == null) {
@@ -456,12 +457,12 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Returns the cell with the given x and y coordinates. Returns null if no cells are present or
-	 * the table has not been built yet.
+	 * Returns the cell with the given x and y coordinates. Returns null if no
+	 * cells are present or the table has not been built yet.
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return cell of given coordinates
 	 */
 	public Cell getCell(int x, int y) {
 		if (cellTable == null) {
@@ -528,7 +529,7 @@ public class Region implements Regions, PreTickAction {
 
 	/**
 	 * @param id
-	 * @return
+	 * @return region helper with given ID
 	 */
 	public RegionHelper getHelper(Object id) {
 		return this.helpers.get(id);
