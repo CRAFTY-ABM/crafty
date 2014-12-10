@@ -9,11 +9,11 @@ import org.junit.Test;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Region;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
 import com.csvreader.CsvReader;
 
-public class CSVCapitalUpdaterTest extends BasicTests
+public class CSVCapitalUpdaterTest extends BasicTestsUtils
 {
 
 	/**

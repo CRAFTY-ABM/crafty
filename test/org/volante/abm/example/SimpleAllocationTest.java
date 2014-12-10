@@ -10,7 +10,7 @@ import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.agent.PotentialAgent;
 
-public class SimpleAllocationTest extends BasicTests
+public class SimpleAllocationTest extends BasicTestsUtils
 {
 	@SuppressWarnings("deprecation")
 	@Test

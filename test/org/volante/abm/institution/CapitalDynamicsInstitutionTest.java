@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.institutions.CapitalDynamicsInstitution;
 import org.volante.abm.institutions.Institutions;
 import org.volante.abm.models.AllocationModel;
@@ -42,7 +42,7 @@ import org.volante.abm.serialization.ABMPersister;
  * @author Sascha Holzhauer
  *
  */
-public class CapitalDynamicsInstitutionTest extends BasicTests {
+public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 
 	private static final String	XML_FILENAME	= "xml/Institutions_CapitalDynamics.xml";
 

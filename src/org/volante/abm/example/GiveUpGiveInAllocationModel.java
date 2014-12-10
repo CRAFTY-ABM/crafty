@@ -69,7 +69,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	static private Logger	logger				= Logger.getLogger(GiveUpGiveInAllocationModel.class);
 
 	/**
-	 * The number of cells an agent (type) can search over to find maximum competitiveness
+	 * The number of cells a single agent (type) can search over to find maximum competitiveness
 	 */
 	@Attribute(required = false)
 	public String			numCells			= "NaN";
@@ -77,14 +77,15 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	protected int			numSearchedCells	= Integer.MIN_VALUE;
 
 	/**
-	 * Alternative to {@link this#numCells}: specify the percentage of entire cells in the region to
-	 * search over.
+	 * Alternative to {@link this#numCells}: specify the percentage of entire cells in the region a
+	 * single agent (type) searches over.
 	 */
 	@Attribute(required = false)
 	public String			percentageCells		= "NaN";
 
 	/**
-	 * The number of times an agent (type) can search the above no. of
+	 * The number of times an agent (type) is selected for a take over (i.e. performing the above
+	 * no. of searches for a cell)
 	 */
 	@Attribute(required = false)
 	public String			numTakeovers		= "NaN";

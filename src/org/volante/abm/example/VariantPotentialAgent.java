@@ -64,6 +64,25 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 	@Element(required = false)
 	Distribution	capitalImportanceNoise	= null;
 
+	/**
+	 * 
+	 */
+	public VariantPotentialAgent() {
+		super();
+	}
+	
+	/**
+	 * @param id
+	 * @param data
+	 * @param production
+	 * @param givingUp
+	 * @param givingIn
+	 */
+	public VariantPotentialAgent(String id, ModelData data, ProductionModel production,
+			double givingUp, double givingIn) {
+		super(id, data, production, givingUp, givingIn);
+	}
+
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		super.initialise(data, info, r);
@@ -125,15 +144,16 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 	}
 
 	/**
-	 * Returns a noisy version of the production model. Uses the serviceLevelNoise distribution to
-	 * create variance in the optimal levels of service production, and capitalImportanceNoise to
-	 * create variance in the importance of the capitals to this production.
+	 * Returns a noisy version of the production model. Uses the
+	 * serviceLevelNoise distribution to create variance in the optimal levels
+	 * of service production, and capitalImportanceNoise to create variance in
+	 * the importance of the capitals to this production.
 	 * 
 	 * Only works on SimpleProduction models at the moment.
 	 * 
 	 * @param production
 	 * @param r
-	 * @return
+	 * @return production model
 	 */
 	public ProductionModel productionModel(final ProductionModel production, final Region r)
 	{

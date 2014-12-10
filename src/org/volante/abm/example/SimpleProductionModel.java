@@ -34,6 +34,7 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Service;
 import org.volante.abm.models.ProductionModel;
+import org.volante.abm.models.utils.ProductionWeightReporter;
 import org.volante.abm.schedule.RunInfo;
 
 import com.moseph.modelutils.distribution.Distribution;
@@ -48,7 +49,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * @author dmrust
  *
  */
-public class SimpleProductionModel implements ProductionModel
+public class SimpleProductionModel implements ProductionModel, ProductionWeightReporter
 {
 
 	/**

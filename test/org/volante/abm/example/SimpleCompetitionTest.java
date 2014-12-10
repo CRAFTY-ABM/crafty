@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class SimpleCompetitionTest extends BasicTests
+public class SimpleCompetitionTest extends BasicTestsUtils
 {
 	SimpleCompetitivenessModel comp = new SimpleCompetitivenessModel();
 	

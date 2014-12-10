@@ -3,11 +3,11 @@ package org.volante.abm.data;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
 import com.moseph.modelutils.fastdata.*;
 
-public class CellTests extends BasicTests
+public class CellTests extends BasicTestsUtils
 {
 
 	@Test

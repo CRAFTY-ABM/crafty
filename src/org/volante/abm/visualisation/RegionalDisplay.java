@@ -26,15 +26,12 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
-import org.volante.abm.example.BasicTests;
-import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.schedule.RunInfo;
 
 public class RegionalDisplay extends AbstractDisplay
@@ -103,25 +100,6 @@ public class RegionalDisplay extends AbstractDisplay
 	{
 		JScrollPane pane = new JScrollPane( this );
 		return pane;
-	}
-	
-	public static void main( String[] args ) throws Exception
-	{
-		BasicTests bt = new BasicTests();
-		Region r = bt.r1;
-		RegionalDemandModel dem = new RegionalDemandModel();
-		r.setDemandModel(dem);
-		r.initialise(BasicTests.modelData, BasicTests.runInfo, r);
-		RegionalDisplay rd = new RegionalDisplay();
-		rd.initialise(BasicTests.modelData, BasicTests.runInfo, r);
-		rd.setRegion(r);
-		
-		JFrame frame = new JFrame("Regional Display Test");
-		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-		
-		frame.getContentPane().add( rd.getDisplay() );
-		frame.setSize( new Dimension(600,1000));
-		frame.setVisible( true );
 	}
 
 }
