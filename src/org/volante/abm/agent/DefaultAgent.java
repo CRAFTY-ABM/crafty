@@ -157,4 +157,10 @@ public class DefaultAgent extends AbstractAgent {
 	public String infoString() {
 		return "Giving up: " + givingUp + ", Giving in: " + givingIn + ", nCells: " + cells.size();
 	}
+
+	@Override
+	public void receiveNotification(
+			de.cesr.more.basic.agent.MoreObservingNetworkAgent.NetworkObservation observation,
+			Agent object) {
+	}
 }
