@@ -91,6 +91,9 @@ public class RegionLoader {
 	@Element(required = false)
 	PotentialAgentList				potentialAgents			= new PotentialAgentList();
 
+	@Element(required = false)
+	SocialNetworkLoaderList			socialNetworkLoaders	= new SocialNetworkLoaderList();
+
 	@ElementList(required = false, inline = true, entry = "agentFile")
 	List<String>					agentFileList			= new ArrayList<String>();
 
@@ -107,6 +110,13 @@ public class RegionLoader {
 	@Element(required = false)
 	String							pmParameterFile			= "	";
 	
+	/**
+	 * Location of XML parameter file for social network initialisations (it is possible to have
+	 * several networks of agents to build up a multiplex social network).
+	 */
+	@ElementList(required = false, inline = true, entry = "socialNetworkParamFile")
+	List<String>					socialNetworkFileList	= new ArrayList<String>();
+
 	@ElementList(inline = true, required = false, entry = "updater")
 	List<Updater>					updaters				= new ArrayList<Updater>();
 	@ElementList(inline = true, required = false, entry = "updaterFile")
@@ -143,12 +153,12 @@ public class RegionLoader {
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers) {
 		this(id, competition, allocation, demand, potentialAgents, cellInitialisers,
-				agentInitialisers, null);
+				agentInitialisers, null, null);
 	}
 
 	public RegionLoader(String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
-			String agentInitialisers, String institutionFile) {
+			String agentInitialisers, String socialNetworkFile, String institutionFile) {
 		this.id = id;
 		this.competitionFile = competition;
 		this.allocationFile = allocation;
@@ -161,9 +171,15 @@ public class RegionLoader {
 			this.agentInitialiserFiles.addAll(ABMPersister
 					.splitTags(agentInitialisers));
 		}
-		
+
+		if (socialNetworkFile != null && !socialNetworkFile.equals("")) {
+			this.socialNetworkFileList.add(socialNetworkFile);
+		}
+
 		if (institutionFile != null && !institutionFile.equals("")) {
-			this.institutionFiles.add(institutionFile);
+			for (String iFile : institutionFile.split("\\|")) {
+				this.institutionFiles.add(iFile.trim());
+			}
 		}
 	}
 
@@ -183,6 +199,8 @@ public class RegionLoader {
 		readPmParameters();
 		loadAgentTypes();
 		loadModels();
+		loadSocialNetworks();
+
 		initialiseCells();
 		passInfoToRegion();
 		loadInstitutions();
@@ -199,6 +217,23 @@ public class RegionLoader {
 		new PmXmlParameterReader(pm, PmFrameworkPa.XML_PARAMETER_FILE).initParameters();
 	}
 	
+	/**
+	 * Initialises {@link SocialNetworkLoader}s.
+	 *
+	 * @throws Exception
+	 */
+	protected void loadSocialNetworks() throws Exception {
+		for (String socialNetworkFile : socialNetworkFileList) {
+			socialNetworkLoaders.loaders.addAll(persister.readXML(
+					SocialNetworkLoaderList.class, socialNetworkFile).loaders);
+		}
+
+		for (SocialNetworkLoader l : socialNetworkLoaders.loaders) {
+			log.info("Initialise social network loader: " + l.getName());
+			l.initialise(modelData, runInfo, region);
+		}
+	}
+
 	public void loadAgentTypes() throws Exception {
 		for (String potentialAgentFile : agentFileList) {
 			// <- LOGGING
@@ -338,6 +373,7 @@ public class RegionLoader {
 		if (this.randomSeed != Integer.MIN_VALUE) {
 			PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
 		}
+		region.initialise(modelData, runInfo, null);
 	}
 
 	public Cell getCell(int x, int y) {

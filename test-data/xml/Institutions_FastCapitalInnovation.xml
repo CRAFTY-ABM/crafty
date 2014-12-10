@@ -1,0 +1,20 @@
+<institution class="org.volante.abm.institutions.RepeatingInnovativeInstitution">	
+	<innovation class="org.volante.abm.institutions.innovation.RepeatingCapitalLevelInnovation"
+			 id="RepeatingCapitalLevelInnovation-Crop">
+		
+		<repComp class="org.volante.abm.institutions.innovations.repeat.CsvCapitalLevelInnovationRepComp">
+			<effectAdjustmentsCsvFile>${@(worlds/ToyWorldA/Runs.csv, CapitalLevelInnovationRepCompCsvFile)}</effectAdjustmentsCsvFile>
+			<renewalInterval>10</renewalInterval>
+		</repComp>
+		
+		<affectiveAFTs>NC_Cereal, C_Cereal</affectiveAFTs>
+		<affectedAFTs>NC_Cereal, C_Cereal</affectedAFTs>
+		<affectedCapital>Cprod</affectedCapital>
+	</innovation>
+	
+	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.RepetitiveRecruitment">
+		<initialTargetRecruitment class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">
+			<probability>${@(worlds/ToyWorldA/Runs.csv, initialAdopterProbability)}</probability>
+		</initialTargetRecruitment>
+	</targetRecruitmentComp>
+</institution>
