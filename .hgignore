@@ -18,3 +18,7 @@ syntax: regexp
 ^lib/CRAFTY\.jar$
 syntax: regexp
 ^target$
+syntax: regexp
+^build/docs$
+syntax: regexp
+^build$
