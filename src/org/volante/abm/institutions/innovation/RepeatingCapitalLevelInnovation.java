@@ -23,10 +23,15 @@
  */
 package org.volante.abm.institutions.innovation;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementMap;
+import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Capital;
@@ -47,6 +52,12 @@ import com.moseph.modelutils.fastdata.DoubleMap;
 public class RepeatingCapitalLevelInnovation extends Innovation implements
 		RepeatingInnovation {
 
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger
+			.getLogger(RepeatingCapitalLevelInnovation.class);
+
 	@Element(name = "repComp", required = false)
 	protected InnovationRepComp repComp = new CsvCapitalLevelInnovationRepComp();
 
@@ -64,6 +75,15 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	 */
 	@Element(required = false)
 	protected String affectiveAFTs = "all";
+
+	/**
+	 * Specifies for each AFT the required proportions of adopted among
+	 * neighbours to adopt itself; Values &gt; 1 cause the trial/adoption to be
+	 * likelier, values &lt; 1 cause to adoption to be less likely. Default is
+	 * 1.0
+	 */
+	@ElementMap(entry = "socialPartnerShareAdjustment", key = "aft", attribute = true, inline = true, required = false)
+	protected Map<String, Double> socialPartnerShareAdjustment = new HashMap<String, Double>();
 
 	protected Set<String> affectiveAFTset;
 
@@ -89,6 +109,24 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 
 		affectedCapital = affectedCapital.trim();
 		this.affectedCapitalObejct = mData.capitals.forName(affectedCapital);
+	}
+
+	/**
+	 * Multiplies the generic adoption factor with AFT specific social partner
+	 * share adjustment factor.
+	 * 
+	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialFactor(org.volante.abm.agent.Agent)
+	 */
+	public double getTrialFactor(Agent agent) {
+		if (!socialPartnerShareAdjustment.containsKey(agent.getType().getID())) {
+			// <- LOGGING
+			logger.warn("No social partner share adjustment factor provided for "
+					+ agent.getType().getID() + ". Using 1.0.");
+			// LOGGING ->
+			return super.getTrialFactor(agent);
+		}
+		return super.getTrialFactor(agent)
+				* socialPartnerShareAdjustment.get(agent.getType().getID());
 	}
 
 	/**
