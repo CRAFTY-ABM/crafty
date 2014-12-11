@@ -78,6 +78,11 @@ public class InnovativeInstitution extends AbstractInstitution {
 		// LOGGING ->
 
 		super.initialise(data, info, extent);
+
+		if (this.innovationReleaseTick < info.getSchedule().getCurrentTick()) {
+			logger.warn("This innovation's innovation release tick was before it's initialisation. "
+					+ "Check parameter innovationReleaseTick!");
+		}
 		this.targetRecruitmentComp.initialise(data, info, extent);
 	}
 
@@ -149,7 +154,21 @@ public class InnovativeInstitution extends AbstractInstitution {
 			}
 		}
 
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Potential number of agents to inform: "
+					+ innovationAgents.size());
+		}
+		// LOGGING ->
+
 		innovationAgents = this.targetRecruitmentComp.getRecruitedAgents(innovationAgents);
+
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Number of agents to inform: "
+					+ innovationAgents.size());
+		}
+		// LOGGING ->
 
 		for (InnovationAgent agent : innovationAgents) {
 			agent.makeAware(innovation);

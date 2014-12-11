@@ -27,7 +27,6 @@ package org.volante.abm.institutions.innovation.repeat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -53,10 +52,10 @@ public class CsvCapitalLevelInnovationRepComp extends AbstractInnovationRepComp
 	@Element(name = "effectAdjustmentsCsvFile", required = true)
 	protected String effectAdjustmentsCsvFile = "";
 
-	@Attribute(name = "colnameTick", required = false)
+	@Element(name = "colnameTick", required = false)
 	protected String colnameTick = "Tick";
 
-	@Attribute(name = "colnameFactor", required = false)
+	@Element(name = "colnameFactor", required = false)
 	protected String colnameFactor = "Factor";
 
 	protected Map<Integer, Double> effects;
