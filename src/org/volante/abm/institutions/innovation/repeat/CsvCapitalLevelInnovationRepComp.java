@@ -24,9 +24,9 @@
 package org.volante.abm.institutions.innovation.repeat;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Element;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -49,6 +49,12 @@ public class CsvCapitalLevelInnovationRepComp extends AbstractInnovationRepComp
 		implements
 		Initialisable {
 
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger
+			.getLogger(CsvCapitalLevelInnovationRepComp.class);
+
 	@Element(name = "effectAdjustmentsCsvFile", required = true)
 	protected String effectAdjustmentsCsvFile = "";
 
@@ -58,7 +64,7 @@ public class CsvCapitalLevelInnovationRepComp extends AbstractInnovationRepComp
 	@Element(name = "colnameFactor", required = false)
 	protected String colnameFactor = "Factor";
 
-	protected Map<Integer, Double> effects;
+	protected TreeMap<Integer, Double> effects;
 	protected RunInfo rInfo;
 
 	/**
@@ -69,7 +75,7 @@ public class CsvCapitalLevelInnovationRepComp extends AbstractInnovationRepComp
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.rInfo = info;
 		CsvReader reader = info.getPersister().getCSVReader(effectAdjustmentsCsvFile);
-		effects = new HashMap<Integer, Double>();
+		effects = new TreeMap<Integer, Double>();
 
 		while (reader.readRecord()) {
 			effects.put(new Integer(reader.get(colnameTick)),
@@ -86,9 +92,19 @@ public class CsvCapitalLevelInnovationRepComp extends AbstractInnovationRepComp
 		if (innovation instanceof RepeatingCapitalLevelInnovation) {
 			RepeatingCapitalLevelInnovation repInno = ((RepeatingCapitalLevelInnovation) innovation);
 
-			repInno.setEffectOnCapitalFactor(effects.get(new Integer(
-					rInfo.getSchedule()
-								.getCurrentTick())));
+			Integer currentTick = new Integer(rInfo.getSchedule()
+					.getCurrentTick());
+
+			if (effects.floorKey(currentTick) < currentTick) {
+				logger.warn("The latest available effect is defined for an earlier tick ("
+						+ effects.floorKey(currentTick)
+						+ " - current tick: "
+						+ currentTick + ")");
+			}
+
+			repInno.setEffectOnCapitalFactor(effects.floorEntry(currentTick)
+					.getValue());
+
 		} else {
 			throw new IllegalStateException(
 					"Passed innovation is not of type RepeatingCapitalLevelInnovation!");

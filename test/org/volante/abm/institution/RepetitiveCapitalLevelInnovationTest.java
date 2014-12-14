@@ -172,6 +172,10 @@ public class RepetitiveCapitalLevelInnovationTest extends InnovationTestUtils {
 		}
 	}
 
+	/**
+	 * TODO did not uncover a missing call to initialise the renewed innovation
+	 * (in adjustRenewedInnovation)!
+	 */
 	@Test
 	public void testInnovationRenewal() {
 		final InnovationAgent agent = new DefaultSocialInnovationAgent(

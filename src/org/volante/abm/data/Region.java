@@ -376,7 +376,13 @@ public class Region implements Regions, PreTickAction {
 	public void cleanupAgents() {
 		for (Agent a : agentsToRemove) {
 			log.trace(" removing agent " + a.getID() + " at " + a.getCells());
+
 			agents.remove(a);
+			for (RegionHelper helper : this.helpers.values()) {
+				if (helper instanceof PopulationRegionHelper) {
+					((PopulationRegionHelper) helper).agentRemoved(a);
+				}
+			}
 		}
 		agentsToRemove.clear();
 	}
@@ -492,6 +498,13 @@ public class Region implements Regions, PreTickAction {
 			if (cur.toRemove()) {
 				log.trace("also removing agent " + cur);
 				agents.remove(cur);
+
+				for (RegionHelper helper : this.helpers.values()) {
+					if (helper instanceof PopulationRegionHelper) {
+						((PopulationRegionHelper) helper).agentRemoved(cur);
+					}
+				}
+
 				cur.die();
 			}
 			log.trace(" adding agent " + a + " to cell");

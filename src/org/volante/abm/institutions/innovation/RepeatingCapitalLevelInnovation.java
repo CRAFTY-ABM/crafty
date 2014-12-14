@@ -58,6 +58,9 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	static private Logger logger = Logger
 			.getLogger(RepeatingCapitalLevelInnovation.class);
 
+	/**
+	 * 
+	 */
 	@Element(name = "repComp", required = false)
 	protected InnovationRepComp repComp = new CsvCapitalLevelInnovationRepComp();
 
@@ -65,7 +68,8 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	protected String affectedCapital = "";
 
 	/**
-	 * Increase of productivity in case of adoption.
+	 * Increase in case of adoption in level of capital that is specified by
+	 * affectedCapital.
 	 */
 	@Element(name = "effectOnCapitalFactor", required = false)
 	protected double effectOnCapitalFactor = 1.002;
@@ -87,7 +91,7 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 
 	protected Set<String> affectiveAFTset;
 
-	protected Capital affectedCapitalObejct;
+	protected Capital affectedCapitalObject;
 
 
 	/**
@@ -108,7 +112,7 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 		this.repComp.initialise(mData, rInfo, region);
 
 		affectedCapital = affectedCapital.trim();
-		this.affectedCapitalObejct = mData.capitals.forName(affectedCapital);
+		this.affectedCapitalObject = mData.capitals.forName(affectedCapital);
 	}
 
 	/**
@@ -145,6 +149,13 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 		innovation.lifeSpan = lifeSpan;
 		innovation.trialFactor = trialFactor;
 		innovation.repComp = repComp;
+		innovation.socialPartnerShareAdjustment = socialPartnerShareAdjustment;
+		try {
+			innovation.initialise(modelData, rInfo, region);
+		} catch (Exception exception) {
+			logger.error("Error during initialisation of renewed innovation!");
+			exception.printStackTrace();
+		}
 		innovation = this.getRepetitionComp().adjustRenewedInnovation(
 				innovation);
 		return innovation;
@@ -176,8 +187,8 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	public void perform(InnovationAgent agent) {
 		for (Cell c : agent.getCells()) {
 			DoubleMap<Capital> capitals = c.getModifiableBaseCapitals();
-			capitals.put(this.affectedCapitalObejct,
-					capitals.get(affectedCapitalObejct)
+			capitals.put(this.affectedCapitalObject,
+					capitals.get(affectedCapitalObject)
 							* this.effectOnCapitalFactor);
 		}
 	}
@@ -189,8 +200,8 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	public void unperform(InnovationAgent agent) {
 		for (Cell c : agent.getCells()) {
 			DoubleMap<Capital> capitals = c.getModifiableBaseCapitals();
-			capitals.put(this.affectedCapitalObejct,
-					capitals.get(affectedCapitalObejct)
+			capitals.put(this.affectedCapitalObject,
+					capitals.get(affectedCapitalObject)
 							/ this.effectOnCapitalFactor);
 		}
 	}

@@ -24,11 +24,13 @@
 package org.volante.abm.institutions.recruit;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.data.ModelData;
+import org.volante.abm.data.PopulationRegionHelper;
 import org.volante.abm.data.Region;
 import org.volante.abm.schedule.RunInfo;
 
@@ -40,10 +42,18 @@ import org.volante.abm.schedule.RunInfo;
  * @author Sascha Holzhauer
  *
  */
-public class RepetitiveRecruitment implements InstitutionTargetRecruitment {
+public class RepetitiveRecruitment implements InstitutionTargetRecruitment,
+		PopulationRegionHelper {
 
 	@Element(name = "initialTargetRecruitment", required = false)
 	InstitutionTargetRecruitment initialTargetRecruitment;
+
+	@Element(name = "additionalRecruitment", required = false)
+	NumberRandomRecruitment additionalRecruitment = new NumberRandomRecruitment();
+
+	int missingAgents = 0;
+
+	protected Region region;
 
 	Collection<InnovationAgent> recruitedAgents = null;
 
@@ -54,6 +64,21 @@ public class RepetitiveRecruitment implements InstitutionTargetRecruitment {
 	public Collection<InnovationAgent> getRecruitedAgents(Collection<? extends Agent> allAgents) {
 		if (this.recruitedAgents == null)
 			this.recruitedAgents = this.initialTargetRecruitment.getRecruitedAgents(allAgents);
+		
+		if (this.missingAgents > 0) {
+			this.additionalRecruitment.number = this.missingAgents;
+			
+			Collection<Agent> agentsPool = new LinkedHashSet<Agent>(); 
+			for (Agent agent : this.region.getAllAgents()) {
+				if (!this.recruitedAgents.contains(agent)) {
+					agentsPool.add(agent);
+				}
+			}
+			this.recruitedAgents.addAll(this.additionalRecruitment
+					.getRecruitedAgents(agentsPool));
+			
+			this.missingAgents = 0;
+		}
 		return this.recruitedAgents;
 	}
 
@@ -64,5 +89,27 @@ public class RepetitiveRecruitment implements InstitutionTargetRecruitment {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.initialTargetRecruitment.initialise(data, info, extent);
+		this.additionalRecruitment.initialise(data, info, extent);
+		this.region = extent;
+		this.region.registerHelper(null, this);
+	}
+
+	/**
+	 * @see org.volante.abm.data.PopulationRegionHelper#agentRemoved(org.volante.abm.agent.Agent)
+	 */
+	@Override
+	public void agentRemoved(Agent agent) {
+		if (this.recruitedAgents != null) {
+			this.recruitedAgents.remove(agent);
+			this.missingAgents++;
+		}
+	}
+
+	/**
+	 * @see org.volante.abm.data.PopulationRegionHelper#agentAdded(org.volante.abm.agent.Agent)
+	 */
+	@Override
+	public void agentAdded(Agent agent) {
+		// nothing to do
 	}
 }

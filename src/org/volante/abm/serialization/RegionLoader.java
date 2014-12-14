@@ -23,6 +23,7 @@
 package org.volante.abm.serialization;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -328,8 +329,20 @@ public class RegionLoader {
 
 	private void loadInstitutions() throws Exception {
 		for (String institutionFile : institutionFiles) {
-			institutions.add(persister.readXML(Institution.class,
-					institutionFile));
+
+			// TODO document (SH)
+			try {
+				persister
+						.validate(
+								InstitutionsList.class,
+					new File(persister.getFullPath(institutionFile)),
+								false);
+				institutions.addAll(persister.readXML(InstitutionsList.class,
+						institutionFile).institutions);
+			} catch (Exception e) {
+				institutions.add(persister.readXML(Institution.class,
+						institutionFile));
+			}
 		}
 		if (institutions.size() > 0) {
 			Institutions in = new Institutions();
@@ -340,7 +353,6 @@ public class RegionLoader {
 			in.initialise(modelData, runInfo, region);
 			runInfo.getSchedule().register(in);
 		}
-
 	}
 
 	public void initialiseCells() throws Exception {

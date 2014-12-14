@@ -19,31 +19,19 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 5 Dec 2014
+ * Created by Sascha Holzhauer on 12 Dec 2014
  */
-package org.volante.abm.institutions.recruit;
-
-import java.util.Collection;
+package org.volante.abm.data;
 
 import org.volante.abm.agent.Agent;
-import org.volante.abm.agent.InnovationAgent;
-import org.volante.abm.institutions.Institution;
-import org.volante.abm.institutions.innovation.Innovation;
-import org.volante.abm.serialization.Initialisable;
-
 
 /**
- * Applied to recruit agents by {@link Institution}s to spread {@link Innovation}s.
- * 
  * @author Sascha Holzhauer
  *
  */
-public interface InstitutionTargetRecruitment extends Initialisable {
+public interface PopulationRegionHelper extends RegionHelper {
 
-	/**
-	 * @param allAgents
-	 * @return recruited agents
-	 */
-	public Collection<InnovationAgent> getRecruitedAgents(Collection<? extends Agent> allAgents);
+	public void agentRemoved(Agent agent);
 
+	public void agentAdded(Agent agent);
 }
