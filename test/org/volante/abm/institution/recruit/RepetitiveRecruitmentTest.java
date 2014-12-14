@@ -31,6 +31,7 @@ import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.decision.innovation.InnovationTestUtils;
 import org.volante.abm.example.BasicTestsUtils;
@@ -76,6 +77,9 @@ public class RepetitiveRecruitmentTest extends InnovationTestUtils {
 	public void test() {
 		// Tick 0
 
+		for (Agent agent : r1.getAllAgents()) {
+			agent.setGivingUp(0.0);
+		}
 		BasicTestsUtils.runInfo.getSchedule().tick();
 		// Tick 1
 		// Initial recruitment

@@ -69,6 +69,8 @@ public class NumberRandomRecruitment implements InstitutionTargetRecruitment {
 	}
 
 	/**
+	 * Does not guarantee to provide the requested number of agents entirely.
+	 * 
 	 * @see org.volante.abm.institutions.recruit.InstitutionTargetRecruitment#getRecruitedAgents(java.util.Collection)
 	 */
 	@Override
@@ -77,17 +79,19 @@ public class NumberRandomRecruitment implements InstitutionTargetRecruitment {
 		ArrayList<Agent> agents = new ArrayList<Agent>(allAgents);
 
 		for (int i = 0; i < number; i++) {
-			if (allAgents.size() == 0) {
+			if (agents.size() == 0) {
 				logger.warn("Not enough agents to make aware!");
-			}
-			int index = Utilities.nextIntFromTo(0, allAgents.size() - 1,
-					region.getRandom().getURService(), RandomPa.RANDOM_SEED_RUN.name());
-			if (agents.get(index) instanceof InnovationAgent) {
-				recruitedAgents.add((InnovationAgent) agents.get(index));
-				agents.remove(index);
 			} else {
-				logger.warn("Skip selected agent " + agents.get(index)
-						+ " because it is not of type InnovationAgent!");
+				int index = Utilities.nextIntFromTo(0, agents.size() - 1,
+						region.getRandom().getURService(),
+						RandomPa.RANDOM_SEED_RUN.name());
+				if (agents.get(index) instanceof InnovationAgent) {
+					recruitedAgents.add((InnovationAgent) agents.get(index));
+					agents.remove(index);
+				} else {
+					logger.warn("Skip selected agent " + agents.get(index)
+							+ " because it is not of type InnovationAgent!");
+				}
 			}
 		}
 		return recruitedAgents;
