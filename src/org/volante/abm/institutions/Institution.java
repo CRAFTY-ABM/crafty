@@ -37,22 +37,27 @@ public interface Institution extends Initialisable
 	 * @param c
 	 */
 	public void adjustCapitals( Cell c );
+	
 	/**
-	 * When given an agent, a cell and the level of (potential) provision, adjusts the competitiveness level
-	 * Must be able to deal with the agent being null if the cell is unoccupied.
+	 * When given an agent, a cell and the level of (potential) provision, adjusts the
+	 * competitiveness level Must be able to deal with the agent being null if the cell is
+	 * unoccupied.
+	 * 
 	 * @param agent
 	 * @param location
 	 * @param provision
 	 * @param competitiveness
-	 * @return
+	 * @return adjusted competitiveness
 	 */
 	public double adjustCompetitiveness( PotentialAgent agent, Cell location, UnmodifiableNumberMap<Service> provision, double competitiveness );
 	
 	/**
-	 * Determines whether this agent is forbidden from occupying that cell according to this institution
+	 * Determines whether this agent is forbidden from occupying that cell according to this
+	 * institution
+	 * 
 	 * @param agent
 	 * @param location
-	 * @return
+	 * @return true if the agent is allowed to occupy the given cell
 	 */
 	public boolean isAllowed( PotentialAgent agent, Cell location );
 

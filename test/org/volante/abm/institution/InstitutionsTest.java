@@ -35,18 +35,17 @@ public class InstitutionsTest extends BasicTestsUtils
 	{
 		logger.info("Test basic integration of institutions");
 
-		DefaultInstitution a = getTestInstitution( 1, 1 );
 		c11 = new Cell( 1, 1 );
 		c12 = new Cell( 1, 2 );
 		c21 = new Cell( 2, 1 );
 		c22 = new Cell( 2, 2 );
-		runInfo.setUseInstitutions( true );
 		assertFalse( c11.isInitialised() );
 		
 		Region r = setupBasicWorld( c11, c12, c21, c22 );
 		Institutions institutions = new Institutions();
 		setupInstitutions( institutions, r );
 
+		DefaultInstitution a = getTestInstitution(1, 1, r);
 		institutions.addInstitution( a );
 		
 		
@@ -69,7 +68,7 @@ public class InstitutionsTest extends BasicTestsUtils
 	@Test
 	public void testCompetitivenessChanges() throws Exception
 	{
-		DefaultInstitution a = getTestInstitution( 1, 1 );
+
 		Region r = setupBasicWorld( c11 );
 		RegionalDemandModel dem = (RegionalDemandModel) r.getDemandModel();
 		dem.setDemand( services(1,1,1,1) );
@@ -79,6 +78,7 @@ public class InstitutionsTest extends BasicTestsUtils
 		double forestComp = r.getCompetitiveness( forestry, c11 ); //Get the initial competitiveness
 		assertTrue( abs( farmComp ) > 0.001 ); //And make sure that its not zero, just to be sure
 		
+		DefaultInstitution a = getTestInstitution(1, 1, r);
 		Institutions inst = new Institutions();
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
@@ -109,7 +109,7 @@ public class InstitutionsTest extends BasicTestsUtils
 		assertEquals( farmComp, baseComp, 0.0001 );
 		
 		Institutions inst = new Institutions();
-		DefaultInstitution a = getTestInstitution( 0, 0 );
+		DefaultInstitution a = getTestInstitution(0, 0, r);
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
 		assertTrue( r.hasInstitutions() );
@@ -132,7 +132,6 @@ public class InstitutionsTest extends BasicTestsUtils
 	public void testSerialisedInstitution() throws Exception
 	{
 		c11 =  new Cell(1,1);
-		runInfo.setUseInstitutions( true );
 		Region r = setupBasicWorld( c11 );
 		r.addPotentialAgents( Arrays.asList( new PotentialAgent[] {forestry, farming }) );
 		RegionalDemandModel dem = (RegionalDemandModel) r.getDemandModel();
@@ -195,10 +194,10 @@ public class InstitutionsTest extends BasicTestsUtils
 		r.setInstitutions( i );
 	}
 	
-	DefaultInstitution getTestInstitution( double cap, double comp ) throws Exception
+	DefaultInstitution getTestInstitution(double cap, double comp, Region r) throws Exception
 	{
 		DefaultInstitution i = new DefaultInstitution();
-		i.initialise( modelData, runInfo, r1 );
+		i.initialise(modelData, runInfo, r);
 		i.setAdjustment( capitals(cap,cap,cap,cap,cap,cap,cap) );
 		i.setSubsidy( farming, comp );
 		i.setSubsidy( forestry, comp );

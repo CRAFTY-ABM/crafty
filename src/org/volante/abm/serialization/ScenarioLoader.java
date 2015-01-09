@@ -133,9 +133,6 @@ public class ScenarioLoader {
 	@Element(name = "landUses", required = false)
 	DataTypeLoader<LandUse>	landUses		= null;
 
-	@Attribute(required = false)
-	boolean useInstitutions = false;
-
 	@ElementList(required = false, inline = true, entry = "region")
 	List<RegionLoader> regionList = new ArrayList<RegionLoader>();
 	@ElementList(required = false, inline = true, entry = "regionFile")
@@ -187,7 +184,6 @@ public class ScenarioLoader {
 		schedule.setStartTick(startTick);
 		schedule.setEndTick(endTick);
 		
-		info.setUseInstitutions(useInstitutions);
 		if (capitals != null) {
 			log.info("Loading captials");
 			modelData.capitals = capitals.getDataTypes(persister);
