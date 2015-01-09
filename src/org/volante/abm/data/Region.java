@@ -76,6 +76,9 @@ public class Region implements Regions, PreTickAction {
 	String					id				= "UnknownRegion";
 
 	RegionalRandom			random			= null;
+	
+	boolean requiresEffectiveCapitalData = false;
+	boolean hasCompetitivenessAdjustingInstitution = false;
 
 	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
 
@@ -283,15 +286,15 @@ public class Region implements Regions, PreTickAction {
 	 * Convenience methods
 	 */
 	/**
-	 * Gets the competitiveness of the given services on the given cell for the current demand model
-	 * and level of demand
+	 * Gets the competitiveness of the given services on the given cell for the
+	 * current demand model and level of demand
 	 * 
 	 * @param agent
 	 * @param c
 	 * @return competitiveness for the given potential agent on the given cell
 	 */
 	public double getCompetitiveness(PotentialAgent agent, Cell c) {
-		if (hasInstitutions()) {
+		if (hasCompetitivenessAdjustingInstitution()) {
 			UnmodifiableNumberMap<Service> provision = agent.getPotentialSupply(c);
 			double comp = competition.getCompetitiveness(demand, provision, c);
 			return institutions.adjustCompetitiveness(agent, c, provision, comp);
@@ -301,7 +304,8 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Just used for displays and checking to see the effect without institutions
+	 * Just used for displays and checking to see the effect without
+	 * institutions
 	 * 
 	 * @param agent
 	 * @param c
@@ -313,15 +317,15 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Gets the competitiveness of the cell's current production for the current demand model and
-	 * levels of demand
+	 * Gets the competitiveness of the cell's current production for the current
+	 * demand model and levels of demand
 	 * 
 	 * @param c
 	 * @return get competitiveness of given cell
 	 */
 	public double getCompetitiveness(Cell c) {
 		double comp = getUnadjustedCompetitiveness(c);
-		if (hasInstitutions()) {
+		if (hasCompetitivenessAdjustingInstitution()) {
 			PotentialAgent a = c.getOwner() == null ? null : c.getOwner().getType();
 			return institutions.adjustCompetitiveness(a, c, c.getSupply(), comp);
 		} else {
@@ -330,7 +334,8 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Just used for displays and checking, so see the effect without institutions
+	 * Just used for displays and checking, so see the effect without
+	 * institutions
 	 * 
 	 * @param c
 	 * @return unadjusted competitiveness for the given cell
@@ -491,6 +496,22 @@ public class Region implements Regions, PreTickAction {
 
 	public boolean hasInstitutions() {
 		return institutions != null;
+	}
+
+	public boolean doesRequireEffectiveCapitalData() {
+		return requiresEffectiveCapitalData;
+	}
+
+	public boolean hasCompetitivenessAdjustingInstitution() {
+		return hasCompetitivenessAdjustingInstitution;
+	}
+
+	public void setRequiresEffectiveCapitalData() {
+		this.requiresEffectiveCapitalData = true;
+	}
+
+	public void setHasCompetitivenessAdjustingInstitution() {
+		this.hasCompetitivenessAdjustingInstitution = true;
 	}
 
 	public Institutions getInstitutions() {

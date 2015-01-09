@@ -20,13 +20,14 @@ import org.volante.abm.update.CSVCapitalUpdater;
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.curve.LinearInterpolator;
 import com.moseph.modelutils.fastdata.DoubleMap;
-import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
 /**
- * Reads change factors for ticks from a CSV file and adjusts cells' capital levels accordingly. The
- * given tick values are interpolated into curves similar as for {@link RegionalDemandModel}. See
- * also {@link CSVCapitalUpdater} for updates with absolute values.
+ * Reads change factors for ticks from a CSV file and adjusts cells' capital
+ * levels accordingly. The adjustment is performed at the beginning of each tick
+ * (e.g. before perceiving social networks). The given tick values are
+ * interpolated into curves similar as for {@link RegionalDemandModel}. See also
+ * {@link CSVCapitalUpdater} for updates with absolute values.
  * 
  * @author Sascha Holzhauer
  * 
@@ -60,12 +61,11 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	@Override
 	public void adjustCapitals(Cell c) {
 		int tick = rInfo.getSchedule().getCurrentTick();
-		UnmodifiableNumberMap<Capital> baseCapitals = c.getBaseCapitals();
 		DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals();
 		
 		for (Capital capital : modelData.capitals) {
 			if (capitalFactorCurves.containsKey(capital)) {
-				adjusted.put(capital, baseCapitals.getDouble(capital)
+				adjusted.put(capital, adjusted.getDouble(capital)
 						* capitalFactorCurves.get(capital).sample(tick));
 			}
 		}
@@ -83,6 +83,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 		logger.info("Initialise " + this);
 		// LOGGING ->
 
+		extent.setRequiresEffectiveCapitalData();
 		if (capitalAdjustmentsCSV != null) {
 			loadCapitalFactorCurves();
 		}

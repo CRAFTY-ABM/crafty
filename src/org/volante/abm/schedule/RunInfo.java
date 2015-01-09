@@ -47,7 +47,6 @@ public class RunInfo {
 
 	String			csvParamBasedirCorrection	= "";
 
-	boolean			useInstitutions	= false;
 
 	ParameterRepository	paramRepos			= new ParameterRepository();
 
@@ -95,14 +94,6 @@ public class RunInfo {
 	public void setRunID(String runID) {
 		persister.setContext("i", runID);
 		this.runID = runID;
-	}
-
-	public boolean useInstitutions() {
-		return useInstitutions;
-	}
-
-	public void setUseInstitutions(boolean useInstitutions) {
-		this.useInstitutions = useInstitutions;
 	}
 
 	/**

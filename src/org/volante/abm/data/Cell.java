@@ -83,18 +83,27 @@ public class Cell implements Initialisable {
 		this.region = region;
 		initialised = true;
 		baseCapitals = data.capitalMap();
-		if (info.useInstitutions()) {
+		if (region.doesRequireEffectiveCapitalData()) {
 			effectiveCapitals = data.capitalMap(); // Start with them being the same
 		} else {
-			effectiveCapitals = baseCapitals;
+			effectiveCapitals = baseCapitals; // no need to duplicate base
+												// capitals
 		}
 		supply = data.serviceMap();
 	}
 
-	/*
-	 * Capitals
+	/**
+	 * NOTE: When using this method, call
+	 * {@link Region#doesRequireEffectiveCapitalData()}!
+	 * 
+	 * @return modifiable effective capitals
 	 */
 	public DoubleMap<Capital> getModifiableEffectiveCapitals() {
+		if (region.doesRequireEffectiveCapitalData() && baseCapitals == effectiveCapitals) {
+			effectiveCapitals = region.data.capitalMap(); // Start with them
+															// being the same
+			initEffectiveCapitals();
+		}
 		return effectiveCapitals;
 	}
 
@@ -149,9 +158,10 @@ public class Cell implements Initialisable {
 	}
 
 	/**
-	 * Allows for updating of the cell's supply without creating intermediate maps
+	 * Allows for updating of the cell's supply without creating intermediate
+	 * maps
 	 * 
-	 * @return
+	 * @return map of modifiable supply
 	 */
 	public DoubleMap<Service> getModifiableSupply() {
 		return supply;

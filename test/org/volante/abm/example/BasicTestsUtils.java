@@ -453,7 +453,6 @@ public class BasicTestsUtils
 		log.info("Reset RunInfo");
 
 		persister.setBaseDir("test-data");
-		runInfo.setUseInstitutions(false);
 		initTestEnvironment();
 	}
 

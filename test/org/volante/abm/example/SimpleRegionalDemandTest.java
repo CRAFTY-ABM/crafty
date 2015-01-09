@@ -22,7 +22,6 @@ public class SimpleRegionalDemandTest extends BasicTestsUtils
 	public void setupFunction() throws Exception
 	{
 		initTestEnvironment();
-		runInfo.setUseInstitutions( false );
 		dem.initialise( modelData, runInfo, r1 ) ;
 		r1.setDemandModel( dem );
 		

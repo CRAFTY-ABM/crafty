@@ -63,7 +63,7 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 	{
 		CapitalDynamicsInstitution i = ABMPersister.getInstance().readXML(
 				CapitalDynamicsInstitution.class, XML_FILENAME);
-		i.initialise(modelData, runInfo, r1);
+		i.initialise(modelData, runInfo, r);
 		return i;
 	}
 
@@ -86,18 +86,18 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 	public void setUp() throws Exception {
 		logger.info("Test basic integration of institutions");
 
-		CapitalDynamicsInstitution a = getTestInstitution();
+
 		c11 = new Cell(1, 1);
 		c12 = new Cell(1, 2);
 		c21 = new Cell(2, 1);
 		c22 = new Cell(2, 2);
-		runInfo.setUseInstitutions(true);
 		assertFalse(c11.isInitialised());
 
 		r = setupBasicWorld(c11, c12, c21, c22);
 		Institutions institutions = new Institutions();
 		setupInstitutions(institutions, r);
 
+		CapitalDynamicsInstitution a = getTestInstitution();
 		institutions.addInstitution(a);
 
 		c11.setBaseCapitals(capitals(1, 1, 1, 1, 1, 1, 1));

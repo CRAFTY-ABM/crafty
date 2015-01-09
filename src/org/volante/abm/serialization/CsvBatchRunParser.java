@@ -54,7 +54,7 @@ public class CsvBatchRunParser {
 	/**
 	 * @param text
 	 * @param rInfo
-	 * @return
+	 * @return parsed value
 	 */
 	public static double parseDouble(String text, RunInfo rInfo) {
 		return Double.parseDouble(getValue(text, rInfo));
@@ -63,7 +63,7 @@ public class CsvBatchRunParser {
 	/**
 	 * @param text
 	 * @param rInfo
-	 * @return
+	 * @return parsed value
 	 */
 	public static int parseInt(String text, RunInfo rInfo) {
 		return Integer.parseInt(getValue(text, rInfo));
@@ -72,7 +72,7 @@ public class CsvBatchRunParser {
 	/**
 	 * @param text
 	 * @param rInfo
-	 * @return
+	 * @return parsed value
 	 */
 	public static String parseString(String text, RunInfo rInfo) {
 		return getValue(text, rInfo);
@@ -81,7 +81,7 @@ public class CsvBatchRunParser {
 	/**
 	 * @param text
 	 * @param rInfo
-	 * @return
+	 * @return parsed value
 	 */
 	protected static String getValue(String text, RunInfo rInfo) {
 		// <- LOGGING

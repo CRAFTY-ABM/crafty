@@ -79,14 +79,17 @@ public class DefaultSchedule implements Schedule {
 		log.info(this + ">\n********************\nStart of tick " + tick + "\n********************");
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.PRE_TICK, true));
 		info.getPersister().setContext("y", tick + "");
-		preTickUpdates();
-
-		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.MAIN_LOOP, true));
 
 		// Reset the effective capital levels
 		for (Cell c : regions.getAllCells()) {
 			c.initEffectiveCapitals();
 		}
+
+		preTickUpdates();
+
+		fireScheduleStatus(new ScheduleStatusEvent(tick,
+				ScheduleStage.MAIN_LOOP, true));
+
 		// Allow institutions to update capitals
 		for (Region r : regions.getAllRegions()) {
 			if (r.hasInstitutions()) {
@@ -251,6 +254,21 @@ public class DefaultSchedule implements Schedule {
 		if (o instanceof PostTickAction && !postTickActions.contains(o)) {
 			postTickActions.add((PostTickAction) o);
 		}
+	}
+
+	/**
+	 * @see org.volante.abm.schedule.Schedule#unregister(org.volante.abm.schedule.TickAction)
+	 */
+	@Override
+	public boolean unregister(TickAction o) {
+		if (o instanceof PreTickAction) {
+			return preTickActions.remove(o);
+		}
+		if (o instanceof PostTickAction) {
+			return postTickActions.remove(o);
+		}
+		log.warn("The specified object is not a PreTickAction or PostTickAction!");
+		return false;
 	}
 
 	private void output() {
