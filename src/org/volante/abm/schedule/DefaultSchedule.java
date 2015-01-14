@@ -228,7 +228,12 @@ public class DefaultSchedule implements Schedule {
 
 	private void preTickUpdates() {
 		log.info("Pre Tick\t\t (DefaultSchedule ID " + id + ")");
-		for (PreTickAction p : preTickActions) {
+
+		// copy to prevent concurrent modifications:
+		List<PreTickAction> preTickActionsCopy = new ArrayList<PreTickAction>(
+				preTickActions);
+
+		for (PreTickAction p : preTickActionsCopy) {
 			// <- LOGGING
 			if (log.isDebugEnabled()) {
 				log.debug("Do PreTick action " + p);
@@ -241,7 +246,12 @@ public class DefaultSchedule implements Schedule {
 
 	private void postTickUpdates() {
 		log.info("Post Tick\t\t (DefaultSchedule ID " + id + ")");
-		for (PostTickAction p : postTickActions) {
+
+		// copy to prevent concurrent modifications:
+		List<PostTickAction> postTickActionsCopy = new ArrayList<PostTickAction>(
+				postTickActions);
+
+		for (PostTickAction p : postTickActionsCopy) {
 			p.postTick();
 		}
 	}
