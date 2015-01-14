@@ -33,6 +33,8 @@ import org.volante.abm.models.ProductionModel;
 
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
+import de.cesr.more.basic.agent.MoreObservingNetworkAgent;
+
 
 
 /**
@@ -41,7 +43,8 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * @author dmrust
  *
  */
-public interface Agent {
+public interface Agent extends MoreObservingNetworkAgent<Agent> {
+
 	/**
 	 * Returns all the cells the agent manages
 	 *
@@ -316,7 +319,13 @@ public interface Agent {
 
 														@Override
 														public void setGivingIn(double threshold) {
-															// Nothing to do
+															// do nothing
+														}
+
+														@Override
+														public void receiveNotification(
+																de.cesr.more.basic.agent.MoreObservingNetworkAgent.NetworkObservation observation,
+																Agent object) {
 														}
 													};
 
