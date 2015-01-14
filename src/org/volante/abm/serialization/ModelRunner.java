@@ -37,6 +37,7 @@ import org.volante.abm.schedule.ScheduleThread;
 import org.volante.abm.visualisation.ScheduleControls;
 import org.volante.abm.visualisation.TimeDisplay;
 
+import de.cesr.more.basic.MManager;
 import de.cesr.parma.core.PmParameterManager;
 
 
@@ -129,6 +130,7 @@ public class ModelRunner
 				}
 				rInfo.getOutputs().removeClosingOutputThreads();
 				PmParameterManager.reset();
+				MManager.reset();
 			}
 		}
 	}
