@@ -23,6 +23,7 @@
 package org.volante.abm.output;
 
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Service;
@@ -36,6 +37,12 @@ import org.volante.abm.example.SimpleProductionModel;
  *
  */
 public class AgentProductivityRasterOutputter extends RasterOutputter {
+
+	/**
+	 * Logger
+	 */
+	static private Logger	logger		= Logger.getLogger(AgentProductivityRasterOutputter.class);
+
 	@Attribute(name = "service", required = true)
 	String	serviceName	= "HUMAN";
 	Service	service		= null;
@@ -70,6 +77,12 @@ public class AgentProductivityRasterOutputter extends RasterOutputter {
 	public void initialise() throws Exception {
 		super.initialise();
 		service = modelData.services.forName(serviceName);
+		if(service == null) {
+			logger.error("There is not service for name " + serviceName + " (available services: "
+					+ modelData.services + ")!");
+			throw new IllegalArgumentException("There is not service for name " + serviceName
+					+ " (available services: " + modelData.services + ")!");
+		}
 	}
 
 	@Override

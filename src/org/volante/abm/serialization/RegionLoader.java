@@ -24,6 +24,7 @@ package org.volante.abm.serialization;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.stream.NodeBuilder;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Cell;
@@ -71,6 +73,9 @@ import de.cesr.parma.reader.PmXmlParameterReader;
  */
 @Root(name = "region")
 public class RegionLoader {
+
+	final static String INSTITUTION_LIST_ELEMENT_NAME = "institutionsList";
+
 	@Attribute(name = "id")
 	String							id						= "Unknown";
 
@@ -298,15 +303,12 @@ public class RegionLoader {
 		for (String institutionFile : institutionFiles) {
 
 			// TODO document (SH)
-			try {
-				persister
-						.validate(
-								InstitutionsList.class,
-					new File(persister.getFullPath(institutionFile)),
-								false);
+			if (NodeBuilder.read(
+					new FileInputStream(new File(persister
+							.getFullPath(institutionFile)))).getName() == INSTITUTION_LIST_ELEMENT_NAME) {
 				institutions.addAll(persister.readXML(InstitutionsList.class,
 						institutionFile).institutions);
-			} catch (Exception e) {
+			} else {
 				institutions.add(persister.readXML(Institution.class,
 						institutionFile));
 			}
