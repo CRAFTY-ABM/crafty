@@ -71,9 +71,11 @@ public abstract class RasterOutputter extends AbstractOutputter implements CellT
 		try
 		{
 			outputs.runInfo.getPersister().regionsToRaster(fn, r, this, isInt(), doubleFmt, nDataString);
-		} catch( Exception e )
-		{
-			log.error( "Couldn't write output raster '" + fn + "': " + e.getMessage(), e );
+		} catch (Exception e) {
+			log.error(
+					"Couldn't write output raster '" + fn + "': "
+							+ e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 
