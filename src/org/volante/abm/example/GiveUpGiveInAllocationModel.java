@@ -43,8 +43,9 @@ import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
-import org.volante.abm.output.TakeoverMessenger;
-import org.volante.abm.output.TakeoverObserver;
+import org.volante.abm.models.utils.CellVolatilityObserver;
+import org.volante.abm.models.utils.TakeoverMessenger;
+import org.volante.abm.models.utils.TakeoverObserver;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.BatchRunParser;
@@ -61,7 +62,8 @@ import com.moseph.modelutils.Utilities.ScoreComparator;
  * @author dmrust
  * 
  */
-public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implements TakeoverMessenger {
+public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
+		implements TakeoverMessenger {
 
 	/**
 	 * Logger
@@ -77,8 +79,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	protected int			numSearchedCells	= Integer.MIN_VALUE;
 
 	/**
-	 * Alternative to {@link this#numCells}: specify the percentage of entire cells in the region a
-	 * single agent (type) searches over.
+	 * Alternative to {@link GiveUpGiveInAllocationModel#numCells}: specify the
+	 * percentage of entire cells in the region a single agent (type) searches
+	 * over.
 	 */
 	@Attribute(required = false)
 	public String			percentageCells		= "NaN";
@@ -91,8 +94,8 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	public String			numTakeovers		= "NaN";
 
 	/**
-	 * Alternative to {@link this#numTakeovers}: specify the percentage of take overs per single
-	 * agent (type).
+	 * Alternative to {@link GiveUpGiveInAllocationModel#numTakeovers}: specify
+	 * the percentage of take overs per single agent (type).
 	 */
 	@Attribute(required = false)
 	public String			percentageTakeOvers	= "NaN";
@@ -248,6 +251,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 
 					for (TakeoverObserver observer : takeoverObserver) {
 						observer.setTakeover(r, c.getOwner(), agent);
+					}
+					for (CellVolatilityObserver o : cellVolatilityObserver) {
+						o.increaseVolatility(c);
 					}
 
 					// <- LOGGING

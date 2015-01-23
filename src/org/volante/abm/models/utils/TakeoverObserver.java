@@ -21,20 +21,25 @@
  * 
  * Created by Sascha Holzhauer on 29 Jul 2014
  */
-package org.volante.abm.output;
+package org.volante.abm.models.utils;
+
+
+import org.volante.abm.agent.Agent;
+import org.volante.abm.data.Region;
 
 
 /**
- * Interface for classes that report take-overs to {@link TakeoverObserver}s.
- * 
  * @author Sascha Holzhauer
- * 
+ *
  */
-public interface TakeoverMessenger {
+public interface TakeoverObserver {
+
+	public void setTakeover(Region region, Agent previousAgent, Agent newAgent);
 
 	/**
+	 * To be called before the first output.
 	 * 
-	 * @param observer
+	 * @param region
 	 */
-	public void registerTakeoverOberserver(TakeoverObserver observer);
+	public void initTakeOvers(Region region);
 }

@@ -23,7 +23,9 @@
 package org.volante.abm.example;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Root;
@@ -33,22 +35,33 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.models.AllocationModel;
+import org.volante.abm.models.utils.CellVolatilityMessenger;
+import org.volante.abm.models.utils.CellVolatilityObserver;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.SimpleAllocationDisplay;
 
 /**
  * A very simple kind of allocation. Any abandoned cells get the most
  * competitive agent assigned to them.
+ * 
+ * Note: Subclasses need to consider reporting allocation changes to the
+ * {@link CellVolatilityObserver}.
+ * 
  * @author dmrust
- *
+ * @author Sascha Holzhauer
+ * 
  */
 @Root
-public class SimpleAllocationModel implements AllocationModel
+public class SimpleAllocationModel implements AllocationModel,
+		CellVolatilityMessenger
 {
 	/**
 	 * Logger
 	 */
 	static private Logger	logger	= Logger.getLogger(SimpleAllocationModel.class);
+
+
+	Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
 
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
@@ -109,6 +122,10 @@ public class SimpleAllocationModel implements AllocationModel
 			// LOGGING ->
 
 			r.setOwnership(agent, c);
+			
+			for (CellVolatilityObserver o : cellVolatilityObserver) {
+				o.increaseVolatility(c);
+			}
 		}
 	}
 
@@ -116,5 +133,13 @@ public class SimpleAllocationModel implements AllocationModel
 	public AllocationDisplay getDisplay()
 	{
 		return new SimpleAllocationDisplay(this);
+	}
+
+	/**
+	 * @see org.volante.abm.models.utils.CellVolatilityMessenger#registerCellVolatilityOberserver(org.volante.abm.models.utils.CellVolatilityObserver)
+	 */
+	@Override
+	public void registerCellVolatilityOberserver(CellVolatilityObserver observer) {
+		this.cellVolatilityObserver.add(observer);
 	}
 }

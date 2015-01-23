@@ -163,7 +163,7 @@ public interface Agent {
 	public void tickStartUpdate();
 
 	/**
-	 * Called at the beginning of each tick to allow the agent to do any internal housekeeping
+	 * Called at the ending of each tick to allow the agent to do any internal housekeeping
 	 */
 	public void tickEndUpdate();
 

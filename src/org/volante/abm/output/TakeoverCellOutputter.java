@@ -37,22 +37,24 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.models.AllocationModel;
+import org.volante.abm.models.utils.TakeoverMessenger;
+import org.volante.abm.models.utils.TakeoverObserver;
 import org.volante.abm.output.TakeoverCellOutputter.RegionPotentialAgent;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.GloballyInitialisable;
 
 
 /**
- * Uses Observer pattern: Registers at those {@link AllocationModel}s that implement
- * {@link TakeoverMessenger}. This is useful since the component that knows about take-overs is an
- * exchangeable component and this way not every {@link AllocationModel} is required to implement
- * the service. Furthermore, this way take-overs only need to be reported in case there is an
+ * Uses Observer pattern: Registers at those {@link AllocationModel}s that
+ * implement {@link TakeoverMessenger}. This is useful since the component that
+ * knows about take-overs is an exchangeable component and this way not every
+ * {@link AllocationModel} is required to implement the service. Furthermore,
+ * this way take-overs only need to be reported in case there is a
  * {@link TakeoverObserver} registered.
  * 
  * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) == length(AFTs))
  * 
  * @author Sascha Holzhauer
- * @param <T>
  * 
  */
 public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> implements
@@ -115,7 +117,7 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 	}
 
 	/**
-	 * @see org.volante.abm.output.TakeoverObserver#setTakeover(org.volante.abm.data.Region,
+	 * @see org.volante.abm.models.utils.TakeoverObserver#setTakeover(org.volante.abm.data.Region,
 	 *      org.volante.abm.agent.Agent, org.volante.abm.agent.Agent)
 	 */
 	public void setTakeover(Region region, Agent previousAgent, Agent newAgent) {
