@@ -1,0 +1,4 @@
+<SingeltonTestClass>
+	<inno class="org.volante.abm.decision.innovation.InnovationTest$TestInnovation" id="TestInnovation"/>
+	<innovationID>TestInnovation</innovationID>
+</SingeltonTestClass>
