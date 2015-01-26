@@ -26,6 +26,7 @@ package org.volante.abm.serialization;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -129,7 +130,7 @@ public class SocialNetworkLoader {
 	int						initTick				= Integer.MIN_VALUE;
 
 	@ElementList(entry = "measure", required = false, name = "nodemeasures")
-	List<CraftyNodeMeasure> nodeMeasures = null;
+	List<CraftyNodeMeasure> nodeMeasures = new ArrayList<CraftyNodeMeasure>();
 
 	Region					region;
 
