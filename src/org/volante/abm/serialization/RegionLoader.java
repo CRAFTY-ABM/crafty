@@ -111,7 +111,7 @@ public class RegionLoader {
 	List<String>					agentInitialiserFiles	= new ArrayList<String>();
 
 	@Element(required = false)
-	String							pmParameterFile			= "	";
+	String							pmParameterFile					= null;
 	
 	@ElementList(inline = true, required = false, entry = "updater")
 	List<Updater>					updaters				= new ArrayList<Updater>();
@@ -188,6 +188,7 @@ public class RegionLoader {
 		region.setID(id);
 		persister.setRegion(region);
 
+
 		readPmParameters();
 		loadAgentTypes();
 		loadModels();
@@ -202,9 +203,12 @@ public class RegionLoader {
 	 * 
 	 */
 	protected void readPmParameters() {
-		PmParameterManager pm = PmParameterManager.getInstance(this.region);
-		pm.setParam(PmFrameworkPa.XML_PARAMETER_FILE, ABMPersister.getInstance().getFullPath(pmParameterFile));
-		new PmXmlParameterReader(pm, PmFrameworkPa.XML_PARAMETER_FILE).initParameters();
+		if (this.pmParameterFile != null) {
+			PmParameterManager pm = PmParameterManager.getInstance(this.region);
+			pm.setParam(PmFrameworkPa.XML_PARAMETER_FILE,
+					ABMPersister.getInstance().getFullPath(pmParameterFile));
+			new PmXmlParameterReader(pm, PmFrameworkPa.XML_PARAMETER_FILE).initParameters();
+		}
 	}
 	
 	public void loadAgentTypes() throws Exception {
