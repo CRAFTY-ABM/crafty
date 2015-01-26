@@ -120,17 +120,17 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	 * Multiplies the generic adoption factor with AFT specific social partner
 	 * share adjustment factor.
 	 * 
-	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialFactor(org.volante.abm.agent.Agent)
+	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialThreshold(org.volante.abm.agent.Agent)
 	 */
-	public double getTrialFactor(Agent agent) {
+	public double getTrialThreshold(Agent agent) {
 		if (!socialPartnerShareAdjustment.containsKey(agent.getType().getID())) {
 			// <- LOGGING
 			logger.warn("No social partner share adjustment factor provided for "
 					+ agent.getType().getID() + ". Using 1.0.");
 			// LOGGING ->
-			return super.getTrialFactor(agent);
+			return super.getTrialThreshold(agent);
 		}
-		return super.getTrialFactor(agent)
+		return super.getTrialThreshold(agent)
 				* socialPartnerShareAdjustment.get(agent.getType().getID());
 	}
 
@@ -141,14 +141,14 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	public RepeatingInnovation getNewInnovation() {
 		RepeatingCapitalLevelInnovation innovation = new RepeatingCapitalLevelInnovation(
 				"none");
-		innovation.adoptionFactor = adoptionFactor;
+		innovation.adoptionThreshold = adoptionThreshold;
 		innovation.affectedCapital = affectedCapital;
 		innovation.affectedAFTs = affectedAFTs;
 		innovation.affectiveAFTs = affectiveAFTs;
 		innovation.identifier = identifier + "_"
 				+ rInfo.getSchedule().getCurrentTick();
 		innovation.lifeSpan = lifeSpan;
-		innovation.trialFactor = trialFactor;
+		innovation.trialThreshold = trialThreshold;
 		innovation.repComp = repComp;
 		innovation.socialPartnerShareAdjustment = socialPartnerShareAdjustment;
 		innovation.effectOnCapitalFactor = effectOnCapitalFactor;

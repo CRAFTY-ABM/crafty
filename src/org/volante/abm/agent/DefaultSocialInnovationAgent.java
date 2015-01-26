@@ -38,7 +38,6 @@ import org.volante.abm.institutions.innovation.status.InnovationStatus;
 import org.volante.abm.institutions.innovation.status.SimpleInnovationStatus;
 import org.volante.abm.models.ProductionModel;
 import org.volante.abm.param.GeoPa;
-import org.volante.abm.param.RandomPa;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -211,15 +210,14 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("Probablilty to adopt: "
 						+ innovations.get(innovation).getNeighbourShare() *
-						innovation.getTrialFactor(this) + "(social network partner share: "
+						innovation.getTrialThreshold(this) + "(social network partner share: "
 						+ innovations.get(innovation).getNeighbourShare() + ")");
 			}
 			// LOGGING ->
 
-			if (innovations.get(innovation).getNeighbourShare() *
-					innovation.getTrialFactor(this) >= this.region.getRandom()
-					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
-					.nextDouble()) {
+			if (innovations.get(innovation).getNeighbourShare()
+					+ innovation.getTrialNoise() >= innovation
+						.getTrialThreshold(this)) {
 
 				this.makeTrial(innovation);
 			}
@@ -263,7 +261,7 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 	 * {@link InnovationStates#TRIAL} and raises a warning otherwise.
 	 * 
 	 * Adoption is steered by probability (applying
-	 * {@link Innovation#getAdoptionFactor(Agent)}.
+	 * {@link Innovation#getAdoptionThreshold(Agent)}.
 	 * 
 	 * 
 	 * @see org.volante.abm.agent.InnovationAgent#considerAdoption(org.volante.abm.institutions.innovation.Innovation)
@@ -273,9 +271,9 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 		if (innovations.get(innovation).getState() == InnovationStates.AWARE ||
 				innovations.get(innovation).getState() == InnovationStates.TRIAL) {
 
-			if (innovation.getAdoptionFactor(this) >= this.region.getRandom()
-					.getURService().getGenerator(RandomPa.RANDOM_SEED_RUN.name())
-					.nextDouble()) {
+			if (innovations.get(innovation).getNeighbourShare()
+					+ innovation.getAdoptionNoise() >= innovation
+						.getAdoptionThreshold(this)) {
 				this.makeAdopted(innovation);
 			}
 		} else {

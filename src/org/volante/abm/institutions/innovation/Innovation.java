@@ -36,8 +36,11 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.decision.bo.InnovationBo;
 import org.volante.abm.institutions.InnovativeInstitution;
+import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
+
+import com.moseph.modelutils.distribution.Distribution;
 
 
 /**
@@ -57,21 +60,26 @@ public abstract class Innovation implements Initialisable {
 	protected String	identifier;
 
 	/**
-	 * Factor in the decision of trial. Values > 1 cause the trial to be likelier, values < 1 cause
-	 * to adoption to be less likely. Default is 1.0
+	 * Threshold in the decision of trial. Default is 0.5
 	 */
-	@Element(name = "trialFactor", required = false)
-	protected double		trialFactor		= 1.0;
+	@Element(name = "trialThreshold", required = false)
+	protected double trialThreshold = 0.5;
 
 	/**
-	 * Factor in the decision of adoption. Values > 1 cause the adoption to be likelier, values < 1
-	 * cause to adoption to be less likely. Default is 1.0
+	 * Factor in the decision of adoption. Default is 0.5
 	 */
-	@Element(name = "adoptionFactor", required = false)
-	protected double	adoptionFactor	= 1.0;
+	@Element(name = "adoptionThreshold", required = false)
+	protected double adoptionThreshold = 0.5;
+
+	@Element(name = "trialNoise", required = false)
+	Distribution trialNoise = null;
+
+	@Element(name = "adoptionNoise", required = false)
+	Distribution adoptionNoise = null;
 
 	/**
-	 * At the end of the lifespan, this innovation outdates itself at all {@link InnovationAgent}s.
+	 * At the end of the lifespan, this innovation outdates itself at all
+	 * {@link InnovationAgent}s.
 	 */
 	@Element(name = "lifeSpan", required = false)
 	protected int			lifeSpan		= Integer.MAX_VALUE;
@@ -88,6 +96,10 @@ public abstract class Innovation implements Initialisable {
 	protected RunInfo	rInfo;
 	protected ModelData	modelData;
 
+	public Innovation(@Attribute(name = "id") String identifier) {
+		this.identifier = identifier;
+	}
+
 	/**
 	 * Factor in the decision of trial. Values &gt; 1 cause the trial to be
 	 * likelier, values &lt; 1 cause to adoption to be less likely.
@@ -95,8 +107,8 @@ public abstract class Innovation implements Initialisable {
 	 * @param agent
 	 * @return trial factor independent from given agent
 	 */
-	public double getTrialFactor(Agent agent) {
-		return trialFactor;
+	public double getTrialThreshold(Agent agent) {
+		return trialThreshold;
 	}
 
 	/**
@@ -106,12 +118,16 @@ public abstract class Innovation implements Initialisable {
 	 * @param agent
 	 * @return adoption factor independent from given agent
 	 */
-	public double getAdoptionFactor(Agent agent) {
-		return adoptionFactor;
+	public double getAdoptionThreshold(Agent agent) {
+		return adoptionThreshold;
 	}
 
-	public Innovation(@Attribute(name = "id") String identifier) {
-		this.identifier = identifier;
+	public double getTrialNoise() {
+		return trialNoise != null ? trialNoise.sample() : 0.0;
+	}
+
+	public double getAdoptionNoise() {
+		return adoptionNoise != null ? adoptionNoise.sample() : 0.0;
 	}
 
 	public abstract InnovationBo getWaitingBo(SocialAgent agent);
@@ -155,6 +171,16 @@ public abstract class Innovation implements Initialisable {
 		this.modelData = data;
 		this.rInfo = info;
 		this.region = r;
+
+		if (this.trialNoise != null) {
+			this.trialNoise.init(r.getRandom().getURService(),
+					RandomPa.RANDOM_SEED_RUN_ADOPTION.name());
+		}
+
+		if (this.adoptionNoise != null) {
+			this.adoptionNoise.init(r.getRandom().getURService(),
+					RandomPa.RANDOM_SEED_RUN_ADOPTION.name());
+		}
 
 		affectedAftSet = new LinkedHashSet<String>();
 		for (String aft : affectedAFTs.split(",")) {

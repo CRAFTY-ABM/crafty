@@ -62,7 +62,7 @@ public class RepeatingProductivityInnovation extends ProductivityInnovation impl
 	public RepeatingInnovation getNewInnovation() {
 		RepeatingProductivityInnovation innovation = new RepeatingProductivityInnovation(
 				"nothing");
-		innovation.adoptionFactor = adoptionFactor;
+		innovation.adoptionThreshold = adoptionThreshold;
 		innovation.affectedServices = affectedServices;
 		innovation.affectedAFTs = affectedAFTs;
 		innovation.affectiveAFTs = affectiveAFTs;
@@ -70,7 +70,7 @@ public class RepeatingProductivityInnovation extends ProductivityInnovation impl
 		innovation.effectOnProductivityFactor = effectOnProductivityFactor;
 		innovation.identifier = identifier + "_" + rInfo.getSchedule().getCurrentTick();
 		innovation.lifeSpan = lifeSpan;
-		innovation.trialFactor = trialFactor;
+		innovation.trialThreshold = trialThreshold;
 		innovation.repComp = repComp;
 		innovation = this.getRepetitionComp().adjustRenewedInnovation(innovation);
 		return innovation;

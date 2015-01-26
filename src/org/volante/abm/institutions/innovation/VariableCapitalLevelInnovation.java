@@ -95,8 +95,17 @@ public class VariableCapitalLevelInnovation extends Innovation {
 	 * likelier, values &gt; 1 cause the trial/adoption to be less likely.
 	 * Default is 1.0
 	 */
-	@ElementMap(entry = "trialFactorAdjustment", key = "aft", attribute = true, inline = true, required = false)
-	protected Map<String, Double> trialFactorAdjustment = new HashMap<String, Double>();
+	@ElementMap(entry = "trialThresholdAdjustment", key = "aft", attribute = true, inline = true, required = false)
+	protected Map<String, Double> trialThresholdAdjustment = null;
+
+	/**
+	 * Adjusts for each AFT the required proportion of adopted among neighbours
+	 * to trial/adopt itself; Values &lt; 1 cause the trial/adoption to be
+	 * likelier, values &gt; 1 cause the trial/adoption to be less likely.
+	 * Default is 1.0
+	 */
+	@ElementMap(entry = "adoptionThresholdAdjustment", key = "aft", attribute = true, inline = true, required = false)
+	protected Map<String, Double> adoptionThresholdAdjustment = null;
 
 	protected Set<String> affectiveAFTset;
 
@@ -143,36 +152,38 @@ public class VariableCapitalLevelInnovation extends Innovation {
 	 * Multiplies the generic trial factor with an AFT specific adjustment
 	 * factor.
 	 * 
-	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialFactor(org.volante.abm.agent.Agent)
+	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialThreshold(org.volante.abm.agent.Agent)
 	 */
-	public double getTrialFactor(Agent agent) {
-		if (!trialFactorAdjustment.containsKey(agent.getType().getID())) {
+	public double getTrialThreshold(Agent agent) {
+		if (!trialThresholdAdjustment.containsKey(agent.getType().getID())) {
 			// <- LOGGING
 			logger.warn("No social partner share adjustment factor provided for "
 					+ agent.getType().getID() + ". Using 1.0.");
 			// LOGGING ->
-			return super.getTrialFactor(agent);
+			return super.getTrialThreshold(agent);
 		}
-		return super.getTrialFactor(agent)
-				* trialFactorAdjustment.get(agent.getType().getID());
+		return super.getTrialThreshold(agent)
+				* (trialThresholdAdjustment != null ? trialThresholdAdjustment
+						.get(agent.getType().getID()) : 1.0);
 	}
 
 	/**
 	 * Multiplies the generic adoption factor with an AFT specific adjustment
 	 * factor.
 	 * 
-	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialFactor(org.volante.abm.agent.Agent)
+	 * @see org.volante.abm.institutions.innovation.Innovation#getTrialThreshold(org.volante.abm.agent.Agent)
 	 */
-	public double getAdoptionFactor(Agent agent) {
-		if (!trialFactorAdjustment.containsKey(agent.getType().getID())) {
+	public double getAdoptionThreshold(Agent agent) {
+		if (!trialThresholdAdjustment.containsKey(agent.getType().getID())) {
 			// <- LOGGING
 			logger.warn("No social partner share adjustment factor provided for "
 					+ agent.getType().getID() + ". Using 1.0.");
 			// LOGGING ->
-			return super.getAdoptionFactor(agent);
+			return super.getAdoptionThreshold(agent);
 		}
-		return super.getAdoptionFactor(agent)
-				* trialFactorAdjustment.get(agent.getType().getID());
+		return super.getAdoptionThreshold(agent)
+				* (adoptionThresholdAdjustment != null ? adoptionThresholdAdjustment
+						.get(agent.getType().getID()) : 1.0);
 	}
 
 	/**

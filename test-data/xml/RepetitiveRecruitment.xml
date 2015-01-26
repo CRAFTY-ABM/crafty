@@ -13,7 +13,7 @@
 		<affectedServices>FOOD</affectedServices>
 		<effectDiscountFactor>0.9</effectDiscountFactor>
 		<normaliseProductivity>false</normaliseProductivity>
-		<adoptionFactor>0.0</adoptionFactor>
+		<adoptionThreshold>0.0</adoptionThreshold>
 	</innovation>
 	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.RepetitiveRecruitment">
 		<initialTargetRecruitment class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">

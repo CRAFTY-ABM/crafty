@@ -184,7 +184,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	 * @param data
 	 * @param production
 	 * @param importance
-	 * @return
+	 * @return new production model
 	 */
 	public SimpleProductionModel copyWithNoise(ModelData data, Distribution production,
 			Distribution importance)
