@@ -94,7 +94,7 @@ public class Cell implements Initialisable {
 
 	/**
 	 * NOTE: When using this method, call
-	 * {@link Region#doesRequireEffectiveCapitalData()}!
+	 * {@link Region#setRequiresEffectiveCapitalData()}!
 	 * 
 	 * @return modifiable effective capitals
 	 */

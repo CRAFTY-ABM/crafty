@@ -24,13 +24,16 @@
 package org.volante.abm.agent;
 
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
+import org.volante.abm.institutions.innovation.AdoptionObservation;
 import org.volante.abm.institutions.innovation.Innovation;
 import org.volante.abm.institutions.innovation.status.InnovationState;
 import org.volante.abm.institutions.innovation.status.InnovationStates;
@@ -72,6 +75,8 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 	MoreAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>	netComp			= new MAgentNetworkComp<SocialAgent, MoreEdge<SocialAgent>>(
 																						this);
 	protected MNodeMeasures										measures		= new MNodeMeasures();
+
+	protected boolean initialAdoptionObservationPerformed = false;
 
 	public DefaultSocialInnovationAgent() {
 		super();
@@ -119,8 +124,33 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 	 */
 	@Override
 	public void receiveNotification(NetworkObservation observation, Agent object) {
-		for (InnovationStatus istate : innovations.values()) {
-			istate.setNetworkChanged(true);
+		if (observation instanceof AdoptionObservation) {
+			Innovation innovation = ((AdoptionObservation) observation)
+					.getInnovation();
+			if (innovation.getAffectedAFTs().contains(this.getType().getID())) {
+				this.makeAware(innovation);
+			}
+		} else {
+			for (InnovationStatus istate : innovations.values()) {
+				istate.setNetworkChanged(true);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected void initialAdoptionObservation() {
+		for (SocialAgent neighbour : this.region.getNetwork().getPredecessors(
+				this)) {
+			if (neighbour instanceof SocialInnovationAgent) {
+				for (Innovation i : ((SocialInnovationAgent) neighbour)
+						.getInnovationsAwareOf()) {
+					if (i.getAffectedAFTs().contains(this.getType().getID())) {
+						this.makeAware(i);
+					}
+				}
+			}
 		}
 	}
 
@@ -131,6 +161,10 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 	 */
 	@Override
 	public void perceiveSocialNetwork() {
+		if (!initialAdoptionObservationPerformed) {
+			this.initialAdoptionObservation();
+			this.initialAdoptionObservationPerformed = true;
+		}
 		for (Map.Entry<Innovation, InnovationStatus> entry : innovations.entrySet()) {
 			if (entry.getValue().hasNetworkChanged()) {
 				perceiveSocialNetwork(entry.getKey());
@@ -188,6 +222,8 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 		if (!this.innovations.containsKey(innovation)) {
 			this.innovations.put(innovation, new SimpleInnovationStatus());
 			this.innovations.get(innovation).aware();
+		} else {
+			this.innovations.get(innovation).setNetworkChanged(true);
 		}
 	}
 
@@ -454,5 +490,15 @@ public class DefaultSocialInnovationAgent extends DefaultAgent implements
 	@Override
 	public void removeInnovation(Innovation innvoation) {
 		this.innovations.remove(innvoation);
+	}
+
+	/**
+	 * Unmodifiable set of innovations this agent is aware of.
+	 * 
+	 * @see org.volante.abm.agent.InnovationAgent#getInnovationsAwareOf()
+	 */
+	@Override
+	public Set<Innovation> getInnovationsAwareOf() {
+		return Collections.unmodifiableSet(this.innovations.keySet());
 	}
 }
