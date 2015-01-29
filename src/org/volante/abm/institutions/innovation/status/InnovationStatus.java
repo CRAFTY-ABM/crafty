@@ -31,13 +31,17 @@ public interface InnovationStatus {
 
 	public InnovationState getState();
 
+	public boolean hasNetworkChanged();
+
+	public void setNetworkChanged(boolean networkChanged);
+
 	public double getNeighbourShare();
 
 	public void setNeighbourShare(double share);
 
-	public boolean hasNetworkChanged();
+	public boolean hasNeighbourShareChanged();
 
-	public void setNetworkChanged(boolean networkChanged);
+	public void resetNeighbourShareChanged();
 
 	public void aware();
 

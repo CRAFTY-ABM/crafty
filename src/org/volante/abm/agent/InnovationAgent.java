@@ -24,6 +24,8 @@
 package org.volante.abm.agent;
 
 
+import java.util.Set;
+
 import org.volante.abm.institutions.innovation.Innovation;
 import org.volante.abm.institutions.innovation.status.InnovationState;
 import org.volante.abm.institutions.innovation.status.InnovationStates;
@@ -104,6 +106,13 @@ public interface InnovationAgent extends Agent {
 	/********************************
 	 * GETTER and SETTER
 	 *******************************/
+
+	/**
+	 * Provides a set of {@link Innovation}s this agent is aware of.
+	 * 
+	 * @return set of innovations
+	 */
+	public Set<Innovation> getInnovationsAwareOf();
 
 	/**
 	 * @param innovation

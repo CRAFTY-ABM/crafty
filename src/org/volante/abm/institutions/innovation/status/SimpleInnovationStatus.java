@@ -33,6 +33,8 @@ public class SimpleInnovationStatus implements InnovationStatus {
 
 	boolean						networkChanged			= true;
 
+	boolean neighbourShareChanged = true;
+
 	double	neighbourShare	= Double.NaN;
 
 	/**
@@ -44,13 +46,21 @@ public class SimpleInnovationStatus implements InnovationStatus {
 	}
 
 	/**
+	 * Status neighbourShareChanged becomes only true when the neighbourShare
+	 * value changes (assumed that it does not matter to the agent if agents
+	 * adopt when at the same time the same number of agents rejects.
+	 * 
 	 * @param adoptedNeighbourShare
-	 *        the adoptedNeighbourShare to set
+	 *            the adoptedNeighbourShare to set
 	 */
 	@Override
 	public void setNeighbourShare(double adoptedNeighbourShare) {
+		if (this.neighbourShare != adoptedNeighbourShare) {
+			this.neighbourShareChanged = true;
+		}
 		this.neighbourShare = adoptedNeighbourShare;
 	}
+
 
 	public boolean hasNetworkChanged() {
 		return networkChanged;
@@ -98,5 +108,21 @@ public class SimpleInnovationStatus implements InnovationStatus {
 	@Override
 	public void reject() {
 		this.state = InnovationStates.REJECTED;
+	}
+
+	/**
+	 * @see org.volante.abm.institutions.innovation.status.InnovationStatus#hasNeighbourShareChanged()
+	 */
+	@Override
+	public boolean hasNeighbourShareChanged() {
+		return this.neighbourShareChanged;
+	}
+
+	/**
+	 * @see org.volante.abm.institutions.innovation.status.InnovationStatus#resetNeighbourShareChanged()
+	 */
+	@Override
+	public void resetNeighbourShareChanged() {
+		this.neighbourShareChanged = false;
 	}
 }

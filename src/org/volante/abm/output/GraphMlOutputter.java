@@ -58,9 +58,8 @@ public class GraphMlOutputter extends AbstractOutputter {
 	 */
 	@Override
 	public void doOutput(Regions regions) {
-		Map<String, GraphMLMetadata<SocialAgent>> vertexMetadata = null;
+		Map<String, GraphMLMetadata<SocialAgent>> vertexMetadata = new HashMap<String, GraphMLMetadata<SocialAgent>>();
 		if (addCoordinates) {
-			vertexMetadata = new HashMap<String, GraphMLMetadata<SocialAgent>>();
 			vertexMetadata.put("X", new GraphMLMetadata<SocialAgent>(
 					"X coordinate", "NA",
 					new Transformer<SocialAgent, String>() {
@@ -84,9 +83,6 @@ public class GraphMlOutputter extends AbstractOutputter {
 		}
 
 		if (addAFTSerialID) {
-			if (vertexMetadata == null) {
-				vertexMetadata = new HashMap<String, GraphMLMetadata<SocialAgent>>();
-			}
 			vertexMetadata.put("AFT", new GraphMLMetadata<SocialAgent>(
 					"Agent Functional Type", "-1",
 					new Transformer<SocialAgent, String>() {
@@ -97,6 +93,9 @@ public class GraphMlOutputter extends AbstractOutputter {
 
 					}));
 		}
+
+		addVertexData(vertexMetadata);
+
 		for (Region r : regions.getAllRegions()) {
 			if (r.getNetwork() != null) {
 				MoreIoUtilities.outputGraph(r.getNetwork(), new File(tickFilename(r)),
@@ -106,6 +105,11 @@ public class GraphMlOutputter extends AbstractOutputter {
 						+ ", but no network is present!");
 			}
 		}
+	}
+
+	protected void addVertexData(
+			Map<String, GraphMLMetadata<SocialAgent>> vertexMetadata) {
+		// hook methods for subclasses
 	}
 
 	/**

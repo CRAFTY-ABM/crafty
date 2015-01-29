@@ -54,9 +54,6 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 	Region						r				= null;
 
 	/**
-	 * @param cap
-	 * @param comp
-	 * @return
 	 * @throws Exception
 	 */
 	protected CapitalDynamicsInstitution getTestInstitution() throws Exception
