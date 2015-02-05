@@ -55,6 +55,7 @@ public class SimpleRegionalDemandTest extends BasicTests
 		
 		//Update demand model
 		dem.updateSupply();
+		dem.recalculateResidual();
 		
 		//Check that we're getting the correct level of supply, on the cell and total
 		assertEqualMaps( extensiveFarmingOnCA, dem.supply.get(c11) );
@@ -112,7 +113,9 @@ public class SimpleRegionalDemandTest extends BasicTests
 		assertEquals( 94, foodDem.sample( 2002 ), 0.0001 );
 		assertEquals( 100, foodDem.sample( 2005 ), 0.0001 );
 		
-		for( Service s : modelData.services ) assertNotNull( model.demandCurves.get(s));
+		for( Service s : modelData.services ) {
+			assertNotNull( model.demandCurves.get(s));
+		}
 	}
 
 }

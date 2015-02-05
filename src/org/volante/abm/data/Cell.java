@@ -1,28 +1,29 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.data;
 
 
+import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
@@ -33,13 +34,19 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 /**
  * A generic cell, with levels of baseCapitals, supply and demand for services and residual demand
- * 
+ *
  * A cell is can be owned by an agent, or by the null agent.
- * 
+ *
  * @author dmrust
- * 
+ *
  */
 public class Cell implements Initialisable {
+	
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger.getLogger(Cell.class);
+	
 	private static final String	UNKNOWN				= "Unknown";			//$NON-NLS-1$
 
 	/*
@@ -52,6 +59,8 @@ public class Cell implements Initialisable {
 	// DoubleMap<Service> demand; //Current levels of spatialised demand
 	DoubleMap<Service>	supply				= null;				// Current levels of spatialised
 																	// supply
+
+
 	// DoubleMap<Service> residual; //Residual demand
 	Agent				owner				= Agent.NOT_MANAGED;
 	Region				region				= null;
@@ -147,7 +156,7 @@ public class Cell implements Initialisable {
 
 	/**
 	 * Allows for updating of the cell's supply without creating intermediate maps
-	 * 
+	 *
 	 * @return
 	 */
 	public DoubleMap<Service> getModifiableSupply() {

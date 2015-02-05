@@ -52,7 +52,7 @@ public class SimpleAllocationModel implements AllocationModel
 
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
-	
+
 	/**
 	 * Creates a copy of the best performing potential agent on each empty cell
 	 */
@@ -82,6 +82,7 @@ public class SimpleAllocationModel implements AllocationModel
 		for( PotentialAgent a : potential )
 		{
 			double s = r.getCompetitiveness( a, c );
+
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
 				logger.debug(a + "> competitiveness: " + s);

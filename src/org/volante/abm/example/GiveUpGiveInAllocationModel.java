@@ -142,14 +142,14 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 		}
 
 		// RANU improve performance by using distribution instance
-		Map<Cell, Double> competitiveness = scoreMap(sampleN(r.getCells(), numCells, r.getRandom().getURService(),
+		Map<Cell, Double> competitiveness = scoreMap(
+				sampleN(r.getCells(), numCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
 				new Score<Cell>() {
 					@Override
-					public double getScore(Cell c)
-			{
-				return r.getCompetitiveness(a, c);
-			}
+					public double getScore(Cell c) {
+						return r.getCompetitiveness(a, c);
+					}
 				});
 
 
