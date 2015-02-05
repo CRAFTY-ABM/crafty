@@ -1,24 +1,24 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.example;
 
@@ -43,7 +43,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 /**
  * Simple exponential multiplicative function, i.e.:
- * 
+ *
  * p_s = p_max * c_1 ^ w_1 * c_2 ^ w_2 *...*c_n ^ w_n
  * @author dmrust
  *
@@ -59,11 +59,11 @@ public class SimpleProductionModel implements ProductionModel
 	DoubleMatrix<Capital, Service> capitalWeights = 
 			new DoubleMatrix<Capital, Service>( simpleCapitals, simpleServices );
 	DoubleMap<Service> productionWeights = new DoubleMap<Service>( simpleServices, 1 );
-	
+
 	@Attribute(required=false)
 	String							csvFile				= "";
-	
-	
+
+
 	public SimpleProductionModel() {}
 	/**
 	 * Takes an array of capital weights, in the form:
@@ -80,7 +80,7 @@ public class SimpleProductionModel implements ProductionModel
 		this.capitalWeights.putT(weights);
 		this.productionWeights.put( productionWeights );
 	}
-	
+
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ) throws Exception
 	{
@@ -92,13 +92,13 @@ public class SimpleProductionModel implements ProductionModel
 			productionWeights = new DoubleMap<Service>( data.services );
 		}
 	}
-	
+
 	void initWeightsFromCSV( ModelData data, RunInfo info ) throws Exception
 	{
 		capitalWeights = info.getPersister().csvToMatrix( csvFile, data.capitals, data.services );
 		productionWeights = info.getPersister().csvToDoubleMap( csvFile, data.services, "Production");
 	}
-	
+
 	/**
 	 * Sets the effect of a capital on provision of a service
 	 * @param c
@@ -118,15 +118,15 @@ public class SimpleProductionModel implements ProductionModel
 	{
 		productionWeights.put( s, weight );
 	}
-	
+
 	public UnmodifiableNumberMap<Service> getProductionWeights() { return productionWeights; }
 	public DoubleMatrix<Capital, Service> getCapitalWeights() { return capitalWeights; }
-	
+
 	@Override
 	public void production( Cell cell, DoubleMap<Service> production )
 	{
 		UnmodifiableNumberMap<Capital> capitals = cell.getEffectiveCapitals();
-		production( capitals, production );
+		production( capitals, production, cell);
 	}
 
 	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production) {
@@ -168,7 +168,7 @@ public class SimpleProductionModel implements ProductionModel
 			}
 		}
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -179,7 +179,7 @@ public class SimpleProductionModel implements ProductionModel
 	 * Creates a copy of this model, but with noise added to either the
 	 * production weights or the importance weights. Either or both
 	 * distributions can be null for zero noise
-	 * 
+	 *
 	 * @param data
 	 * @param production
 	 * @param importance
@@ -206,7 +206,7 @@ public class SimpleProductionModel implements ProductionModel
 				// LOGGING ->
 
 			}
-			
+
 			for( Capital c : data.capitals )
 			{
 				if (importance == null || capitalWeights.get(c, s) == 0.0) {
@@ -229,7 +229,7 @@ public class SimpleProductionModel implements ProductionModel
 	/**
 	 * Creates a new instance of {@link SimpleProductionModel} and copied capital weights and
 	 * production weights. CsvFile is not required after initialisation.
-	 * 
+	 *
 	 * @return exact copy of this production model
 	 */
 	public SimpleProductionModel copyExact() {
@@ -240,4 +240,3 @@ public class SimpleProductionModel implements ProductionModel
 		return pout;
 	}
 }
-	

@@ -70,8 +70,17 @@ import de.cesr.parma.reader.PmXmlParameterReader;
  */
 @Root(name = "region")
 public class RegionLoader {
+
+	static int						currentUid				= 0;
+
 	@Attribute(name = "id")
 	String							id						= "Unknown";
+
+	/**
+	 * Required for parallel mpiJava computing:
+	 */
+	@Element(required = true)
+	int								pid						= 0;
 
 	@Element(required = false)
 	String							competitionFile			= "";
@@ -139,16 +148,18 @@ public class RegionLoader {
 		this.modelData = data;
 	}
 
-	public RegionLoader(String id, String competition, String allocation,
+	public RegionLoader(String pid, String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers) {
-		this(id, competition, allocation, demand, potentialAgents, cellInitialisers,
+		this(pid, id, competition, allocation, demand, potentialAgents, cellInitialisers,
 				agentInitialisers, null);
 	}
-
-	public RegionLoader(String id, String competition, String allocation,
+	
+	public RegionLoader(String pid, String id, String competition, String allocation,
 			String demand, String potentialAgents, String cellInitialisers,
 			String agentInitialisers, String institutionFile) {
+		this.pid = Integer.parseInt(pid);
+
 		this.id = id;
 		this.competitionFile = competition;
 		this.allocationFile = allocation;
@@ -346,6 +357,12 @@ public class RegionLoader {
 		if (cellTable.contains(x, y)) {
 			return cellTable.get(x, y);
 		}
+		// <- LOGGING
+		if (log.isDebugEnabled()) {
+			log.debug("Create new cell: " + x + " - " + y);
+		}
+		// LOGGING ->
+
 		Cell c = new Cell(x, y);
 		c.initialise(modelData, runInfo, region);
 		region.addCell(c);
@@ -441,5 +458,12 @@ public class RegionLoader {
 
 	public int getRandomSeed() {
 		return this.randomSeed;
+	}
+
+	/**
+	 * @return the pid
+	 */
+	public int getUid() {
+		return pid;
 	}
 }

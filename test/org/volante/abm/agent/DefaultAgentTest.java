@@ -20,6 +20,7 @@ public class DefaultAgentTest extends BasicTests
 	static private Logger	logger	= Logger.getLogger(DefaultAgentTest.class);
 
 	DefaultAgent farmer = (DefaultAgent) farming.createAgent( r1, c11 );
+
 	@Before
 	public void setupAgent()
 	{
