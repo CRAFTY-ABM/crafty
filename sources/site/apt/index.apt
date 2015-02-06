@@ -18,7 +18,7 @@ CRAFTY_Trunk      | Basic version
 *----------------+----------------+
 CRAFTY_Social    |Supports social networks and social interaction 
 *----------------+----------------+
-CRAFTY Parallel  |Supports cluster runs and included code of CRAFTY_Social
+CRAFTY Parallel  |Supports cluster runs and includes code of CRAFTY_Social
 *----------------+----------------+
 
 	JavaDoc and the wiki usually relate to the CRAFTY_Social version.
