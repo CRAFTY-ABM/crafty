@@ -136,6 +136,13 @@ public class RegionLoader {
 	@Element(required = false)
 	int								randomSeed				= Integer.MIN_VALUE;
 
+	/**
+	 * The given agent ID is recognised as unmanaged and therefore no error
+	 * message is issued.
+	 */
+	@Element(required = false)
+	String idUnmanaged = "UNMANAGED";
+
 	Logger							log						= Logger.getLogger(getClass());
 
 	ABMPersister					persister				= null;
@@ -190,6 +197,9 @@ public class RegionLoader {
 	}
 
 	public void initialise(RunInfo info) throws Exception {
+
+		log.info(">>> Initialise region " + id);
+
 		this.runInfo = info;
 		if (modelData == null) {
 			modelData = new ModelData();
@@ -289,9 +299,9 @@ public class RegionLoader {
 			}
 		} else if (agentsByID.containsKey(agentType)) {
 			setAgent(c, agentsByID.get(agentType));
-		} else if (agentType.matches("\\s*")) {
+		} else if (agentType.matches("\\s*") | agentType.equals(idUnmanaged)) {
+			// Ignore blank agents and those with ID given in idUnmanaged
 		}
-		// Ignore blank agents
 		else {
 			log.error("Couldn't find agent by id: " + agentType);
 		}
@@ -391,7 +401,6 @@ public class RegionLoader {
 		if (this.randomSeed != Integer.MIN_VALUE) {
 			PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
 		}
-		region.initialise(modelData, runInfo, null);
 	}
 
 	public Cell getCell(int x, int y) {
