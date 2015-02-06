@@ -128,7 +128,8 @@ public class ABMPersister extends EasyPersister {
 		Collection<String> columHeader = columns;
 
 		if (!Arrays.asList(reader.getHeaders()).contains(xColHeader)) {
-			logger.warn("The specified x column header is not present (" + csvFile
+			logger.warn("The specified x column header (" + xColHeader
+					+ ") is not present (" + csvFile
 					+ ") . Using first column...");
 			xColHeader = reader.getHeaders()[0];
 		}
