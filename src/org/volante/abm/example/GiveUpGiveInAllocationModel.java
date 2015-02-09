@@ -222,6 +222,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 			return; // In the rare case that all have 0 competitiveness, a can be null
 		}
 
+		// RANU improve performance by using distribution instance
 		Map<Cell, Double> competitiveness = scoreMap(
 				sampleN(r.getCells(), numSearchedCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
