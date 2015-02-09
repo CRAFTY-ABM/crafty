@@ -68,8 +68,7 @@ public class RegionSet implements Regions {
 	public void initialise(ModelData data, RunInfo info, Region region)
 			throws Exception {
 		for (Regions r : regions) {
-			// TODO why is it important that regions are initialised before in RegionLoader from WorldLoader??
-			// r.initialise(data, info, null);
+			r.initialise(data, info, null);
 			extent.update(r.getExtent());
 		}
 	}

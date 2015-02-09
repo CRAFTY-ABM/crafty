@@ -35,8 +35,11 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
 /**
+ * Calculates per-cell residuals by dividing world demand by the number of cells
+ * in the world.
+ * 
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class MultiRegionSingleMarketDemandModel extends RegionalDemandModel implements
 		WorldDemandModel {
@@ -58,9 +61,10 @@ public class MultiRegionSingleMarketDemandModel extends RegionalDemandModel impl
 	}
 
 	/**
-	 * Needed to be re-implemented because {@link this#updateSupply()} does not call {@link
-	 * this#recalculateResidual()} anymore.
-	 *
+	 * Needed to be re-implemented because
+	 * {@link MultiRegionSingleMarketDemandModel#updateSupply()} does not call
+	 * {@link MultiRegionSingleMarketDemandModel#recalculateResidual()} anymore.
+	 * 
 	 * @see org.volante.abm.example.RegionalDemandModel#setDemand(com.moseph.modelutils.fastdata.UnmodifiableNumberMap)
 	 */
 	@Override

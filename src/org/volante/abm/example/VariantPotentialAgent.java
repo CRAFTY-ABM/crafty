@@ -22,6 +22,9 @@
  */
 package org.volante.abm.example;
 
+
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
@@ -43,19 +46,43 @@ import com.moseph.modelutils.distribution.Distribution;
  */
 public class VariantPotentialAgent extends SimplePotentialAgent
 {
-	@Element(required=false)
-	Distribution givingUpDistribution = null;
-	@Element(required=false)
-	Distribution givingInDistribution = null;
-	@Element(required=false)
-	Distribution ageDistribution = null;
-	
-	//These only work with the SimpleProductionModel
-	@Element(required=false)
+	/**
+	 * Logger
+	 */
+	static private Logger	logger					= Logger.getLogger(VariantPotentialAgent.class);
+
+	@Element(required = false)
+	Distribution	givingUpDistribution	= null;
+	@Element(required = false)
+	Distribution	givingInDistribution	= null;
+	@Element(required = false)
+	Distribution	ageDistribution			= null;
+
+	// These only work with the SimpleProductionModel
+	@Element(required = false)
 	Distribution	serviceLevelNoise		= null;
-	@Element(required=false)
+	@Element(required = false)
 	Distribution	capitalImportanceNoise	= null;
+
+	/**
+	 * 
+	 */
+	public VariantPotentialAgent() {
+		super();
+	}
 	
+	/**
+	 * @param id
+	 * @param data
+	 * @param production
+	 * @param givingUp
+	 * @param givingIn
+	 */
+	public VariantPotentialAgent(String id, ModelData data, ProductionModel production,
+			double givingUp, double givingIn) {
+		super(id, data, production, givingUp, givingIn);
+	}
+
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) throws Exception {
 		super.initialise(data, info, r);
@@ -63,10 +90,32 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 		if (givingUpDistribution != null) {
 			this.givingUpDistribution.init(r.getRandom().getURService(),
 					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
+			// make sure that potential agent's GU value correspond to the normal distribution's
+			// mean:
+			if (this.givingUpDistribution instanceof NormalDistribution) {
+				if (this.givingUp != ((NormalDistribution) this.givingUpDistribution).getMean()) {
+					// <- LOGGING
+					logger.warn("Distirbution mean did not correspond to potential agent's value for givingUp threshold: "
+							+ "Set givingUp treshold to distribution mean!");
+					// LOGGING ->
+					this.givingUp = ((NormalDistribution) this.givingUpDistribution).getMean();
+				}
+			}
 		}
 		if (givingInDistribution != null) {
 			this.givingInDistribution.init(r.getRandom().getURService(),
 					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
+			// make sure that potential agent's GI value correspond to the normal distribution's
+			// mean:
+			if (this.givingInDistribution instanceof NormalDistribution) {
+				if (this.givingIn != ((NormalDistribution) this.givingInDistribution).getMean()) {
+					// <- LOGGING
+					logger.warn("Distirbution mean did not correspond to potential agent's value for givingIn threshold: "
+							+ "Set givingIn treshold to distribution mean!");
+					// LOGGING ->
+					this.givingIn = ((NormalDistribution) this.givingInDistribution).getMean();
+				}
+			}
 		}
 	}
 
@@ -74,39 +123,47 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 	 * Override the standard agent creation to make agents with individual variation
 	 */
 	@Override
-	public Agent createAgent( Region region, Cell... cells )
+	public Agent createAgent(Region region, Cell... cells)
 	{
-		DefaultAgent da = new DefaultAgent( this, id, data, region, productionModel( production, region ), givingUp(), givingIn() );
-		if( ageDistribution != null ) {
-			da.setAge( (int)ageDistribution.sample() );
+		DefaultAgent da = new DefaultAgent(this, id, data, region, productionModel(production,
+				region), givingUp(), givingIn());
+		if (ageDistribution != null) {
+			da.setAge((int) ageDistribution.sample());
 		}
-		region.setOwnership( da, cells );
+		region.setOwnership(da, cells);
 
-		return da; 
+		return da;
 	}
-	
-	public double givingUp() { return givingUpDistribution == null ? givingUp : givingUpDistribution.sample(); }
-	public double givingIn() { return givingInDistribution == null ? givingIn : givingInDistribution.sample(); }
-	
+
+	public double givingUp() {
+		return givingUpDistribution == null ? givingUp : givingUpDistribution.sample();
+	}
+
+	public double givingIn() {
+		return givingInDistribution == null ? givingIn : givingInDistribution.sample();
+	}
+
 	/**
-	 * Returns a noisy version of the production model. Uses the serviceLevelNoise distribution to
-	 * create variance in the optimal levels of service production, and capitalImportanceNoise to
-	 * create variance in the importance of the captials to this production.
+	 * Returns a noisy version of the production model. Uses the
+	 * serviceLevelNoise distribution to create variance in the optimal levels
+	 * of service production, and capitalImportanceNoise to create variance in
+	 * the importance of the capitals to this production.
 	 * 
 	 * Only works on SimpleProduction models at the moment.
+	 * 
 	 * @param production
 	 * @param r
-	 * @return
+	 * @return production model
 	 */
-	public ProductionModel productionModel( final ProductionModel production, final Region r )
+	public ProductionModel productionModel(final ProductionModel production, final Region r)
 	{
-		if( ! ( production instanceof SimpleProductionModel ) ) {
+		if (!(production instanceof SimpleProductionModel)) {
 			return production;
 		}
 
 		if (this.serviceLevelNoise != null) {
 			this.serviceLevelNoise.init(r.getRandom().getURService(),
-				RandomPa.RANDOM_SEED_INIT_AGENTS.name());
+					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
 		}
 
 		if (this.capitalImportanceNoise != null) {
@@ -114,6 +171,7 @@ public class VariantPotentialAgent extends SimplePotentialAgent
 					RandomPa.RANDOM_SEED_INIT_AGENTS.name());
 		}
 
-		return ((SimpleProductionModel) production).copyWithNoise( data, serviceLevelNoise, capitalImportanceNoise );
+		return ((SimpleProductionModel) production).copyWithNoise(data, serviceLevelNoise,
+				capitalImportanceNoise);
 	}
 }

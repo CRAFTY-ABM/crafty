@@ -40,7 +40,7 @@ import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Region;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.example.RegionalDemandModel;
 import org.volante.abm.example.SimpleCapital;
 import org.volante.abm.param.RandomPa;
@@ -49,7 +49,7 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.google.common.collect.Multiset;
 
-public class BestByCellGlobalAllocationTest extends BasicTests
+public class BestByCellGlobalAllocationTest extends BasicTestsUtils
 {
 	 
 	/**

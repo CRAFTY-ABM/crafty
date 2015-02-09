@@ -90,6 +90,8 @@ public class DefaultInstitution extends AbstractInstitution {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		super.initialise(data, info, extent);
+		extent.setRequiresEffectiveCapitalData();
+		extent.setHasCompetitivenessAdjustingInstitution();
 		subsidies = data.serviceMap();
 		adjustments = data.capitalMap();
 		for (Entry<String, Double> e : serialSubsidies.entrySet()) {

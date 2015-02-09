@@ -38,8 +38,11 @@ import com.moseph.modelutils.fastdata.DoubleMap;
 
 
 /**
+ * Requests number of cells, demand, and supply from every region, sums the
+ * values up and reports them back to each region via {@link MpiUtilities}.
+ * 
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class SingleMarketWorldSynchronisationModel implements WorldSynchronisationModel {
 
@@ -76,7 +79,7 @@ public class SingleMarketWorldSynchronisationModel implements WorldSynchronisati
 	}
 
 	/**
-	 * @see org.volante.abm.models.WorldSynchronisationModel#synchronizeDemand(org.volante.abm.data.RegionSet, org.volante.abm.data.ModelData)
+	 * @see org.volante.abm.models.WorldSynchronisationModel#synchronizeDemand(org.volante.abm.data.RegionSet)
 	 */
 	@Override
 	public void synchronizeDemand(RegionSet regions) {
@@ -104,7 +107,7 @@ public class SingleMarketWorldSynchronisationModel implements WorldSynchronisati
 	}
 
 	/**
-	 * @see org.volante.abm.models.WorldSynchronisationModel#synchronizeSupply(org.volante.abm.data.RegionSet, org.volante.abm.data.ModelData)
+	 * @see org.volante.abm.models.WorldSynchronisationModel#synchronizeSupply(org.volante.abm.data.RegionSet)
 	 */
 	@Override
 	public void synchronizeSupply(RegionSet regions) {

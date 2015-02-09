@@ -12,7 +12,7 @@ import org.volante.abm.data.Service;
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.fastdata.DoubleMap;
 
-public class SimpleRegionalDemandTest extends BasicTests
+public class SimpleRegionalDemandTest extends BasicTestsUtils
 {
 	RegionalDemandModel dem = new RegionalDemandModel();
 	private DefaultAgent farmer;
@@ -21,14 +21,13 @@ public class SimpleRegionalDemandTest extends BasicTests
 	@Before
 	public void setupFunction() throws Exception
 	{
-		initCells();
-		runInfo.setUseInstitutions( false );
+		initTestEnvironment();
 		dem.initialise( modelData, runInfo, r1 ) ;
 		r1.setDemandModel( dem );
 		
 		//Create a farmer, get it farming
 		farmer = (DefaultAgent) farming.createAgent( r1 );
-		
+
 		//Create a farmer, get it farming
 		forester = (DefaultAgent) forestry.createAgent( r1 );
 	}

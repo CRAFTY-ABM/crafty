@@ -39,20 +39,19 @@ import com.moseph.modelutils.fastdata.DoubleMap;
  */
 public interface DemandModel extends Initialisable, Displayable {
 	/**
-	 * Should be called to get the level of demand in a particular cell This can include any
-	 * regional demand
+	 * Should be called to get the level of demand in a particular cell This can
+	 * include any regional demand
 	 * 
 	 * @param c
-	 * @param region
-	 * @return
+	 * @return demand map fro given cell
 	 */
 	public DoubleMap<Service> getDemand(Cell c);
 
 	/**
 	 * Returns the level of demand for the Region
 	 * 
-	 * @param c
-	 * @return
+	 * 
+	 * @return demand map for entire region
 	 */
 	public DoubleMap<Service> getDemand();
 
@@ -60,22 +59,23 @@ public interface DemandModel extends Initialisable, Displayable {
 	 * The spatialised demand for a single cell
 	 * 
 	 * @param c
-	 * @return
+	 * @return residual demand map for given cell
 	 */
 	public DoubleMap<Service> getResidualDemand(Cell c);
 
 	/**
 	 * Returns the level of residual demand for the region
 	 * 
-	 * @return
+	 * @return residual demand map for entire region
 	 */
 	public DoubleMap<Service> getResidualDemand();
 
 	/**
-	 * Gets the marginal utility of producing a unit of each service at the current supply levels
-	 * Uses the competitiveness model, but ignores cell/agent adjustments
+	 * Gets the marginal utility of producing a unit of each service at the
+	 * current supply levels Uses the competitiveness model, but ignores
+	 * cell/agent adjustments
 	 * 
-	 * @return
+	 * @return marginal utilities map
 	 */
 	public DoubleMap<Service> getMarginalUtilities();
 

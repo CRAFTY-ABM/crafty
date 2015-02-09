@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.volante.abm.example.*;
 import org.volante.abm.schedule.RunInfo;
 
-public class CellRasterReaderTest extends BasicTests
+public class CellRasterReaderTest extends BasicTestsUtils
 {
 
 	private RegionLoader rl;

@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.LandUse;
 import org.volante.abm.data.Service;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.schedule.RunInfo;
 
 import com.moseph.modelutils.fastdata.NamedIndexSet;
 
 
-public class ScenarioLoadingDataTypesTest extends BasicTests {
+public class ScenarioLoadingDataTypesTest extends BasicTestsUtils {
 
 	@Test
 	public void test() throws Exception {

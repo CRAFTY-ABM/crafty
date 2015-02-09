@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.volante.abm.agent.Agent;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
-public class RegionTests extends BasicTests
+public class RegionTests extends BasicTestsUtils
 {
 
 	@Test

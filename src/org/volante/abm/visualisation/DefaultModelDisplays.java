@@ -25,6 +25,9 @@ package org.volante.abm.visualisation;
 
 
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GraphicsConfiguration;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,17 +40,14 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
 import org.volante.abm.schedule.RunInfo;
 
+import sun.java2d.SunGraphicsEnvironment;
+
 
 /**
  * @author Sascha Holzhauer
  * 
  */
 public class DefaultModelDisplays extends ModelDisplays {
-
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 6914665248590637679L;
 
 	@ElementList(inline = true, entry = "display", required = false)
 	List<Display>				displays			= new ArrayList<Display>();
@@ -75,6 +75,11 @@ public class DefaultModelDisplays extends ModelDisplays {
 		for (Display d : displays) {
 			registerDisplay(d);
 		}
+
+		GraphicsConfiguration config = frame.getGraphicsConfiguration();
+		Rectangle usableBounds = SunGraphicsEnvironment.getUsableBounds(config.getDevice());
+		frame.setMaximizedBounds(usableBounds);
+		frame.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
 	@Override

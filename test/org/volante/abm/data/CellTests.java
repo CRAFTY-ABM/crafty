@@ -1,13 +1,13 @@
 package org.volante.abm.data;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
-import com.moseph.modelutils.fastdata.*;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
-public class CellTests extends BasicTests
+public class CellTests extends BasicTestsUtils
 {
 
 	@Test
@@ -22,7 +22,6 @@ public class CellTests extends BasicTests
 	public void testSettingCapitals()
 	{
 		assertEquals( 7, modelData.capitals.size());
-		assertFalse( runInfo.useInstitutions() );
 		DoubleMap<Capital> cap = capitals( 1,2, 3,4,5,6,7);
 		c11.setBaseCapitals( cap );
 		assertEqualMaps( capitals( 1,2,3,4,5,6,7 ), c11.getEffectiveCapitals() );

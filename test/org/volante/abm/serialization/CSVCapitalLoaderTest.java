@@ -24,12 +24,12 @@ package org.volante.abm.serialization;
 
 import org.junit.Test;
 import org.volante.abm.data.Capital;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
 import com.moseph.modelutils.fastdata.NamedIndexSet;
 
 
-public class CSVCapitalLoaderTest extends BasicTests {
+public class CSVCapitalLoaderTest extends BasicTestsUtils {
 	@Test
 	public void testBasicLoading() throws Exception {
 		CSVCapitalLoader testCap = persister

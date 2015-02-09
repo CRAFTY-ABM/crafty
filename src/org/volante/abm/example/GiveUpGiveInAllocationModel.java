@@ -38,15 +38,19 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
-import org.volante.abm.output.TakeoverMessenger;
-import org.volante.abm.output.TakeoverObserver;
+import org.volante.abm.models.utils.CellVolatilityObserver;
+import org.volante.abm.models.utils.TakeoverMessenger;
+import org.volante.abm.models.utils.TakeoverObserver;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.serialization.BatchRunParser;
 
 import com.moseph.modelutils.Utilities;
 import com.moseph.modelutils.Utilities.Score;
@@ -56,33 +60,100 @@ import com.moseph.modelutils.Utilities.ScoreComparator;
 /**
  * A very simple kind of allocation. Any abandoned cells get the most competitive agent assigned to
  * them.
- *
+ * 
  * @author dmrust
- *
+ * 
  */
-public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implements TakeoverMessenger {
+public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
+		implements TakeoverMessenger {
 
 	/**
 	 * Logger
 	 */
-	static private Logger	logger	= Logger.getLogger(GiveUpGiveInAllocationModel.class);
+	static private Logger	logger				= Logger.getLogger(GiveUpGiveInAllocationModel.class);
+
+	/**
+	 * The number of cells a single agent (type) can search over to find maximum competitiveness
+	 */
+	@Attribute(required = false)
+	public String			numCells			= "NaN";
+
+	protected int			numSearchedCells	= Integer.MIN_VALUE;
+
+	/**
+	 * Alternative to {@link GiveUpGiveInAllocationModel#numCells}: specify the
+	 * percentage of entire cells in the region a single agent (type) searches
+	 * over.
+	 */
+	@Attribute(required = false)
+	public String			percentageCells		= "NaN";
+
+	/**
+	 * The number of times an agent (type) is selected for a take over (i.e. performing the above
+	 * no. of searches for a cell)
+	 */
+	@Attribute(required = false)
+	public String			numTakeovers		= "NaN";
+
+	/**
+	 * Alternative to {@link GiveUpGiveInAllocationModel#numTakeovers}: specify
+	 * the percentage of take overs per single agent (type).
+	 */
+	@Attribute(required = false)
+	public String			percentageTakeOvers	= "NaN";
+
+	public int				numTakeoversDerived	= Integer.MIN_VALUE;
 
 	@Attribute(required = false)
-	public int	numCells			= 30;			// The number of cells an agent (type) can
-													// search over to find maximum competitiveness
-	@Attribute(required = false)
-	public int	numTakeovers		= 30;			// The number of times an agent (type) can
-													// search the above no. of cells
-	@Attribute(required = false)
-	public int	probabilityExponent	= 2;
-	Cell		perfectCell			= new Cell();
-	ModelData	data				= null;
+	public int				probabilityExponent	= 2;
+	Cell					perfectCell			= new Cell();
+	ModelData				data				= null;
 
 	Set<TakeoverObserver>	takeoverObserver	= new HashSet<TakeoverObserver>();
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
 		super.initialise(data, info, r);
+
+		if (!numTakeovers.equals("NaN") && !this.percentageTakeOvers.equals("NaN")) {
+			logger.error("You may not specify both, numTakeovers and percentageTakeOvers!");
+			throw new IllegalStateException(
+					"You may not specify both, numTakeovers and percentageTakeOvers!");
+		}
+
+		if (numTakeovers.equals("NaN")) {
+			if (this.percentageTakeOvers.equals("NaN")) {
+				logger.error("You need to specify either numTakeovers or percentageTakeOvers!");
+				throw new IllegalStateException(
+						"You need to specify either numTakeovers or percentageTakeOvers!");
+			} else {
+				this.numTakeoversDerived = (int) (r.getNumCells()
+						* BatchRunParser.parseDouble(this.percentageTakeOvers, info) / 100.0);
+			}
+		} else {
+			this.numTakeoversDerived = BatchRunParser.parseInt(this.numTakeovers, info);
+		}
+
+		if (!numCells.equals("NaN") && !this.percentageCells.equals("NaN")) {
+			logger.error("You may not specify both, numCells and percentageCells!");
+			throw new IllegalStateException(
+					"You may not specify both, numCells and percentageCells!");
+		}
+
+		if (numCells.equals("NaN")) {
+			if (this.percentageCells.equals("NaN")) {
+				logger.error("You need to specify either numCells or percentageCells!");
+				throw new IllegalStateException(
+						"You need to specify either numCells or percentageCells!");
+			} else {
+				this.numSearchedCells = (int) (r.getNumCells()
+						* BatchRunParser.parseDouble(this.percentageCells, info) / 100.0);
+			}
+		} else {
+			this.numSearchedCells = BatchRunParser.parseInt(this.numCells, info);
+		}
+
+
 		this.data = data;
 		perfectCell.initialise(data, info, r);
 		for (Capital c : data.capitals) {
@@ -95,6 +166,13 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 */
 	@Override
 	public void allocateLand(final Region r) {
+		if (r.getRinfo().getSchedule().getCurrentTick() == r.getRinfo().getSchedule()
+				.getStartTick()) {
+			for (TakeoverObserver o : takeoverObserver) {
+				o.initTakeOvers(r);
+			}
+		}
+
 		super.allocateLand(r); // Puts the best agent on any unmanaged cells
 		Score<PotentialAgent> compScore = new Score<PotentialAgent>()
 		{
@@ -104,11 +182,14 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 				return pow(r.getCompetitiveness(a, perfectCell), probabilityExponent);
 			}
 		};
-		for (int i = 0; i < numTakeovers; i++) {
+
+		logger.info("Number of derived take overs: " + numTakeoversDerived
+					+ " (specified percentage: " + this.percentageTakeOvers + ")");
+
+		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
 			Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(), compScore);
 
-			// RANU improve performance by using distribution instance
 			tryToComeIn(
 					sample(scores, true, r.getRandom().getURService(),
 							RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()), r);
@@ -117,7 +198,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 
 	/**
 	 * Tries to create one of the given agents if it can take over a cell
-	 *
+	 * 
 	 * @param a
 	 * @param r
 	 */
@@ -129,8 +210,8 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 	 * r.getCompetitiveness( agent.supply( c ), c ); } }); List<Cell> sorted = new
 	 * ArrayList<Cell>(competitiveness.keySet()); Collections.sort( sorted, new
 	 * ScoreComparator<Cell>( competitiveness ) );
-	 *
-	 *
+	 * 
+	 * 
 	 * for( Cell c : sorted ) { if( competitiveness.get( c ) < a.getGivingUp() ) break; boolean
 	 * canTake = c.getOwner().canTakeOver( c, competitiveness.get(c) ); if( canTake ) {
 	 * r.setOwnership( agent, c ); break; } } }
@@ -143,15 +224,15 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 
 		// RANU improve performance by using distribution instance
 		Map<Cell, Double> competitiveness = scoreMap(
-				sampleN(r.getCells(), numCells, r.getRandom().getURService(),
+				sampleN(r.getCells(), numSearchedCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
 				new Score<Cell>() {
 					@Override
-					public double getScore(Cell c) {
+					public double getScore(Cell c)
+					{
 						return r.getCompetitiveness(a, c);
 					}
 				});
-
 
 		List<Cell> sorted = new ArrayList<Cell>(competitiveness.keySet());
 		Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));
@@ -160,6 +241,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 		// For checking cells randomly:
 		Utilities.shuffle(sorted, r.getRandom().getURService(),
 				RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
+
+		logger.debug("Allocate " + sorted.size() + " cells (region " + r.getID() + " has "
+				+ r.getNumCells() + " cells).");
 
 		for (Cell c : sorted) {
 			// if (competitiveness.get(c) < a.getGivingUp()) return;
@@ -171,6 +255,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 					for (TakeoverObserver observer : takeoverObserver) {
 						observer.setTakeover(r, c.getOwner(), agent);
 					}
+					for (CellVolatilityObserver o : cellVolatilityObserver) {
+						o.increaseVolatility(c);
+					}
 
 					// <- LOGGING
 					if (logger.isDebugEnabled()) {
@@ -179,6 +266,24 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel implement
 					// LOGGING ->
 
 					r.setOwnership(agent, c);
+
+
+					if (r.getNetworkService() != null) {
+						if (r.getNetwork() != null) {
+
+							if (r.getGeography() != null && agent instanceof GeoAgent) {
+								((GeoAgent) agent).addToGeography();
+							}
+							r.getNetworkService().addAndLinkNode(
+									r.getNetwork(), (SocialAgent) agent);
+
+						} else {
+							if (!networkNullErrorOccurred) {
+								logger.warn("Network object not present during creation of new agent (subsequent error messages are suppressed)");
+								networkNullErrorOccurred = true;
+							}
+						}
+					}
 
 					break;
 				}

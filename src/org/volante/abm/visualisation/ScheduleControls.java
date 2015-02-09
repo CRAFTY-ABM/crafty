@@ -63,10 +63,13 @@ public class ScheduleControls extends JPanel implements ScheduleStatusListener {
 			}
 		});
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		stopNextTick = getAction("Stop", new Runnable() {
+		stopNextTick = getAction("Finish", new Runnable() {
 			@Override
 			public void run() {
-				schedule.setTargetTick(schedule.getCurrentTick());
+				schedule.setTargetTick(schedule.getEndTick());
+				stepAction.setEnabled(false);
+				stepTillEnd.setEnabled(false);
+				stopNextTick.setEnabled(false);
 			}
 		});
 

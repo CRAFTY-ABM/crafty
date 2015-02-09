@@ -27,12 +27,12 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Region;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.example.SimplePotentialAgent;
 import org.volante.abm.example.SimplePotentialAgentTest;
 import org.volante.abm.schedule.RunInfo;
 
-public class RegionLoaderTest extends BasicTests
+public class RegionLoaderTest extends BasicTestsUtils
 {
 
 	@SuppressWarnings("deprecation")

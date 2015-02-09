@@ -63,10 +63,16 @@ public class ABMPersister extends EasyPersister {
 	static ABMPersister	instance	= null;
 
 	RunInfo				rInfo		= null;
+	BatchModeParseFilter	filter		= null;
+
+	private ABMPersister(BatchModeParseFilter filter) {
+		super(filter);
+		this.filter = filter;
+	}
 
 	public static ABMPersister getInstance() {
 		if (instance == null) {
-			instance = new ABMPersister();
+			instance = new ABMPersister(new BatchModeParseFilter());
 		}
 		return instance;
 	}
@@ -86,10 +92,10 @@ public class ABMPersister extends EasyPersister {
 		Extent e = r.getExtent();
 		Raster raster = new Raster(e.getMinX(), e.getMinY(), e.getMaxX(), e.getMaxY());
 		raster.setNDATA(nDataString);
-		
 		for (Cell c : r.getAllCells()) {
 			raster.setXYValue(c.getX(), c.getY(), converter.apply(c));
 		}
+
 		RasterWriter writer = new RasterWriter();
 		if (format != null) {
 			writer.setCellFormat(format);
@@ -107,6 +113,7 @@ public class ABMPersister extends EasyPersister {
 
 	public void setRunInfo(RunInfo info) {
 		this.rInfo = info;
+		this.filter.setRunInfo(info);
 	}
 
 	@Override
@@ -118,6 +125,12 @@ public class ABMPersister extends EasyPersister {
 
 		String xColHeader = xCol;
 		Collection<String> columHeader = columns;
+
+		if (!Arrays.asList(reader.getHeaders()).contains(xColHeader)) {
+			logger.warn("The specified x column header is not present (" + csvFile
+					+ ") . Using first column...");
+			xColHeader = reader.getHeaders()[0];
+		}
 
 		if (xColHeader == null) {
 			xColHeader = reader.getHeaders()[0];

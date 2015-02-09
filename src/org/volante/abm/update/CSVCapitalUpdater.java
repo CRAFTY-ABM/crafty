@@ -45,11 +45,14 @@ import com.moseph.modelutils.distribution.Distribution;
 public class CSVCapitalUpdater extends AbstractUpdater
 {
 	@Attribute(required=false)
-	String X_COL = "x";
+	String							X_COL				= "X";
+
 	@Attribute(required=false)
-	String Y_COL = "y";
+	String							Y_COL				= "Y";
+
 	@Attribute(required=false)
 	boolean yearInFilename = true;
+
 	@Attribute(required=false)
 	boolean reapplyPreviousFile = false;
 	

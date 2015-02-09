@@ -1,0 +1,4 @@
+<institution class="org.volante.abm.institutions.CapitalDynamicsInstitution">
+	<capitalAdjustmentsCSV>csv/CapitalFactors.csv</capitalAdjustmentsCSV>
+	<tickCol>Year</tickCol>
+</institution>

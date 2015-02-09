@@ -25,7 +25,7 @@ package org.volante.abm.visualisation;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementMap;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.data.Cell;
 
@@ -45,7 +46,9 @@ public class AgentTypeDisplay extends CellDisplay {
 
 	private static final long	serialVersionUID	= 722528466121585081L;
 
-	Map<String, Color>			agentColours		= new HashMap<String, Color>();
+
+	@ElementMap(entry = "aftColor", key = "aft", attribute = true, inline = true, required = false)
+	protected Map<String, Color>	agentColours		= new LinkedHashMap<String, Color>();
 
 	@Attribute(required = false)
 	String						prefix				= null;
@@ -68,6 +71,7 @@ public class AgentTypeDisplay extends CellDisplay {
 		Color nc = new Color(URandomService.getURandomService().getUniform().nextIntFromTo(0, 255),
 				URandomService.getURandomService().getUniform().nextIntFromTo(0, 255),
 				URandomService.getURandomService().getUniform().nextIntFromTo(0, 255));
+
 		agentColours.put(c.getOwnerID(), nc);
 		updateLegend();
 		return nc;

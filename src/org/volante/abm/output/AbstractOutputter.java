@@ -61,8 +61,6 @@ public abstract class AbstractOutputter implements Outputter {
 	 * Callback to start a file if one is required. This is good for e.g. csv files which start a
 	 * header and append to the same file each time writeRecord() is called but it is not needed for
 	 * shapefiles where each writeRecord() creates its own file
-	 * 
-	 * @param filename
 	 */
 	@Override
 	public void open() {

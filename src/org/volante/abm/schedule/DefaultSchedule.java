@@ -29,6 +29,8 @@ import mpi.MPI;
 
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.DefaultSocialInnovationAgent;
+import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -47,6 +49,7 @@ public class DefaultSchedule implements WorldSyncSchedule {
 	RegionSet						regions			= null;
 	int								tick			= 0;
 	int								targetTick		= 0;
+	int								startTick		= 0;
 	int								endTick			= Integer.MAX_VALUE;
 
 	List<PreTickAction>				preTickActions	= new ArrayList<PreTickAction>();
@@ -89,14 +92,17 @@ public class DefaultSchedule implements WorldSyncSchedule {
 		log.info(this + ">\n********************\nStart of tick " + tick + "\n********************");
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.PRE_TICK, true));
 		info.getPersister().setContext("y", tick + "");
-		preTickUpdates();
-
-		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.MAIN_LOOP, true));
 
 		// Reset the effective capital levels
 		for (Cell c : regions.getAllCells()) {
 			c.initEffectiveCapitals();
 		}
+
+		preTickUpdates();
+
+		fireScheduleStatus(new ScheduleStatusEvent(tick,
+				ScheduleStage.MAIN_LOOP, true));
+
 		// Allow institutions to update capitals
 		for (Region r : regions.getAllRegions()) {
 			if (r.hasInstitutions()) {
@@ -104,9 +110,17 @@ public class DefaultSchedule implements WorldSyncSchedule {
 			}
 		}
 
+		// perceive social network if existent:
+		for (Region r : regions.getAllRegions()) {
+			r.perceiveSocialNetwork();
+		}
+
 		// Recalculate agent competitiveness and give up
 		log.info("Update agents' competitiveness and consider giving up ...");
 		for (Agent a : regions.getAllAgents()) {
+			if (a instanceof InnovationAgent) {
+				((InnovationAgent) a).considerInnovationsNextStep();
+			}
 
 			a.tickStartUpdate();
 			a.updateCompetitiveness();
@@ -141,7 +155,10 @@ public class DefaultSchedule implements WorldSyncSchedule {
 		this.worldSyncModel.synchronizeSupply(regions);
 
 		for (Region r : regions.getAllRegions()) {
-			((RegionalDemandModel) r.getDemandModel()).recalculateResidual();
+			if (r.getDemandModel() instanceof RegionalDemandModel) {
+				((RegionalDemandModel) r.getDemandModel())
+						.recalculateResidual();
+			}
 		}
 
 		for (Agent a : regions.getAllAgents()) {
@@ -151,6 +168,12 @@ public class DefaultSchedule implements WorldSyncSchedule {
 
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.POST_TICK, true));
 		postTickUpdates();
+
+		log.info("Number of Adoptions in total: "
+				+ DefaultSocialInnovationAgent.numberAdoptions);
+
+		log.info("Number of Agents in total: "
+				+ DefaultSocialInnovationAgent.numberAgents);
 
 		output();
 		log.info("\n********************\nEnd of tick " + tick + "\n********************");
@@ -234,6 +257,16 @@ public class DefaultSchedule implements WorldSyncSchedule {
 	}
 
 	@Override
+	public int getTargetTick() {
+		return targetTick;
+	}
+
+	@Override
+	public int getStartTick() {
+		return startTick;
+	}
+
+	@Override
 	public void setTargetToNextTick() {
 		setTargetTick(tick);
 	}
@@ -244,7 +277,12 @@ public class DefaultSchedule implements WorldSyncSchedule {
 
 	private void preTickUpdates() {
 		log.info("Pre Tick\t\t (DefaultSchedule ID " + id + ")");
-		for (PreTickAction p : preTickActions) {
+
+		// copy to prevent concurrent modifications:
+		List<PreTickAction> preTickActionsCopy = new ArrayList<PreTickAction>(
+				preTickActions);
+
+		for (PreTickAction p : preTickActionsCopy) {
 			// <- LOGGING
 			if (log.isDebugEnabled()) {
 				log.debug("Do PreTick action " + p);
@@ -257,7 +295,12 @@ public class DefaultSchedule implements WorldSyncSchedule {
 
 	private void postTickUpdates() {
 		log.info("Post Tick\t\t (DefaultSchedule ID " + id + ")");
-		for (PostTickAction p : postTickActions) {
+
+		// copy to prevent concurrent modifications:
+		List<PostTickAction> postTickActionsCopy = new ArrayList<PostTickAction>(
+				postTickActions);
+
+		for (PostTickAction p : postTickActionsCopy) {
 			p.postTick();
 		}
 	}
@@ -270,6 +313,21 @@ public class DefaultSchedule implements WorldSyncSchedule {
 		if (o instanceof PostTickAction && !postTickActions.contains(o)) {
 			postTickActions.add((PostTickAction) o);
 		}
+	}
+
+	/**
+	 * @see org.volante.abm.schedule.Schedule#unregister(org.volante.abm.schedule.TickAction)
+	 */
+	@Override
+	public boolean unregister(TickAction o) {
+		if (o instanceof PreTickAction) {
+			return preTickActions.remove(o);
+		}
+		if (o instanceof PostTickAction) {
+			return postTickActions.remove(o);
+		}
+		log.warn("The specified object is not a PreTickAction or PostTickAction!");
+		return false;
 	}
 
 	private void output() {
@@ -285,6 +343,7 @@ public class DefaultSchedule implements WorldSyncSchedule {
 	 */
 	@Override
 	public void setStartTick(int tick) {
+		this.startTick = tick;
 		this.tick = tick;
 	}
 

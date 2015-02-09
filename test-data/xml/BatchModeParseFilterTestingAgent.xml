@@ -1,0 +1,7 @@
+<agent class="org.volante.abm.example.SimplePotentialAgent" 
+	givingUp="${@(csv/CsvBatchRunParserTest.csv ~ csv/CsvBatchRunParserSecondaryTest.csv, givingUp)}" 
+	givingIn="${@(csv/CsvBatchRunParserTest.csv ~ csv/CsvBatchRunParserSecondaryTest.csv, givingIn)}" 
+		id="TestAgent" serialID="1">
+	<production class="org.volante.abm.example.SimpleProductionModel" 
+			csvFile="csv/LowIntensityArable.csv" />
+</agent>
