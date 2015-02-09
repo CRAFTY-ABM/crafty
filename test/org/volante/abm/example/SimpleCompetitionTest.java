@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class SimpleCompetitionTest extends BasicTests
+public class SimpleCompetitionTest extends BasicTestsUtils
 {
 	SimpleCompetitivenessModel comp = new SimpleCompetitivenessModel();
 	
@@ -38,7 +38,7 @@ public class SimpleCompetitionTest extends BasicTests
 		persister.roundTripSerialise(comp);
 		demandR1.setResidual( c11, services( 0, 1, 2, 0 ));
 		assertEqualMaps( services( 0, 1, 2, 0 ), demandR1.getResidualDemand( c11 ) );
-		assertEquals( 10, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 10, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 	}
 	
 	@Test
@@ -48,13 +48,13 @@ public class SimpleCompetitionTest extends BasicTests
 		assertEqualMaps( services( 1, 1, 1, 1 ), c11.getSupply() );
 		demandR1.setResidual( c11, services( 0, 1, 2, 0 ));
 		assertEqualMaps( services( 0, 1, 2, 0 ), demandR1.getResidualDemand( c11 ) );
-		assertEquals( 10, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 10, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 		comp.removeCurrentLevel = true; //Now residual should be (1,2,3,1)
-		assertEquals( 1*5 + 2*4 + 3*3 + 1*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 1*5 + 2*4 + 3*3 + 1*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 		c11.setSupply( services( 0, 0, 0, 0));
-		assertEquals( 0*5 + 1*4 + 2*3 + 0*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 0*5 + 1*4 + 2*3 + 0*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 	}
 	
 	@Test
@@ -62,10 +62,10 @@ public class SimpleCompetitionTest extends BasicTests
 	{
 		c11.setSupply( services( 0, 0, 0, 0));
 		demandR1.setResidual( c11, services( 1, -1, 2, -3 ));
-		assertEquals( 1*5 + -1*4 + 2*3 + -3*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 1*5 + -1*4 + 2*3 + -3*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 		comp.removeNegative = true;
-		assertEquals( 1*5 + 0*4 + 2*3 + 0*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 1*5 + 0*4 + 2*3 + 0*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 	}
 	
@@ -74,11 +74,11 @@ public class SimpleCompetitionTest extends BasicTests
 	{
 		c11.setSupply( services( 1, 2, 1, 1));
 		demandR1.setResidual( c11, services( 1, -1, 2, -3 ));
-		assertEquals( 1*5 + -1*4 + 2*3 + -3*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 1*5 + -1*4 + 2*3 + -3*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 		comp.removeNegative = true;
 		comp.removeCurrentLevel = true;
-		assertEquals( 2*5 + 1*4 + 3*3 + 0*2, comp.getCompetitveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
+		assertEquals( 2*5 + 1*4 + 3*3 + 0*2, comp.getCompetitiveness( demandR1, services( 5, 4, 3, 2 ), c11 ), 0.00001 );
 		
 	}
 

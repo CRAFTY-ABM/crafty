@@ -33,7 +33,7 @@ import org.junit.Test;
 import com.moseph.modelutils.curve.LinearFunction;
 
 
-public class CurveCompetitionTest extends BasicTests {
+public class CurveCompetitionTest extends BasicTestsUtils {
 	CurveCompetitivenessModel	comp;
 
 	public void setupModel() throws Exception {
@@ -58,7 +58,7 @@ public class CurveCompetitionTest extends BasicTests {
 		double expected = 1.1 * (5 - 1) +
 				1.2 * (4 + 0) + 1.3 * (3 + 3) + 1.4 * (2 + 2 * 4);
 		assertEquals("Checking that competitiveness is calculated based on residual",
-				expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+				expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 	}
 
@@ -71,17 +71,17 @@ public class CurveCompetitionTest extends BasicTests {
 		assertEqualMaps(services(0, 1, 2, 0), demandR1.getResidualDemand(c11));
 		double expected = 1.1 * (5 + 0 * 1) + 1.2 * (4 + 1 * 2) + 1.3 * (3 + 2 * 3) + 1.4
 				* (2 + 0 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 
 		comp.removeCurrentLevel = true; // Now residual should be (1,2,3,1)
 		expected = 1.1 * (5 + 1 * 1) + 1.2 * (4 + 2 * 2) + 1.3 * (3 + 3 * 3) + 1.4 * (2 + 1 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 
 		c11.setSupply(services(0, 0, 0, 0)); // Now residual is back to (0,1,2,0)
 		expected = 1.1 * (5 + 0 * 1) + 1.2 * (4 + 1 * 2) + 1.3 * (3 + 2 * 3) + 1.4 * (2 + 0 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 	}
 
@@ -91,7 +91,7 @@ public class CurveCompetitionTest extends BasicTests {
 		demandR1.setResidual(c11, services(1, -1, 2, -3));
 		double expected = 1.1 * (5 + 1 * 1) + 1.2 * (4 + -1 * 2) + 1.3 * (3 + 2 * 3) + 1.4
 				* (2 + -3 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 
 		comp.removeNegative = true;
@@ -99,7 +99,7 @@ public class CurveCompetitionTest extends BasicTests {
 																				// last term as it's
 																				// the only negative
 																				// one
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 	}
 
@@ -110,19 +110,19 @@ public class CurveCompetitionTest extends BasicTests {
 		demandR1.setResidual(c11, services(1, -1, 2, -3));
 		double expected = 1.1 * (5 + 1 * 1) + 1.2 * (4 + -1 * 2) + 1.3 * (3 + 2 * 3) + 1.4
 				* (2 + -3 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 
 		comp.removeCurrentLevel = true; // Now residual = 2, 1, 3, -2
 		expected = 1.1 * (5 + 2 * 1) + 1.2 * (4 + 1 * 2) + 1.3 * (3 + 3 * 3) + 1.4 * (2 + -2 * 4);
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 
 		comp.removeNegative = true; // Now residual = 1, 1, 3, -2, and ignore last term as that's
 									// the negative
 		expected = 1.1 * (5 + 2 * 1) + 1.2 * (4 + 1 * 2) + 1.3 * (3 + 3 * 3)
 				+ (0 * 1.4 * (2 + -2 * 4));
-		assertEquals(expected, comp.getCompetitveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
+		assertEquals(expected, comp.getCompetitiveness(demandR1, services(1.1, 1.2, 1.3, 1.4), c11),
 				0.00001);
 	}
 }

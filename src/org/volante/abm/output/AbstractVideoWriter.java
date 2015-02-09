@@ -89,6 +89,13 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	@Attribute(required = false)
 	boolean				addTick			= true;
 
+	@Attribute(required = false)
+	protected int		everyNYears		= 1;
+	@Attribute(required = false)
+	protected int		startYear		= 1;
+	@Attribute(required = false)
+	protected int		endYear			= Integer.MAX_VALUE;
+
 	Color				tickColor		= new Color(0.0f, 0.6f, 0.3f, 0.5f);
 	NumberFormat		tickFormat		= new DecimalFormat("000");
 
@@ -126,23 +133,28 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	public void doOutput(Regions r) {
 		if (out == null) {
 			return;
-		}
-		try {
-			for (int i = 0; i < imagesPerFrame; i++) {
-				BufferedImage image = getImage(r);
-				if (addTick) {
-					Graphics2D g = image.createGraphics();
-					g.setColor(tickColor);
-					g.setFont(g.getFont().deriveFont(36.0f).deriveFont(Font.BOLD));
-					g.drawString("t=" + tickFormat.format(info.getSchedule().getCurrentTick()), 2,
-							height - 2);
-					g.dispose();
+		} else if (info.getSchedule().getCurrentTick() >= this.getStartYear() &&
+				info.getSchedule().getCurrentTick() <= this.getEndYear() &&
+				(info.getSchedule().getCurrentTick() - this.getStartYear())
+						% this.getEveryNYears() == 0) {
+			try {
+				for (int i = 0; i < imagesPerFrame; i++) {
+					BufferedImage image = getImage(r);
+					if (addTick) {
+						Graphics2D g = image.createGraphics();
+						g.setColor(tickColor);
+						g.setFont(g.getFont().deriveFont(36.0f).deriveFont(Font.BOLD));
+						g.drawString("t=" + tickFormat.format(info.getSchedule().getCurrentTick()),
+								2,
+								height - 2);
+						g.dispose();
+					}
+					out.write(0, image, 1);
 				}
-				out.write(0, image, 1);
+			} catch (IOException e) {
+				log.error("Couldn't write file to " + fn);
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			log.error("Couldn't write file to " + fn);
-			e.printStackTrace();
 		}
 	}
 
@@ -184,7 +196,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	 */
 	@Override
 	public int getStartYear() {
-		return this.getStartYear();
+		return this.startYear;
 	}
 
 	/**
@@ -192,7 +204,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	 */
 	@Override
 	public int getEndYear() {
-		return this.getEndYear();
+		return this.endYear;
 	}
 
 	/**
@@ -200,6 +212,6 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	 */
 	@Override
 	public int getEveryNYears() {
-		return this.getEveryNYears();
+		return this.everyNYears;
 	}
 }

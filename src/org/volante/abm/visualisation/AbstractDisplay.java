@@ -69,7 +69,7 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 		return null;
 	}
 
-	public JComponent getPanel() {
+	public JComponent getEastSidePanel() {
 		return null;
 	}
 
@@ -100,7 +100,7 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 			panel.add(legend, BorderLayout.SOUTH);
 		}
 
-		JComponent p = getPanel();
+		JComponent p = getEastSidePanel();
 		if (p != null) {
 			panel.add(p, BorderLayout.EAST);
 		}
@@ -143,6 +143,7 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 	}
 
 	public void postUpdate() {
+		this.invalidate();
 	}
 
 	@Override

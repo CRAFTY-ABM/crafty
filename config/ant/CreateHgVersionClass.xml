@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+	
+	<taskdef resource="net/sourceforge/ant4hg/taskdefs/antlib.xml" />
+	
+	<!-- hg log -r tip -template "{latesttag}.{latesttagdistance}"-->
+	
+	<!--hg cmd="log" dir="./">
+	  <arg value='-rtip  \-\-template="{latesttag}.{latesttagdistance}"'/>
+	</hg-->
+    		
+	<echo>Generate version info class...</echo>
+	
+	<hg cmd="log" dir="./" >
+	  <arg value="-rtip"/>
+	</hg>
+	<echo message="==========================" />
+	<echo message="revision = ${ant4hg.log.revision}" />
+	<echo message="changeset = ${ant4hg.log.changeset}" />
+	<echo message="tag = ${ant4hg.log.tag}" />
+	<echo message="branch = ${ant4hg.log.branch}" />
+	<echo message="user = ${ant4hg.log.user}" />
+	<echo message="date = ${ant4hg.log.date}" />
+	<echo message="summary = ${ant4hg.log.summary}" />
+
+	<tstamp>
+	    <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" locale="ENGLISH, GERMANY"/>
+	 </tstamp>
+	
+	<echo>CRAFTY Parallel Revision: ${ant4hg.log.revision}</echo>
+	<echo>Time stamp ${TODAY}</echo>
+	
+	<echo>Write build info to file ${basedir}\..\..\src\org\volante\abm\serialization\CVersionInfo.java</echo>
+	
+	    	<!-- the source code of the java class -->
+	<echo file="${basedir}\..\..\src\org\volante\abm\serialization\CVersionInfo.java">/**
+ * This file is part of
+ *
+ * CRAFTY - Competition for Resources between Agent Functional TYpes
+ *
+ * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
+ *
+ * CRAFTY is free software: You can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * CRAFTY is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.
+ *
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ *
+ */
+package org.volante.abm.serialization;
+
+
+/**
+ * CRAFTY Parallel Version Information
+ */
+public class CVersionInfo {
+
+	/**
+ 	 * current revision number
+     */
+	public static final String REVISION_NUMBER="${ant4hg.log.revision}";
+
+	/**
+     * time stamp of last commit action
+     */
+	public static final String TIMESTAMP="${TODAY}";
+}
+	</echo>
+</project>

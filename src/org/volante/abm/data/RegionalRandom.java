@@ -76,5 +76,13 @@ public class RegionalRandom {
 					new MersenneTwister(
 							((Integer) pm.getParam(RandomPa.RANDOM_SEED_RUN_ALLOCATION))));
 		}
+
+		if (!getURService().isGeneratorRegistered(
+				RandomPa.RANDOM_SEED_RUN_ADOPTION.name())) {
+			getURService().registerGenerator(
+					RandomPa.RANDOM_SEED_RUN_ADOPTION.name(),
+					new MersenneTwister(((Integer) pm
+							.getParam(RandomPa.RANDOM_SEED_RUN_ADOPTION))));
+		}
 	}
 }

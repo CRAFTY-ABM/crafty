@@ -1,24 +1,24 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.example;
 
@@ -38,7 +38,7 @@ import org.volante.abm.data.Region;
  * @author Sascha Holzhauer
  * 
  */
-public class GiveUpGiveInAllocationTest extends BasicTests
+public class GiveUpGiveInAllocationTest extends BasicTestsUtils
 {
 	/**
 	 * Logger
@@ -50,8 +50,8 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 	{
 		//Make an allocation model etc.
 		GiveUpGiveInAllocationModel allocation = new GiveUpGiveInAllocationModel();
-		allocation.numTakeovers = 1;
-		allocation.numCells = 10;
+		allocation.numTakeovers = "1";
+		allocation.numCells = "10";
 		allocation.probabilityExponent = 1;
 		allocation = persister.roundTripSerialise( allocation );
 		RegionalDemandModel demand = new RegionalDemandModel();
@@ -104,8 +104,8 @@ public class GiveUpGiveInAllocationTest extends BasicTests
 	{	
 		//Models to use
 		GiveUpGiveInAllocationModel allocation = new GiveUpGiveInAllocationModel();
-		allocation.numTakeovers = 1;
-		allocation.numCells = 1;
+		allocation.numTakeovers = "1";
+		allocation.numCells = "1";
 		allocation.probabilityExponent = 1;
 		allocation = persister.roundTripSerialise( allocation );
 		RegionalDemandModel demand = new RegionalDemandModel();

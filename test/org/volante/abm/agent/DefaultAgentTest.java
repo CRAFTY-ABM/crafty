@@ -8,10 +8,10 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.volante.abm.data.Region;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.schedule.Schedule;
 
-public class DefaultAgentTest extends BasicTests
+public class DefaultAgentTest extends BasicTestsUtils
 {
 
 	/**

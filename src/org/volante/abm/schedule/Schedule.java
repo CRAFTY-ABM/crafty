@@ -42,7 +42,7 @@ public interface Schedule extends Initialisable {
 	/**
 	 * Returns the current tick (which is the next tick that is performed)
 	 * 
-	 * @return
+	 * @return current tick
 	 */
 	public int getCurrentTick();
 
@@ -53,6 +53,17 @@ public interface Schedule extends Initialisable {
 	 * @param o
 	 */
 	public void register(TickAction o);
+
+	/**
+	 * Removes the given {@link TickAction} from this schedule to prevent the
+	 * action from being performed in future.
+	 * 
+	 * @param o
+	 *            tick action
+	 * @return true if the given tick action could be unregistered, false
+	 *         otherwise.
+	 */
+	public boolean unregister(TickAction o);
 
 	public void setRegions(RegionSet set);
 
@@ -76,6 +87,10 @@ public interface Schedule extends Initialisable {
 	 * @param end
 	 */
 	public void setEndTick(int end);
+
+	public int getTargetTick();
+
+	public int getStartTick();
 
 	public int getEndTick();
 

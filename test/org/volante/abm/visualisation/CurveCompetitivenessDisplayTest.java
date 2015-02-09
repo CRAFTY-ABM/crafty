@@ -8,7 +8,7 @@ import org.volante.abm.example.*;
 
 import com.moseph.modelutils.curve.*;
 
-public class CurveCompetitivenessDisplayTest extends BasicTests
+public class CurveCompetitivenessDisplayTest extends BasicTestsUtils
 {
 
 	public static void main( String[] args ) throws Exception

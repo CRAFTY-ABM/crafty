@@ -25,11 +25,11 @@ package org.volante.abm.serialization;
 import org.junit.Test;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.RegionSet;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 import org.volante.abm.schedule.RunInfo;
 
 
-public class WorldLoaderTest extends BasicTests {
+public class WorldLoaderTest extends BasicTestsUtils {
 
 	@Test
 	public void testLoading() throws Exception {

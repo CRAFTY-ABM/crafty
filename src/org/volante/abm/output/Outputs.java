@@ -62,11 +62,11 @@ import org.volante.abm.serialization.GloballyInitialisable;
  */
 public class Outputs implements GloballyInitialisable {
 	@Attribute(required = false, name = "outputDirectory")
-	String					outputDirectoryPattern	= "output";
+	String					outputDirectoryPattern	= "output/%w/%s/%i/%r";
 	@Attribute(required = false)
-	String					filePattern				= "%n-%i-%o";
+	String					filePattern				= "%s-%i-%r-%o";
 	@Attribute(required = false)
-	String					tickPattern				= "%n-%i-%o-%t";
+	String					tickPattern				= "%s-%i-%r-%o-%y";
 	@Attribute(required = false)
 	String					outputsFile				= "";
 	@ElementList(inline = true, required = false, entry = "output")
@@ -77,6 +77,8 @@ public class Outputs implements GloballyInitialisable {
 	protected RunInfo		runInfo					= null;
 	protected ModelData		modelData				= null;
 	List<CloseableOutput>	outputsToClose			= new ArrayList<CloseableOutput>();
+
+	Thread					shutdownHookThread;
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
@@ -221,13 +223,20 @@ public class Outputs implements GloballyInitialisable {
 	}
 
 	void setupClosingOutputs() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		this.shutdownHookThread = new Thread() {
 			@Override
 			public void run() {
 				for (CloseableOutput c : outputsToClose) {
 					c.close();
 				}
 			}
-		});
+		};
+		Runtime.getRuntime().addShutdownHook(this.shutdownHookThread);
+	}
+
+	public void removeClosingOutputThreads() {
+		log.info("Closing outputs and remove shutdown hook...");
+		this.shutdownHookThread.run();
+		Runtime.getRuntime().removeShutdownHook(this.shutdownHookThread);
 	}
 }

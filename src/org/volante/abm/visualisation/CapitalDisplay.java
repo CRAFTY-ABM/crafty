@@ -30,6 +30,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import org.apache.log4j.Logger;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
@@ -37,6 +38,11 @@ import org.volante.abm.data.Region;
 
 
 public class CapitalDisplay extends DatatypeDisplay<Capital> implements Display, ActionListener {
+
+	/**
+	 * Logger
+	 */
+	static private Logger		logger				= Logger.getLogger(CapitalDisplay.class);
 
 	private static final long	serialVersionUID	= -5571528784889057798L;
 
@@ -62,6 +68,11 @@ public class CapitalDisplay extends DatatypeDisplay<Capital> implements Display,
 	@Override
 	public void setupType(String type) {
 		capital = data.capitals.forName(type);
+		if (capital == null) {
+			logger.warn("Specified capital (" + type
+					+ ") for CapitalDisplay is not valid. Using first capital.");
+			capital = data.capitals.get(0);
+		}
 	}
 
 	public static void main(String[] args) throws Exception {

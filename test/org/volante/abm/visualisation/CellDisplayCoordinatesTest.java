@@ -26,10 +26,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.volante.abm.data.Cell;
-import org.volante.abm.example.BasicTests;
+import org.volante.abm.example.BasicTestsUtils;
 
 
-public class CellDisplayCoordinatesTest extends BasicTests {
+public class CellDisplayCoordinatesTest extends BasicTestsUtils {
 
 	private CellDisplay	display;
 

@@ -45,7 +45,8 @@ public class RunInfo {
 	int				numRandomVariations	= 0;
 	long			currentRandomSeed	= 0;
 
-	boolean			useInstitutions	= false;
+	String			csvParamBasedirCorrection	= "";
+
 
 	ParameterRepository	paramRepos			= new ParameterRepository();
 
@@ -93,14 +94,6 @@ public class RunInfo {
 	public void setRunID(String runID) {
 		persister.setContext("i", runID);
 		this.runID = runID;
-	}
-
-	public boolean useInstitutions() {
-		return useInstitutions;
-	}
-
-	public void setUseInstitutions(boolean useInstitutions) {
-		this.useInstitutions = useInstitutions;
 	}
 
 	/**
@@ -168,5 +161,13 @@ public class RunInfo {
 	 */
 	public ParameterRepository getParamRepos() {
 		return paramRepos;
+	}
+
+	public String getCsvParamBasedirCorrection() {
+		return csvParamBasedirCorrection;
+	}
+
+	public void setCsvParamBasedirCorrection(String csvParamBasedirCorrection) {
+		this.csvParamBasedirCorrection = csvParamBasedirCorrection;
 	}
 }

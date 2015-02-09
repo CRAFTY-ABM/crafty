@@ -39,7 +39,7 @@ import org.volante.abm.data.Service;
 import com.moseph.modelutils.fastdata.DoubleMap;
 
 
-public class SimpleProductionTest extends BasicTests {
+public class SimpleProductionTest extends BasicTestsUtils {
 	DoubleMap<Service>		production	= new DoubleMap<Service>(simpleServices);
 	DoubleMap<Service>		expected	= new DoubleMap<Service>(simpleServices);
 	SimpleProductionModel	fun			= new SimpleProductionModel();

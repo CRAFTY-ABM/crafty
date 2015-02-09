@@ -38,17 +38,29 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.institutions.Institutions;
+import org.volante.abm.institutions.innovation.InnovationRegistry;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
+import org.volante.abm.param.GeoPa;
 import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
+
+import repast.simphony.space.gis.DefaultGeography;
+import repast.simphony.space.gis.Geography;
+import repast.simphony.space.gis.GeographyParameters;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
+import de.cesr.more.basic.edge.MoreEdge;
+import de.cesr.more.basic.network.MoreNetwork;
+import de.cesr.more.building.network.MoreNetworkService;
 import de.cesr.parma.core.PmParameterManager;
 
 
@@ -57,27 +69,47 @@ public class Region implements Regions, PreTickAction {
 	/**
 	 * Logger
 	 */
-	static private Logger	logger			= Logger.getLogger(Region.class);
+	static private Logger	logger						= Logger.getLogger(Region.class);
+
+	static final String		GEOGRAPHY_NAME_EXTENSION	= "_Geography";
 
 	/*
 	 * Main data fields
+	 * 
+	 * LinkedHashMaps are required to guarantee a defined order of agent creation
+	 * which usually involves random number generation (cells > available > allocation)
 	 */
-	Set<Cell>				cells			= new HashSet<Cell>();
-	Set<Agent>				agents			= new HashSet<Agent>();
-	Set<Agent>				agentsToRemove	= new HashSet<Agent>();
-	AllocationModel			allocation		= null;
-	CompetitivenessModel	competition		= null;
-	DemandModel				demand			= null;
-	Set<Cell>				available		= new HashSet<Cell>();
-	Set<PotentialAgent>		potentialAgents	= new LinkedHashSet<PotentialAgent>();
-	ModelData				data			= null;
-	RunInfo					rinfo			= null;
-	Institutions			institutions	= null;
-	String					id				= "UnknownRegion";
+	Set<Cell>				cells						= new LinkedHashSet<Cell>();
+	Set<Agent>				agents						= new LinkedHashSet<Agent>();
+	Set<Agent>				agentsToRemove				= new LinkedHashSet<Agent>();
+	AllocationModel			allocation;
+	CompetitivenessModel	competition;
+	DemandModel				demand;
+	Set<Cell>				available					= new LinkedHashSet<Cell>();
+	Set<PotentialAgent>		potentialAgents				= new LinkedHashSet<PotentialAgent>();
+	ModelData				data;
+	RunInfo					rinfo;
+	Institutions			institutions				= null;
+	String					id							= "UnknownRegion";
+
+	boolean requiresEffectiveCapitalData = false;
+	boolean hasCompetitivenessAdjustingInstitution = false;
+
+	Map<Object, RegionHelper>	helpers					= new LinkedHashMap<Object, RegionHelper>();
+
+	InnovationRegistry		innovationRegistry			= new InnovationRegistry(this);
+
+	/**
+	 * @return the innovationRegistry
+	 */
+	public InnovationRegistry getInnovationRegistry() {
+		return innovationRegistry;
+	}
+
+	Geography<Object>	geography;
+	GeometryFactory		geoFactory;
 
 	RegionalRandom			random			= null;
-
-	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
 
 	/**
 	 * @return the random
@@ -87,10 +119,112 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
+	 * @return the geoFactory
+	 */
+	public GeometryFactory getGeoFactory() {
+		if (this.geoFactory == null) {
+			// geometry factory with floating precision model (default)
+			this.geoFactory =
+						new GeometryFactory(new PrecisionModel(), 32632);
+		}
+		return geoFactory;
+	}
+
+	/**
+	 * @return the geography
+	 */
+	public Geography<Object> getGeography() {
+		if (this.geography == null) {
+			// Causes the CRS factory to apply (longitude, latitude) order of
+			// axis:
+			// TODO
+			// System.setProperty(GeoTools.FORCE_LONGITUDE_FIRST_AXIS_ORDER,
+			// "true");
+			GeographyParameters<Object> geoParams = new GeographyParameters<Object>();
+			geoParams.setCrs((String) PmParameterManager
+					.getParameter(GeoPa.CRS));
+
+			String crsCode = geoParams.getCrs();
+			this.geography = new DefaultGeography<Object>(this.id
+					+ GEOGRAPHY_NAME_EXTENSION,
+					crsCode);
+
+			this.geography.setAdder(geoParams.getAdder());
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Geography CRS: " + this.geography.getCRS());
+			}
+			// LOGGING ->
+		}
+		return this.geography;
+	}
+
+	/**
 	 * @return the rinfo
 	 */
 	public RunInfo getRinfo() {
 		return rinfo;
+	}
+
+	MoreNetworkService<SocialAgent, ? extends MoreEdge<SocialAgent>> networkService;
+
+	/**
+	 * @return the networkService
+	 */
+	public MoreNetworkService<SocialAgent, ? extends MoreEdge<SocialAgent>> getNetworkService() {
+		return networkService;
+	}
+
+	/**
+	 * Sets the network service.
+	 * 
+	 * @param networkService
+	 *        the networkService to set
+	 */
+	public void setNetworkService(
+			MoreNetworkService<SocialAgent, ? extends MoreEdge<SocialAgent>> networkService) {
+		this.networkService = networkService;
+	}
+
+	MoreNetwork<SocialAgent, MoreEdge<SocialAgent>> network;
+
+	/**
+	 * @return the network
+	 */
+	public MoreNetwork<SocialAgent, MoreEdge<SocialAgent>> getNetwork() {
+		return network;
+	}
+
+	/**
+	 * @param network
+	 *        the network to set
+	 */
+	public void setNetwork(
+			MoreNetwork<SocialAgent, MoreEdge<SocialAgent>> network) {
+		this.network = network;
+	}
+
+	/**
+	 * 
+	 */
+	public void perceiveSocialNetwork() {
+		if (this.getNetwork() != null) {
+
+			logger.info("Perceive social network.");
+
+			for (Agent a : this.getAgents()) {
+				if (a instanceof SocialAgent) {
+					((SocialAgent) a).perceiveSocialNetwork();
+				}
+			}
+
+			for (RegionHelper helper : this.helpers.values()) {
+				if (helper instanceof SocialRegionHelper) {
+					((SocialRegionHelper) helper).socialNetworkPerceived();
+				}
+			}
+		}
 	}
 
 	/*
@@ -245,7 +379,13 @@ public class Region implements Regions, PreTickAction {
 	public void cleanupAgents() {
 		for (Agent a : agentsToRemove) {
 			log.trace(" removing agent " + a.getID() + " at " + a.getCells());
+
 			agents.remove(a);
+			for (RegionHelper helper : this.helpers.values()) {
+				if (helper instanceof PopulationRegionHelper) {
+					((PopulationRegionHelper) helper).agentRemoved(a);
+				}
+			}
 		}
 		agentsToRemove.clear();
 	}
@@ -277,17 +417,17 @@ public class Region implements Regions, PreTickAction {
 	 * Convenience methods
 	 */
 	/**
-	 * Gets the competitiveness of the given services on the given cell for the current demand model
-	 * and level of demand
+	 * Gets the competitiveness of the given services on the given cell for the
+	 * current demand model and level of demand
 	 * 
-	 * @param services
+	 * @param agent
 	 * @param c
-	 * @return
+	 * @return competitiveness for the given potential agent on the given cell
 	 */
 	public double getCompetitiveness(PotentialAgent agent, Cell c) {
-		if (hasInstitutions()) {
+		if (hasCompetitivenessAdjustingInstitution()) {
 			UnmodifiableNumberMap<Service> provision = agent.getPotentialSupply(c);
-			double comp = competition.getCompetitveness(demand, provision, c);
+			double comp = competition.getCompetitiveness(demand, provision, c);
 			return institutions.adjustCompetitiveness(agent, c, provision, comp);
 		} else {
 			return getUnadjustedCompetitiveness(agent, c);
@@ -295,51 +435,54 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Just used for displays and checking to see the effect without institutions
+	 * Just used for displays and checking to see the effect without
+	 * institutions
 	 * 
 	 * @param agent
 	 * @param c
-	 * @return
+	 * @return unadjusted competitiveness for the given potential agent on the
+	 *         given cell
 	 */
 	public double getUnadjustedCompetitiveness(PotentialAgent agent, Cell c) {
-		return competition.getCompetitveness(demand, agent.getPotentialSupply(c), c);
+		return competition.getCompetitiveness(demand, agent.getPotentialSupply(c), c);
 	}
 
 	/**
-	 * Gets the competitiveness of the cell's current production for the current demand model and
-	 * levels of demand
+	 * Gets the competitiveness of the cell's current production for the current
+	 * demand model and levels of demand
 	 * 
 	 * @param c
-	 * @return
+	 * @return get competitiveness of given cell
 	 */
 	public double getCompetitiveness(Cell c) {
-		if (hasInstitutions()) {
-			double comp = competition.getCompetitveness(demand, c.getSupply(), c);
+		double comp = getUnadjustedCompetitiveness(c);
+		if (hasCompetitivenessAdjustingInstitution()) {
 			PotentialAgent a = c.getOwner() == null ? null : c.getOwner().getType();
 			return institutions.adjustCompetitiveness(a, c, c.getSupply(), comp);
 		} else {
-			return getUnadjustedCompetitiveness(c);
+			return comp;
 		}
 	}
 
 	/**
-	 * Just used for displays and checking, so see the effect without institutions
+	 * Just used for displays and checking, so see the effect without
+	 * institutions
 	 * 
 	 * @param c
-	 * @return
+	 * @return unadjusted competitiveness for the given cell
 	 */
 	public double getUnadjustedCompetitiveness(Cell c) {
 		if (competition == null || demand == null) {
 			return Double.NaN;
 		}
-		return competition.getCompetitveness(demand, c.getSupply(), c);
+		return competition.getCompetitiveness(demand, c.getSupply(), c);
 	}
 
 	public double getUnadjustedCompetitiveness(UnmodifiableNumberMap<Service> supply) {
 		if (competition == null || demand == null) {
 			return Double.NaN;
 		}
-		return competition.getCompetitveness(demand, supply);
+		return competition.getCompetitiveness(demand, supply);
 	}
 
 	/**
@@ -358,6 +501,13 @@ public class Region implements Regions, PreTickAction {
 			if (cur.toRemove()) {
 				log.trace("also removing agent " + cur);
 				agents.remove(cur);
+
+				for (RegionHelper helper : this.helpers.values()) {
+					if (helper instanceof PopulationRegionHelper) {
+						((PopulationRegionHelper) helper).agentRemoved(cur);
+					}
+				}
+
 				cur.die();
 			}
 			log.trace(" adding agent " + a + " to cell");
@@ -428,7 +578,7 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Called afeter all cells in the region have been created, to allow building a table of them
+	 * Called after all cells in the region have been created, to allow building a table of them
 	 */
 	public void cellsCreated()
 	{
@@ -456,12 +606,12 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	/**
-	 * Returns the cell with the given x and y coordinates. Returns null if no cells are present or
-	 * the table has not been built yet.
+	 * Returns the cell with the given x and y coordinates. Returns null if no
+	 * cells are present or the table has not been built yet.
 	 * 
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return cell of given coordinates
 	 */
 	public Cell getCell(int x, int y) {
 		if (cellTable == null) {
@@ -477,6 +627,22 @@ public class Region implements Regions, PreTickAction {
 
 	public boolean hasInstitutions() {
 		return institutions != null;
+	}
+
+	public boolean doesRequireEffectiveCapitalData() {
+		return requiresEffectiveCapitalData;
+	}
+
+	public boolean hasCompetitivenessAdjustingInstitution() {
+		return hasCompetitivenessAdjustingInstitution;
+	}
+
+	public void setRequiresEffectiveCapitalData() {
+		this.requiresEffectiveCapitalData = true;
+	}
+
+	public void setHasCompetitivenessAdjustingInstitution() {
+		this.hasCompetitivenessAdjustingInstitution = true;
 	}
 
 	public Institutions getInstitutions() {
@@ -528,7 +694,7 @@ public class Region implements Regions, PreTickAction {
 
 	/**
 	 * @param id
-	 * @return
+	 * @return region helper with given ID
 	 */
 	public RegionHelper getHelper(Object id) {
 		return this.helpers.get(id);

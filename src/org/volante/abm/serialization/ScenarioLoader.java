@@ -46,6 +46,7 @@ import org.volante.abm.schedule.WorldSyncSchedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
 import org.volante.abm.visualisation.ModelDisplays;
 
+import de.cesr.more.basic.MManager;
 
 /**
  * The scenario loader is responsible for setting up the following things:
@@ -73,6 +74,18 @@ public class ScenarioLoader {
 	/**
 	 * Scenario name (default: "Unknown")
 	 */
+	@Attribute(name = "version", required = false)
+	String					version			= "V0";
+
+	/**
+	 * Regionalisation (default: "Unknown")
+	 */
+	@Attribute(name = "regionalisation", required = false)
+	String					regionalisation	= "Unknown";
+
+	/**
+	 * Scenario name (default: "Unknown")
+	 */
 	@Attribute(name = "scenario", required = false)
 	String scenario = "Unknown";
 	
@@ -87,7 +100,23 @@ public class ScenarioLoader {
 	 */
 	@Attribute(name = "runID", required = false)
 	String					runID			= "SET_INTERNAL";
+
+	/**
+	 * After the scenario configuration file has been parsed, this string is
+	 * appended to the persister's basedir. This is useful if a configuration
+	 * adapts some parameters and points to the super directory otherwise.
+	 */
+	@Attribute(name = "basedirAdaptation", required = false)
+	String					basedirAdaptation			= "";
 	
+	/**
+	 * This is appended to the adapted basedir when looking up CSV parameter
+	 * files from parameters in batch mode (usually points to the same directory
+	 * as the scenario file).
+	 */
+	@Attribute(name = "csvParamBasedirCorrection", required = false)
+	String					csvParamBasedirCorrection	= "";
+
 	/**
 	 * startTick (int, default: 2000)
 	 */
@@ -114,9 +143,6 @@ public class ScenarioLoader {
 
 	@Element(name = "landUses", required = false)
 	DataTypeLoader<LandUse>	landUses		= null;
-
-	@Attribute(required = false)
-	boolean useInstitutions = false;
 
 	@ElementList(required = false, inline = true, entry = "region")
 	List<RegionLoader> regionList = new ArrayList<RegionLoader>();
@@ -147,15 +173,30 @@ public class ScenarioLoader {
 	public void initialise(RunInfo info) throws Exception {
 		this.setSchedule(info.getSchedule());
 
+		MManager.init();
+		
+		this.scenario = BatchRunParser.parseString(scenario, info);
+
 		this.info = info;
 		persister = info.getPersister();
 		persister.setContext("s", scenario);
+		ModelRunner.clog("Scenario", scenario);
+
+		persister.setContext("v", version);
+		ModelRunner.clog("Version", version);
+
 		persister.setContext("w", worldName);
+		ModelRunner.clog("WorldName", worldName);
+
+		persister.setContext("k", regionalisation);
+		ModelRunner.clog("Regionalisation", regionalisation);
+
+		persister.setContext("c", "" + this.info.getCurrentRun());
+		ModelRunner.clog("CurrentRun", "" + this.info.getCurrentRun());
 
 		schedule.setStartTick(startTick);
 		schedule.setEndTick(endTick);
 		
-		info.setUseInstitutions(useInstitutions);
 		if (capitals != null) {
 			log.info("Loading captials");
 			modelData.capitals = capitals.getDataTypes(persister);
@@ -174,6 +215,9 @@ public class ScenarioLoader {
 
 		info.setScenario(scenario);
 		info.setRunID(runID);
+
+		this.persister.setBaseDir(this.persister.getBaseDir() + this.basedirAdaptation);
+		this.info.setCsvParamBasedirCorrection(this.csvParamBasedirCorrection);
 
 		if (worldLoader == null && worldLoaderFile != null) {
 			worldLoader = persister.readXML(WorldLoader.class, worldLoaderFile);

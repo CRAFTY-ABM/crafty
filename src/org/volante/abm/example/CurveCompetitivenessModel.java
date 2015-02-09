@@ -49,7 +49,7 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 
 /**
- * A simple model of competitiveness
+ * A more complex model of competitiveness allowing the applications of functions.
  * 
  * @author dmrust
  * 
@@ -115,7 +115,7 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	}
 
 	@Override
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
 		return getCompetitveness(demand, supply, false);
 	}
 
@@ -123,14 +123,16 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 			boolean showWorking) {
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
 		residual.multiplyInto(1.0 / region.getNumCells(), residual);
+
 		if (showWorking) {
 			log.info("Using residual: " + residual.prettyPrint());
 		}
+
 		return addUpMarginalUtilities(residual, supply, showWorking);
 	}
 
 	@Override
-	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			Cell cell) {
 		DoubleMap<Service> residual = demand.getResidualDemand(cell).copy();
 		if (removeCurrentLevel) {

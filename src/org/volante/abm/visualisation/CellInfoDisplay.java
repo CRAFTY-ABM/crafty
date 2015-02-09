@@ -53,9 +53,10 @@ public class CellInfoDisplay extends JPanel {
 	DoubleMapDisplay			productionDisplay					= new DoubleMapTextDisplay();
 	DoubleMapDisplay			competitivenessDisplay				= new DoubleMapTextDisplay();
 	DoubleMapDisplay			unadjustedCompetitivenessDisplay	= new DoubleMapTextDisplay();
-	JTextArea					owner								= new JTextArea("Unknown");
+	JTextArea					owner								= new JTextArea("Unknown", 5, 0);
 	JLabel						xLoc								= new JLabel("X=?");
 	JLabel						yLoc								= new JLabel("Y=?");
+	JLabel						cellRegion							= new JLabel("Region=?");
 
 	public CellInfoDisplay() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -67,6 +68,7 @@ public class CellInfoDisplay extends JPanel {
 		Box location = new Box(BoxLayout.Y_AXIS);
 		location.add(xLoc);
 		location.add(yLoc);
+		location.add(cellRegion);
 		addPanel(location, "Location");
 		addPanel(ownerScroll, "Owner");
 		addPanel(capitalDisplay.getDisplay(), "Capitals");
@@ -74,16 +76,17 @@ public class CellInfoDisplay extends JPanel {
 		addPanel(productionDisplay.getDisplay(), "Productivity");
 		addPanel(competitivenessDisplay.getDisplay(), "Competitiveness");
 		addPanel(unadjustedCompetitivenessDisplay.getDisplay(), "Unadjusted Competitiveness");
-		setPreferredSize(new Dimension(250, 400));
-		setMaximumSize(new Dimension(250, 4000));
+		setPreferredSize(new Dimension(250, 700));
 		clearCell();
 
 	}
 
 	public void addPanel(JComponent cDisp, String title) {
 		cDisp.setBorder(new TitledBorder(new EtchedBorder(), title));
-		cDisp.setPreferredSize(new Dimension(250, 500));
-		cDisp.setMaximumSize(new Dimension(250, 1000));
+		// TODO assign the height that is required for contained text (seems challenging...)
+		// int height = cDisp.getHeight();
+		cDisp.setPreferredSize(new Dimension(250, 170));
+		cDisp.setMaximumSize(new Dimension(250, 170));
 		cDisp.setAlignmentX(0.5f);
 		add(cDisp);
 	}
@@ -100,6 +103,7 @@ public class CellInfoDisplay extends JPanel {
 		unadjustedCompetitivenessDisplay.setMap(getUnadjustedCompetitivenessMap(c));
 		owner.setText(c.getOwnerID() + "\n" + c.getOwner().infoString());
 		setCellXY(c.getX(), c.getY());
+		setCellRegion(c.getRegion());
 		revalidate();
 		repaint();
 	}
@@ -107,6 +111,10 @@ public class CellInfoDisplay extends JPanel {
 	public void setCellXY(int x, int y) {
 		xLoc.setText("X=" + (x != Integer.MIN_VALUE ? x + "" : "?"));
 		yLoc.setText("Y=" + (y != Integer.MIN_VALUE ? y + "" : "?"));
+	}
+
+	public void setCellRegion(Region region) {
+		cellRegion.setText(region == null ? "NN" : "Region: " + region.getID());
 	}
 
 	public void clearCell() {
@@ -117,6 +125,7 @@ public class CellInfoDisplay extends JPanel {
 		unadjustedCompetitivenessDisplay.clear();
 		owner.setText("NONE SELECTED");
 		setCellXY(Integer.MIN_VALUE, Integer.MIN_VALUE);
+		setCellRegion(null);
 		revalidate();
 		repaint();
 	}

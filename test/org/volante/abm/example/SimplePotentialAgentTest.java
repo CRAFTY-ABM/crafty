@@ -29,7 +29,7 @@ import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
 
 
-public class SimplePotentialAgentTest extends BasicTests {
+public class SimplePotentialAgentTest extends BasicTestsUtils {
 	SimpleProductionModel	p1	= new SimpleProductionModel();
 
 	@Test

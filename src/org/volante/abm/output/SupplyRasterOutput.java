@@ -51,7 +51,7 @@ public class SupplyRasterOutput extends RasterOutputter {
 
 	@Override
 	public String getDefaultOutputName() {
-		return "Service-" + service.getName();
+		return "Supply-" + service.getName();
 	}
 
 	@Override

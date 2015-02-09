@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
@@ -57,8 +58,8 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	BufferedImage				image				= null;
 	Extent						extent				= null;
 	Color						background			= Color.white;
-	int							height				= 0;
-	int							width				= 0;
+	int							regionHeight		= 0;
+	int							regionWidth			= 0;
 	Cell[][]					cells				= null;
 	Cell						selected			= null;
 	CellInfoDisplay				cellInfo			= new CellInfoDisplay();
@@ -82,19 +83,34 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	public void initialise(ModelData data, RunInfo info, Regions region) throws Exception {
 		super.initialise(data, info, region);
 		this.extent = region.getExtent();
-		width = extent.getWidth();
-		height = extent.getHeight();
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		cells = new Cell[width][height];
+		regionWidth = extent.getWidth();
+		regionHeight = extent.getHeight();
+		image = new BufferedImage(regionWidth, regionHeight, BufferedImage.TYPE_INT_RGB);
+		cells = new Cell[regionWidth][regionHeight];
 		setBackground(Color.magenta);
 		setFocusable(true);
 		addKeyListener(this);
 		addMouseListener(this);
 	}
 
+	protected int getScreenWidth() {
+		return (int) ((double) regionWidth / getWidth() >= (double) regionHeight / getHeight() ?
+				getWidth() : regionWidth / ((double) regionHeight / getHeight()));
+	}
+
+	protected int getScreenHeight() {
+		return (int) ((double) regionWidth / getWidth() < (double) regionHeight / getHeight() ?
+				getHeight() : regionHeight / ((double) regionWidth / getWidth()));
+	}
+
+
 	@Override
 	public void paint(Graphics g) {
-		g.drawImage(image, 0, 0, getWidth(), getHeight(), 0, 0, width, height, this);
+		g.drawImage(image, 0, 0, getScreenWidth(), getScreenHeight(), 0, 0, regionWidth,
+				regionHeight, this);
+
+		// g.drawImage(image, 0, 0, getWidth(), getHeight(), 0, 0, width, height, this);
+
 		int x = cXtoPX(selectedX);
 		int y = cYtoPY(selectedY);
 		int w = cellPX();
@@ -133,7 +149,7 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 		super.update();
 		Graphics g = image.getGraphics();
 		g.setColor(Color.black);
-		g.fillRect(0, 0, width, height);
+		g.fillRect(0, 0, regionWidth, regionHeight);
 		for (Cell c : region.getAllCells()) {
 			cells[extent.xInd(c.getX())][extent.yInd(c.getY())] = c;
 			int x = cXtoIX(c.getX());
@@ -163,7 +179,7 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 
 	// Takes image coordinates and gets the relevant cell
 	public void setSelectedCell(int x, int y) {
-		if (x >= 0 && x < width && y >= 0 && y < height) {
+		if (x >= 0 && x < regionWidth && y >= 0 && y < regionHeight) {
 			setSelectedCell(cells[x][y]);
 			if (selected == null) {
 				log.error("No cell found for " + x + ", " + y);
@@ -171,8 +187,9 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 			selectedX = selected.getX();
 			selectedY = selected.getY();
 		} else {
-			log.warn("Tried to set cell " + x + "," + y + ", with width=" + width + ", height="
-					+ height);
+			log.warn("Tried to set cell " + x + "," + y + ", with width=" + regionWidth
+					+ ", height="
+					+ regionHeight);
 		}
 	}
 
@@ -181,12 +198,15 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 		int y = extent.yInd(selectedY + dy);
 		setSelectedCell(x, y);
 		fireCellChanged(selected);
-
 	}
 
 	@Override
-	public JComponent getPanel() {
-		return cellInfo;
+	public JComponent getEastSidePanel() {
+		JScrollPane scroller = new JScrollPane(cellInfo);
+		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		int height = scroller.getHeight();
+		scroller.setPreferredSize(new Dimension(270, height));
+		return scroller;
 	}
 
 	// Turn cell pixels into image pixels.
@@ -195,33 +215,33 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	}
 
 	public int cYtoIY(int y) {
-		return height - 1 - y + extent.getMinY();
+		return regionHeight - 1 - y + extent.getMinY();
 	}
 
 	// Turn cell address into screen pixels
 	public int cXtoPX(int x) {
-		return (int) ((double) cXtoIX(x) * getWidth() / width) + 1;
+		return (int) ((double) cXtoIX(x) * getScreenWidth() / regionWidth) + 1;
 	}
 
 	public int cYtoPY(int y) {
-		return (int) ((double) cYtoIY(y) * getHeight() / height);
+		return (int) ((double) cYtoIY(y) * getScreenHeight() / regionHeight);
 	}
 
 	public int cellPX() {
-		return (int) ((double) getWidth() / width);
+		return (int) ((double) getScreenWidth() / regionWidth);
 	}
 
 	public int cellPY() {
-		return (int) ((double) getHeight() / height);
+		return (int) ((double) getScreenHeight() / regionHeight);
 	}
 
 	// Turn pixels into cells
 	public int pxToC(int x) {
-		return (int) ((double) x / getWidth() * width);
+		return (int) ((double) x / getScreenWidth() * regionWidth);
 	}
 
 	public int pyToC(int y) {
-		return (int) ((1.0 - (double) y / getHeight()) * height);
+		return (int) ((1.0 - (double) y / getScreenHeight()) * regionHeight);
 	}
 
 	// public int cYtoPY( int y ) { return 0; }
