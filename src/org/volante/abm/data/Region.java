@@ -297,6 +297,8 @@ public class Region implements Regions, PreTickAction {
 		if (hasCompetitivenessAdjustingInstitution()) {
 			UnmodifiableNumberMap<Service> provision = agent.getPotentialSupply(c);
 			double comp = competition.getCompetitiveness(demand, provision, c);
+			// same as getUnadjustedCompetitiveness() but this way omits
+			// calculating provision twice:
 			return institutions.adjustCompetitiveness(agent, c, provision, comp);
 		} else {
 			return getUnadjustedCompetitiveness(agent, c);

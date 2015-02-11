@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.Capital;
@@ -92,6 +93,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 	 */
 	@Attribute(required = false)
 	public String			numTakeovers		= "NaN";
+
+	@Element(required = false)
+	public AllocationTryToComeInMode tryToComeInMode = AllocationTryToComeInMode.RANDOM_CELL_ORDER;
 
 	/**
 	 * Alternative to {@link GiveUpGiveInAllocationModel#numTakeovers}: specify
@@ -180,14 +184,14 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				return pow(r.getCompetitiveness(a, perfectCell), probabilityExponent);
 			}
 		};
+		Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(),
+				compScore);
 
 		logger.info("Number of derived take overs: " + numTakeoversDerived
 					+ " (specified percentage: " + this.percentageTakeOvers + ")");
 
 		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
-			Map<PotentialAgent, Double> scores = scoreMap(r.getPotentialAgents(), compScore);
-
 			tryToComeIn(
 					sample(scores, true, r.getRandom().getURService(),
 							RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()), r);
@@ -232,12 +236,22 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				});
 
 		List<Cell> sorted = new ArrayList<Cell>(competitiveness.keySet());
-		Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));
-		// For checking cells in reverse score order:
-		// Collections.reverse( sorted);
-		// For checking cells randomly:
-		Utilities.shuffle(sorted, r.getRandom().getURService(),
-				RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
+		
+		switch(tryToComeInMode) {
+		case SORTED_CELLS:
+				Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));
+				break;
+			
+		case REVERSE_SORTED_CELLS:
+				Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));
+				Collections.reverse( sorted);
+				break;
+			
+		case RANDOM_CELL_ORDER:
+				Utilities.shuffle(sorted, r.getRandom().getURService(),
+						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
+				break;
+		}
 
 		logger.debug("Allocate " + sorted.size() + " cells (region " + r.getID() + " has "
 				+ r.getNumCells() + " cells).");
