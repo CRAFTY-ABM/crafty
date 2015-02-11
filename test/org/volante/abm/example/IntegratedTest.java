@@ -36,8 +36,11 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
 import org.volante.abm.models.ProductionModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.schedule.DefaultSchedule;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.schedule.WorldSyncSchedule;
+import org.volante.abm.testutils.NullWorldSynchronisationModel;
 
 /**
  * A simple test of the integrated system. A couple of potential agents,
@@ -99,6 +102,10 @@ public class IntegratedTest extends BasicTestsUtils
 			c.setBaseCapitals( capitals( 1, 1, 1, 1, 1, 1, 1 ) );
 		}
 		DefaultSchedule sched = new DefaultSchedule( w );
+
+		WorldSynchronisationModel worldSyncModel = new NullWorldSynchronisationModel();
+		((WorldSyncSchedule) sched).setWorldSyncModel(worldSyncModel);
+
 		sched.initialise( modelData, runInfo, null );
 		sched.tick();
 		assertUnmanaged( c1, c2, c3, c4  );

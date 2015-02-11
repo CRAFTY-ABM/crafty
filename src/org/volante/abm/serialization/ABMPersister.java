@@ -1,24 +1,24 @@
 /**
  * This file is part of
- *
+ * 
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- *
+ * 
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
+ * terms of the GNU General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ *  
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
+ * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- *
+ * 
  */
 package org.volante.abm.serialization;
 
@@ -48,10 +48,10 @@ import com.moseph.modelutils.serialisation.EasyPersister;
  * Note: The Raster class is not well implemented. Calling {@link Raster#getNDATA()} without a
  * previous call to {@link Raster#setNDATA(String)} may cause a segmentation fault since the object
  * it returns has not been initialised.
- *
+ * 
  * @author Dave Murray-Rust
  * @author Sascha Holzhauer
- *
+ * 
  */
 public class ABMPersister extends EasyPersister {
 	
@@ -76,7 +76,7 @@ public class ABMPersister extends EasyPersister {
 		}
 		return instance;
 	}
-
+	
 	public void regionsToRaster(String filename, Regions r, CellToDouble converter,
 			boolean writeInts, String nDataString) throws Exception {
 		this.regionsToRaster(filename, r, converter, writeInts, null, nDataString);
@@ -122,7 +122,6 @@ public class ABMPersister extends EasyPersister {
 		// TODO check if LinkedHashMap required
 		Map<String, LinearInterpolator> map = new LinkedHashMap<String, LinearInterpolator>();
 		CsvReader reader = getCSVReader(csvFile);
-
 
 		String xColHeader = xCol;
 		Collection<String> columHeader = columns;

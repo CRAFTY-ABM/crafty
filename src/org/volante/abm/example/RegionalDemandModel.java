@@ -1,24 +1,24 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  */
 package org.volante.abm.example;
 
@@ -48,11 +48,11 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
 /**
  * Model demand entirely at a regional level. Demand is averaged across all cells in the region.
- * 
+ *
  * When a cell changes, calculate new demand based on the difference from new to old
- * 
+ *
  * @author dmrust
- * 
+ *
  */
 public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction {
 	Region							region;
@@ -150,7 +150,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void updateSupply() {
@@ -220,12 +220,19 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	}
 
 	void loadDemandCurves() throws IOException {
+		if (log.isDebugEnabled()) {
+			log.debug(this.region + "> Load demand from " + demandCSV + "...");
+		}
+
 		Map<String, LinearInterpolator> curves = runInfo.getPersister().csvVerticalToCurves(
 				demandCSV, yearCol, modelData.services.names());
 		for (Service s : modelData.services) {
 			if (curves.containsKey(s.getName())) {
 				demandCurves.put(s, curves.get(s.getName()));
 			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug(this.region + "> Demand curves: " + demandCurves);
 		}
 	}
 
