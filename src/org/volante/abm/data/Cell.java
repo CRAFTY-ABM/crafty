@@ -4,7 +4,7 @@
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later
@@ -160,7 +160,7 @@ public class Cell implements Initialisable {
 	/**
 	 * Allows for updating of the cell's supply without creating intermediate
 	 * maps
-	 * 
+	 *
 	 * @return map of modifiable supply
 	 */
 	public DoubleMap<Service> getModifiableSupply() {
