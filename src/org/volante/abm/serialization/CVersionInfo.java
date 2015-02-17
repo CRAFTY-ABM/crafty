@@ -24,18 +24,18 @@ package org.volante.abm.serialization;
 
 
 /**
- * CRAFTY Trunk Version Information
+ * CRAFTY Parallel Version Information
  */
 public class CVersionInfo {
 
 	/**
  	 * current revision number
      */
-	public static final String REVISION_NUMBER="43";
+	public static final String REVISION_NUMBER="75";
 
 	/**
      * time stamp of last commit action
      */
-	public static final String TIMESTAMP="2015-02-17 00:10:49";
+	public static final String TIMESTAMP="2015-02-17 00:37:00";
 }
 	
