@@ -257,29 +257,25 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				+ r.getNumCells() + " cells).");
 
 		for (Cell c : sorted) {
-			// if (competitiveness.get(c) < a.getGivingUp()) return;
-			if (competitiveness.get(c) > a.getGivingUp()) {
-				boolean canTake = c.getOwner().canTakeOver(c, competitiveness.get(c));
-				if (canTake) {
-					Agent agent = a.createAgent(r);
+			if (competitiveness.get(c) > a.getGivingUp()
+					&& c.getOwner().canTakeOver(c, competitiveness.get(c))) {
+				Agent agent = a.createAgent(r);
 
-					for (TakeoverObserver observer : takeoverObserver) {
-						observer.setTakeover(r, c.getOwner(), agent);
-					}
-					for (CellVolatilityObserver o : cellVolatilityObserver) {
-						o.increaseVolatility(c);
-					}
-
-					// <- LOGGING
-					if (logger.isDebugEnabled()) {
-						logger.debug("Ownership from :" + c.getOwner() + " --> " + agent);
-					}
-					// LOGGING ->
-
-					r.setOwnership(agent, c);
-
-					break;
+				for (TakeoverObserver observer : takeoverObserver) {
+					observer.setTakeover(r, c.getOwner(), agent);
 				}
+				for (CellVolatilityObserver o : cellVolatilityObserver) {
+					o.increaseVolatility(c);
+				}
+
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Ownership from :" + c.getOwner() + " --> " + agent);
+				}
+				// LOGGING ->
+
+				r.setOwnership(agent, c);
+				break;
 			}
 		}
 	}

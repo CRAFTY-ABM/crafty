@@ -126,8 +126,9 @@ public class CsvBatchRunParser {
 
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
+				logger.debug("\tID (run): " + run);
 				logger.debug("\t1st Colum: " + idCol);
-				logger.debug("\tID: " + fileMap.get(idCol).get(run));
+				logger.debug("\tID (2nd): " + fileMap.get(idCol).get(run));
 				logger.debug("\t2nd Colum: " + colName);
 			}
 			// LOGGING ->
@@ -147,11 +148,28 @@ public class CsvBatchRunParser {
 			ModelRunner.clog(colName, returnValue + " (" + textParsed[0].trim() + ")");
 			return returnValue;
 		} else {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("\tID (run): " + run);
+				logger.debug("\t2nd Colum: " + colName);
+			}
+			// LOGGING ->
+
 			checkCsvData(filename, colName, fileMap, run);
 
 			ModelRunner.clog(colName, preText + fileMap.get(colName).get(run) + postText + " ("
 					+ textParsed[0].trim() + ")");
-			return preText + fileMap.get(colName).get(run) + postText;
+
+			String returnValue = preText + fileMap.get(colName).get(run)
+					+ postText;
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("\tReturn value: " + returnValue);
+			}
+			// LOGGING ->
+
+			return returnValue;
 		}
 	}
 
