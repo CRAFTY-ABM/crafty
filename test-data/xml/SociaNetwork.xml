@@ -1,0 +1,17 @@
+<socialNetworks>
+	<socialNetwork name="SocialNetwork">
+		<networkGeneratorClass>de.cesr.more.building.network.MWattsBetaSwNetworkService</networkGeneratorClass>
+		
+		<Integer param="de.cesr.more.param.MRandomPa:RANDOM_SEED_NETWORK_BUILDING">42</Integer>
+		<Double param="de.cesr.more.param.MNetBuildWbSwPa:BETA">0.05</Double>
+		<String  param="de.cesr.more.param.MNetworkBuildingPa:MILIEU_NETWORK_CSV_COLUMNPREFIX">de.cesr.more.param.</String>
+		<Character  param="de.cesr.more.param.MNetworkBuildingPa:MILIEU_NETWORK_CSV_DELIMITER">,</Character>
+		<Boolean  param="de.cesr.more.param.MNetworkBuildingPa:BUILD_DIRECTED">TRUE</Boolean>
+		
+		<DYN_EDGE_WEIGHT_UPDATER>de.cesr.more.manipulate.agent.MPseudoEgoNetworkProcessor</DYN_EDGE_WEIGHT_UPDATER>		
+		<DYN_EDGE_MANAGER>de.cesr.more.manipulate.agent.MPseudoEgoNetworkProcessor</DYN_EDGE_MANAGER>
+		
+		<abtParams>csv/SocialNetworkABTParameter_WattsBeta.csv</abtParams>
+		<abtLinkParams>csv/SocialNetworkABTLinksParameter.csv</abtLinkParams>
+	</socialNetwork>
+</socialNetworks>
