@@ -179,13 +179,14 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	}
 
 	/**
-	 * Creates a copy of this model, but with noise added to either the production weights or the
-	 * importance weights. Either or both distributions can be null for zero noise
+	 * Creates a copy of this model, but with noise added to either the
+	 * production weights or the importance weights. Either or both
+	 * distributions can be null for zero noise
 	 * 
 	 * @param data
 	 * @param production
 	 * @param importance
-	 * @return production model
+	 * @return new production model
 	 */
 	public SimpleProductionModel copyWithNoise(ModelData data, Distribution production,
 			Distribution importance)

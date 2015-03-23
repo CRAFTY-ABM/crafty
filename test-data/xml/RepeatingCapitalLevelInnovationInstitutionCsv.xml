@@ -1,0 +1,17 @@
+<institution class="org.volante.abm.institutions.RepeatingInnovativeInstitution">	
+	<innovation class="org.volante.abm.institutions.innovation.RepeatingCapitalLevelInnovation"
+			 id="RepeatingCapitalLevelTestInnovationCSV">
+		
+		<repComp class="org.volante.abm.institutions.innovation.repeat.CsvCapitalLevelInnovationRepComp">
+			<effectAdjustmentsCsvFile>csv/CsvCapitalLevelInnovationRepCompTestfile.csv</effectAdjustmentsCsvFile>
+			<renewalInterval>1</renewalInterval>
+		</repComp>
+		
+		<affectiveAFTs>NC_Cereal, C_Cereal</affectiveAFTs>
+		<affectedAFTs>NC_Cereal, C_Cereal</affectedAFTs>
+		<affectedCapital>NATURAL_CROPS</affectedCapital>
+	</innovation>
+	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">
+		<probability>1.0</probability>
+	</targetRecruitmentComp>
+</institution>

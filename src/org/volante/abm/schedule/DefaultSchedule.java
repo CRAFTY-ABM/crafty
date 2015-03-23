@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.DefaultSocialInnovationAgent;
+import org.volante.abm.agent.InnovationAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -100,9 +102,17 @@ public class DefaultSchedule implements Schedule {
 			}
 		}
 
+		// perceive social network if existent:
+		for (Region r : regions.getAllRegions()) {
+			r.perceiveSocialNetwork();
+		}
+
 		// Recalculate agent competitiveness and give up
 		log.info("Update agents' competitiveness and consider giving up ...");
 		for (Agent a : regions.getAllAgents()) {
+			if (a instanceof InnovationAgent) {
+				((InnovationAgent) a).considerInnovationsNextStep();
+			}
 
 			a.tickStartUpdate();
 			a.updateCompetitiveness();
@@ -137,6 +147,12 @@ public class DefaultSchedule implements Schedule {
 
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.POST_TICK, true));
 		postTickUpdates();
+
+		log.info("Number of Adoptions in total: "
+				+ DefaultSocialInnovationAgent.numberAdoptions);
+
+		log.info("Number of Agents in total: "
+				+ DefaultSocialInnovationAgent.numberAgents);
 
 		output();
 		log.info("\n********************\nEnd of tick " + tick + "\n********************");
