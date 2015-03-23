@@ -52,7 +52,8 @@ public class CellRasterReader implements CellInitialiser {
 	public void initialise(RegionLoader rl) throws Exception {
 		ModelData data = rl.modelData;
 		log.info("Loading raster for " + capitalName + " from " + rasterFile);
-		Raster raster = rl.persister.readRaster(rasterFile);
+		Raster raster = rl.persister.readRaster(rasterFile, rl.getRegion()
+				.getPeristerContextExtra());
 		Capital capital = data.capitals.forName(capitalName);
 		int cells = 0;
 		for (int x = 0; x < raster.getCols(); x++) {

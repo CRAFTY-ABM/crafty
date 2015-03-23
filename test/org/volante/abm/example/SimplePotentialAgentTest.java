@@ -49,7 +49,7 @@ public class SimplePotentialAgentTest extends BasicTestsUtils {
 	@Test
 	public void testDeserealisation() throws Exception {
 		SimplePotentialAgent p = runInfo.getPersister().readXML(SimplePotentialAgent.class,
-				"xml/LowIntensityArableAgent.xml");
+				"xml/LowIntensityArableAgent.xml", null);
 		p.initialise(modelData, runInfo, null);
 		testLowIntensityArableAgent(p);
 	}

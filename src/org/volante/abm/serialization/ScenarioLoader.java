@@ -185,7 +185,7 @@ public class ScenarioLoader {
 		schedule.setEndTick(endTick);
 		
 		if (capitals != null) {
-			log.info("Loading captials");
+			log.info("Loading capitals");
 			modelData.capitals = capitals.getDataTypes(persister);
 		}
 		log.info("Capitals: " + modelData.capitals);
@@ -207,7 +207,8 @@ public class ScenarioLoader {
 		this.info.setCsvParamBasedirCorrection(this.csvParamBasedirCorrection);
 
 		if (worldLoader == null && worldLoaderFile != null) {
-			worldLoader = persister.readXML(WorldLoader.class, worldLoaderFile);
+			// TODO override persister method
+			worldLoader = persister.readXML(WorldLoader.class, worldLoaderFile, null);
 		}
 		if (worldLoader != null) {
 			worldLoader.setModelData(modelData);
@@ -216,7 +217,8 @@ public class ScenarioLoader {
 		}
 
 		if (outputFile != null) {
-			outputs = persister.readXML(Outputs.class, outputFile);
+			// TODO override persister method
+			outputs = persister.readXML(Outputs.class, outputFile, null);
 		}
 		info.setOutputs(outputs);
 
@@ -224,7 +226,8 @@ public class ScenarioLoader {
 
 		log.info("About to load regions");
 		for (String s : regionFileList) {
-			regionList.add(persister.readXML(RegionLoader.class, s));
+			// TODO override persister method
+			regionList.add(persister.readXML(RegionLoader.class, s, null));
 		}
 		for (RegionLoader r : regionList) {
 			r.initialise(info);

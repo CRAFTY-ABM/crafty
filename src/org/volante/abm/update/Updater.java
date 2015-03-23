@@ -22,9 +22,9 @@
 package org.volante.abm.update;
 
 
-import org.volante.abm.schedule.PreTickAction;
+import org.volante.abm.schedule.PrePreTickAction;
 import org.volante.abm.serialization.Initialisable;
 
 
-public interface Updater extends PreTickAction, Initialisable {
+public interface Updater extends PrePreTickAction, Initialisable {
 }

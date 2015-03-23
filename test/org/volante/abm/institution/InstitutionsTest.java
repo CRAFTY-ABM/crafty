@@ -151,7 +151,9 @@ public class InstitutionsTest extends BasicTestsUtils
 		assertEquals( forestComp, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
 		
 		Institutions inst = new Institutions();
-		DefaultInstitution a = persister.readXML( DefaultInstitution.class, "xml/TestInstitution.xml" );
+		DefaultInstitution a = persister.readXML(DefaultInstitution.class,
+				"xml/TestInstitution.xml",
+				r.getPeristerContextExtra());
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
 		assertTrue( r.hasInstitutions() );

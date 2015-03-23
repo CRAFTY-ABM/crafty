@@ -92,7 +92,8 @@ public class Outputs implements GloballyInitialisable {
 		}
 
 		if (outputsFile != null && outputsFile.length() > 0) {
-			Outputs op = runInfo.getPersister().readXML(Outputs.class, outputsFile);
+			// TODO override persister method
+			Outputs op = runInfo.getPersister().readXML(Outputs.class, outputsFile, null);
 			outputs.addAll(op.outputs);
 		}
 		for (Outputter o : outputs) {
@@ -157,10 +158,9 @@ public class Outputs implements GloballyInitialisable {
 	 * @param extension
 	 * @param pattern
 	 * @param r
-	 * @return
+	 * @return output filename
 	 */
 	public String getOutputFilename(String output, String extension, String pattern, Regions r) {
-		runInfo.getPersister().setRegion(r);
 		Map<String, String> extra = new HashMap<String, String>();
 		if (r != null) {
 			extra.put("r", r.getID());

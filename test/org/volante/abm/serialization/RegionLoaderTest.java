@@ -39,7 +39,8 @@ public class RegionLoaderTest extends BasicTestsUtils
 	@Test
 	public void testReadingCSV() throws Exception
 	{
-		RegionLoader loader = ABMPersister.getInstance().readXML( RegionLoader.class, "xml/SmallWorldRegion1.xml" );
+		RegionLoader loader = ABMPersister.getInstance().readXML(RegionLoader.class,
+				"xml/SmallWorldRegion1.xml", null);
 		loader.initialise( new RunInfo() );
 		Region region = loader.region;
 		

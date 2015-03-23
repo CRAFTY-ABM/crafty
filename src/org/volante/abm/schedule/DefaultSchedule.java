@@ -48,6 +48,7 @@ public class DefaultSchedule implements Schedule {
 	int								startTick		= 0;
 	int								endTick			= Integer.MAX_VALUE;
 
+	List<PrePreTickAction>			prePreTickActions	= new ArrayList<PrePreTickAction>();
 	List<PreTickAction>				preTickActions	= new ArrayList<PreTickAction>();
 	List<PostTickAction>			postTickActions	= new ArrayList<PostTickAction>();
 
@@ -79,6 +80,8 @@ public class DefaultSchedule implements Schedule {
 		log.info(this + ">\n********************\nStart of tick " + tick + "\n********************");
 		fireScheduleStatus(new ScheduleStatusEvent(tick, ScheduleStage.PRE_TICK, true));
 		info.getPersister().setContext("y", tick + "");
+
+		prePreTickUpdates();
 
 		// Reset the effective capital levels
 		for (Cell c : regions.getAllCells()) {
@@ -226,6 +229,24 @@ public class DefaultSchedule implements Schedule {
 	 * Pre and post tick events and registering
 	 */
 
+	private void prePreTickUpdates() {
+		log.info("Pre PreTick\t\t (DefaultSchedule ID " + id + ")");
+
+		// copy to prevent concurrent modifications:
+		List<PrePreTickAction> prePreTickActionsCopy = new ArrayList<PrePreTickAction>(
+				prePreTickActions);
+
+		for (PrePreTickAction p : prePreTickActionsCopy) {
+			// <- LOGGING
+			if (log.isDebugEnabled()) {
+				log.debug("Do PrePreTick action " + p);
+			}
+			// LOGGING ->
+
+			p.prePreTick();
+		}
+	}
+
 	private void preTickUpdates() {
 		log.info("Pre Tick\t\t (DefaultSchedule ID " + id + ")");
 
@@ -258,6 +279,9 @@ public class DefaultSchedule implements Schedule {
 
 	@Override
 	public void register(TickAction o) {
+		if (o instanceof PrePreTickAction && !prePreTickActions.contains(o)) {
+			prePreTickActions.add((PrePreTickAction) o);
+		}
 		if (o instanceof PreTickAction && !preTickActions.contains(o)) {
 			preTickActions.add((PreTickAction) o);
 		}

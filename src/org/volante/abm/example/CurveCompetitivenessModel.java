@@ -203,10 +203,12 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 
 	public void loadLinearCSV(String csvFile) throws IOException {
 		ABMPersister persister = info.getPersister();
-		if (!persister.csvFileOK(getClass(), csvFile, serviceColumn, interceptColumn, slopeColumn)) {
+		if (!persister.csvFileOK(getClass(), csvFile, region.getPeristerContextExtra(),
+				serviceColumn, interceptColumn, slopeColumn)) {
 			return;
 		}
-		CsvReader reader = info.getPersister().getCSVReader(csvFile);
+		CsvReader reader = info.getPersister().getCSVReader(csvFile,
+				region.getPeristerContextExtra());
 		while (reader.readRecord()) {
 			Service service = data.services.forName(reader.get(serviceColumn));
 			double intercept = Double.parseDouble(reader.get(interceptColumn));

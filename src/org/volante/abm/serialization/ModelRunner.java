@@ -182,7 +182,9 @@ public class ModelRunner
 
 	public static ScenarioLoader setupRun(String filename, RunInfo rInfo) throws Exception
 	{
-		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename);
+		// TODO override persister method
+		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename,
+				null);
 		loader.setRunID(rInfo.getCurrentRun() + "-" + rInfo.getCurrentRandomSeed());
 		loader.initialise(rInfo);
 		loader.schedule.setRegions(loader.regions);

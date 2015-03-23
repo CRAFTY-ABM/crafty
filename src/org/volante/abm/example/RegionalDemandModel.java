@@ -221,7 +221,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 
 	void loadDemandCurves() throws IOException {
 		Map<String, LinearInterpolator> curves = runInfo.getPersister().csvVerticalToCurves(
-				demandCSV, yearCol, modelData.services.names());
+				demandCSV, yearCol, modelData.services.names(), region.getPeristerContextExtra());
 		for (Service s : modelData.services) {
 			if (curves.containsKey(s.getName())) {
 				demandCurves.put(s, curves.get(s.getName()));

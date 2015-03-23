@@ -55,7 +55,8 @@ public class BatchModeParseFilterTest extends BasicTestsUtils {
 	@Test
 	public void test() throws Exception {
 		ABMPersister persister = ABMPersister.getInstance();
-		SimplePotentialAgent agent = persister.readXML(SimplePotentialAgent.class, XML_FILE);
+		SimplePotentialAgent agent = persister.readXML(SimplePotentialAgent.class, XML_FILE,
+				region.getPeristerContextExtra());
 		agent.initialise(modelData, rInfo, region);
 		assertEquals(0.3, agent.getGivingIn(), 0.01);
 		assertEquals(0.5, agent.getGivingUp(), 0.01);

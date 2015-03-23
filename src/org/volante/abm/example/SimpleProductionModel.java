@@ -86,7 +86,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	public void initialise( ModelData data, RunInfo info, Region r ) throws Exception
 	{
 		if( csvFile != null ) {
-			initWeightsFromCSV( data, info );
+			initWeightsFromCSV(data, info, r);
 		} else
 		{
 			capitalWeights = new DoubleMatrix<Capital, Service>( data.capitals, data.services );
@@ -94,10 +94,12 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 		}
 	}
 	
-	void initWeightsFromCSV( ModelData data, RunInfo info ) throws Exception
+	void initWeightsFromCSV(ModelData data, RunInfo info, Region region) throws Exception
 	{
-		capitalWeights = info.getPersister().csvToMatrix( csvFile, data.capitals, data.services );
-		productionWeights = info.getPersister().csvToDoubleMap( csvFile, data.services, "Production");
+		capitalWeights = info.getPersister().csvToMatrix(csvFile, data.capitals, data.services,
+				region != null ? region.getPeristerContextExtra() : null);
+		productionWeights = info.getPersister().csvToDoubleMap(csvFile, data.services,
+				"Production", region != null ? region.getPeristerContextExtra() : null);
 	}
 	
 	/**
@@ -177,14 +179,13 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	}
 
 	/**
-	 * Creates a copy of this model, but with noise added to either the
-	 * production weights or the importance weights. Either or both
-	 * distributions can be null for zero noise
+	 * Creates a copy of this model, but with noise added to either the production weights or the
+	 * importance weights. Either or both distributions can be null for zero noise
 	 * 
 	 * @param data
 	 * @param production
 	 * @param importance
-	 * @return
+	 * @return production model
 	 */
 	public SimpleProductionModel copyWithNoise(ModelData data, Distribution production,
 			Distribution importance)

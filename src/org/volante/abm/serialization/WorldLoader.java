@@ -85,7 +85,8 @@ public class WorldLoader {
 	{
 		this.info = info;
 		for( String l : regionFiles ) {
-			loaders.add( persister.readXML( RegionLoader.class, l ) );
+			// TODO override persister method
+			loaders.add(persister.readXML(RegionLoader.class, l, null));
 		}
 		for( String c : regionCSV ) {
 			loaders.addAll(allLoaders(BatchRunParser.parseString(c, info)));
@@ -112,7 +113,8 @@ public class WorldLoader {
 	Set<RegionLoader> allLoaders( String csvFile ) throws IOException
 	{
 		Set<RegionLoader> loaders = new HashSet<RegionLoader>();
-		CsvReader reader = persister.getCSVReader( csvFile );
+		// TODO override persister method
+		CsvReader reader = persister.getCSVReader(csvFile, null);
 
 		while( reader.readRecord() ) {
 			if (reader.getColumnCount() <= 1) {

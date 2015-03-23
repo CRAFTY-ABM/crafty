@@ -196,8 +196,6 @@ public class RegionLoader {
 
 		region = new Region();
 		region.setID(id);
-		persister.setRegion(region);
-
 
 		readPmParameters();
 		loadAgentTypes();
@@ -216,7 +214,8 @@ public class RegionLoader {
 		if (this.pmParameterFile != null) {
 			PmParameterManager pm = PmParameterManager.getInstance(this.region);
 			pm.setParam(PmFrameworkPa.XML_PARAMETER_FILE,
-					ABMPersister.getInstance().getFullPath(pmParameterFile));
+					ABMPersister.getInstance().getFullPath(pmParameterFile,
+							this.region.getPeristerContextExtra()));
 			new PmXmlParameterReader(pm, PmFrameworkPa.XML_PARAMETER_FILE).initParameters();
 		}
 	}
@@ -228,7 +227,8 @@ public class RegionLoader {
 			// LOGGING ->
 
 			potentialAgents.agents.addAll(persister.readXML(
-					PotentialAgentList.class, potentialAgentFile).agents);
+					PotentialAgentList.class, potentialAgentFile,
+					this.region.getPeristerContextExtra()).agents);
 		}
 		for (PotentialAgent p : potentialAgents.agents) {
 			agentsByID.put(p.getID(), p);
@@ -281,15 +281,16 @@ public class RegionLoader {
 	public void loadModels() throws Exception {
 		if (allocation == null) {
 			allocation = persister.readXML(AllocationModel.class,
-					allocationFile);
+					allocationFile, this.region.getPeristerContextExtra());
 		}
 		if (demand == null) {
-			demand = persister.readXML(DemandModel.class, demandFile);
+			demand = persister.readXML(DemandModel.class, demandFile,
+					this.region.getPeristerContextExtra());
 		}
 
 		if (competition == null) {
 			competition = persister.readXML(CompetitivenessModel.class,
-					competitionFile);
+					competitionFile, this.region.getPeristerContextExtra());
 		}
 		if (allocation instanceof TickAction) {
 			runInfo.getSchedule().register((TickAction) allocation);
@@ -305,7 +306,8 @@ public class RegionLoader {
 
 	private void loadUpdaters() throws Exception {
 		for (String updaterFile : updaterFiles) {
-			updaters.add(persister.readXML(Updater.class, updaterFile));
+			updaters.add(persister.readXML(Updater.class, updaterFile,
+					this.region.getPeristerContextExtra()));
 		}
 		for (Updater u : updaters) {
 			u.initialise(modelData, runInfo, region);
@@ -319,12 +321,13 @@ public class RegionLoader {
 			// TODO document (SH)
 			if (NodeBuilder.read(
 					new FileInputStream(new File(persister
-							.getFullPath(institutionFile)))).getName() == INSTITUTION_LIST_ELEMENT_NAME) {
+							.getFullPath(institutionFile, this.region.getPeristerContextExtra()))))
+					.getName() == INSTITUTION_LIST_ELEMENT_NAME) {
 				institutions.addAll(persister.readXML(InstitutionsList.class,
-						institutionFile).institutions);
+						institutionFile, this.region.getPeristerContextExtra()).institutions);
 			} else {
 				institutions.add(persister.readXML(Institution.class,
-						institutionFile));
+						institutionFile, this.region.getPeristerContextExtra()));
 			}
 		}
 		if (institutions.size() > 0) {
@@ -340,7 +343,8 @@ public class RegionLoader {
 
 	public void initialiseCells() throws Exception {
 		for (String s : cellInitialiserFiles) {
-			cellInitialisers.add(persister.readXML(CellInitialiser.class, s));
+			cellInitialisers.add(persister.readXML(CellInitialiser.class, s,
+					this.region.getPeristerContextExtra()));
 		}
 		for (CellInitialiser ci : cellInitialisers) {
 			ci.initialise(this);
@@ -352,7 +356,8 @@ public class RegionLoader {
 
 	public void initialiseAgents() throws Exception {
 		for (String s : agentInitialiserFiles) {
-			agentInitialisers.add(persister.readXML(AgentInitialiser.class, s));
+			agentInitialisers.add(persister.readXML(AgentInitialiser.class, s,
+					this.region.getPeristerContextExtra()));
 		}
 		for (AgentInitialiser ci : agentInitialisers) {
 			ci.initialise(this);
