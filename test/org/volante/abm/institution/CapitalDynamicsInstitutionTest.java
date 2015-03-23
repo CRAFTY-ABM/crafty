@@ -54,9 +54,6 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 	Region						r				= null;
 
 	/**
-	 * @param cap
-	 * @param comp
-	 * @return
 	 * @throws Exception
 	 */
 	protected CapitalDynamicsInstitution getTestInstitution() throws Exception
@@ -85,7 +82,6 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 	@Before
 	public void setUp() throws Exception {
 		logger.info("Test basic integration of institutions");
-
 
 		c11 = new Cell(1, 1);
 		c12 = new Cell(1, 2);
@@ -134,6 +130,21 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 		assertEqualMaps(capitals(0, 0, 0, 0, 0, 0, 0), c12.getEffectiveCapitals());
 		assertEqualMaps(capitals(2.4, 2, 2, 2, 2, 1.6, 2), c21.getEffectiveCapitals());
 		assertEqualMaps(capitals(9.6, 8, 8, 0, 8, 6.4, 8), c22.getEffectiveCapitals());
+
+		runInfo.getSchedule().tick();
+		assertEqualMaps(capitals(1, 1, 1, 1, 1, 1, 1), c11.getBaseCapitals());
+		assertEqualMaps(capitals(0, 0, 0, 0, 0, 0, 0), c12.getBaseCapitals());
+		assertEqualMaps(capitals(2, 2, 2, 2, 2, 2, 2), c21.getBaseCapitals());
+		assertEqualMaps(capitals(8, 8, 8, 0, 8, 8, 8), c22.getBaseCapitals());
+
+		assertEqualMaps(capitals(1.4, 1, 1, 1, 1, 0.8, 1),
+				c11.getEffectiveCapitals());
+		assertEqualMaps(capitals(0, 0, 0, 0, 0, 0, 0),
+				c12.getEffectiveCapitals());
+		assertEqualMaps(capitals(2.8, 2, 2, 2, 2, 1.6, 2),
+				c21.getEffectiveCapitals());
+		assertEqualMaps(capitals(11.2, 8, 8, 0, 8, 6.4, 8),
+				c22.getEffectiveCapitals());
 	}
 
 	@Test
@@ -166,5 +177,4 @@ public class CapitalDynamicsInstitutionTest extends BasicTestsUtils {
 		});
 		runInfo.getSchedule().tick();
 	}
-
 }

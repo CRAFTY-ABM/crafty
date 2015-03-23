@@ -82,7 +82,6 @@ public class InstitutionsTest extends BasicTestsUtils
 		Institutions inst = new Institutions();
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
-		assertTrue( r.hasInstitutions() );
 		assertEquals( farmComp + 1, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted
 		assertEquals( forestComp + 1, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
 		
@@ -112,7 +111,6 @@ public class InstitutionsTest extends BasicTestsUtils
 		DefaultInstitution a = getTestInstitution(0, 0, r);
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
-		assertTrue( r.hasInstitutions() );
 		
 		assertEquals( farmComp, r.getCompetitiveness( farming, c11 ), 0.001 ); //Check that the competition is adjusted
 		assertEquals( forestComp, r.getCompetitiveness( forestry, c11 ), 0.001 ); 
@@ -156,7 +154,6 @@ public class InstitutionsTest extends BasicTestsUtils
 				r.getPeristerContextExtra());
 		inst.addInstitution( a );
 		setupInstitutions( inst, r );
-		assertTrue( r.hasInstitutions() );
 		
 		
 		//Subsidy levels set in the XML file
@@ -196,7 +193,8 @@ public class InstitutionsTest extends BasicTestsUtils
 		r.setInstitutions( i );
 	}
 	
-	DefaultInstitution getTestInstitution(double cap, double comp, Region r) throws Exception
+	DefaultInstitution getTestInstitution(double cap, double comp, Region r)
+			throws Exception
 	{
 		DefaultInstitution i = new DefaultInstitution();
 		i.initialise(modelData, runInfo, r);
