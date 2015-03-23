@@ -1,19 +1,19 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -33,16 +33,16 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
+import org.volante.abm.example.RegionalDemandModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.output.Outputs;
 import org.volante.abm.schedule.ScheduleStatusEvent.ScheduleStage;
 
 
-public class DefaultSchedule implements Schedule {
-
+public class DefaultSchedule implements WorldSyncSchedule {
 	static int						idCounter		= 0;
 
 	protected int					id				= idCounter++;
-
 	Logger							log				= Logger.getLogger(this.getClass());
 	RegionSet						regions			= null;
 	int								tick			= 0;
@@ -56,8 +56,11 @@ public class DefaultSchedule implements Schedule {
 
 	Outputs							output			= new Outputs();
 	private RunInfo					info			= null;
+	protected ModelData				mData			= null;
 
 	List<ScheduleStatusListener>	listeners		= new ArrayList<ScheduleStatusListener>();
+
+	WorldSynchronisationModel		worldSyncModel;
 
 	/*
 	 * Constructors
@@ -73,8 +76,14 @@ public class DefaultSchedule implements Schedule {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.info = info;
+		this.mData = data;
 		output = info.getOutputs();
 		info.setSchedule(this);
+	}
+
+	@Override
+	public void setWorldSyncModel(WorldSynchronisationModel worldSyncModel) {
+		this.worldSyncModel = worldSyncModel;
 	}
 
 	@Override
@@ -138,6 +147,19 @@ public class DefaultSchedule implements Schedule {
 		// Allow the demand model to update for global supply supply for each region
 		for (Region r : regions.getAllRegions()) {
 			r.getDemandModel().updateSupply();
+		}
+
+		// in order to recalculate residuals (which is done during updateSupply()) and to calculate
+		// competitiveness, the market-level residuals must be known:
+		this.worldSyncModel.synchronizeNumOfCells(regions);
+		this.worldSyncModel.synchronizeDemand(regions);
+		this.worldSyncModel.synchronizeSupply(regions);
+
+		for (Region r : regions.getAllRegions()) {
+			if (r.getDemandModel() instanceof RegionalDemandModel) {
+				((RegionalDemandModel) r.getDemandModel())
+						.recalculateResidual();
+			}
 		}
 
 		for (Agent a : regions.getAllAgents()) {

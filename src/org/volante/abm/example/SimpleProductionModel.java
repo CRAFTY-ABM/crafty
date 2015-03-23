@@ -4,7 +4,7 @@
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later
@@ -94,7 +94,8 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 		}
 	}
 	
-	void initWeightsFromCSV(ModelData data, RunInfo info, Region region) throws Exception
+	void initWeightsFromCSV(ModelData data, RunInfo info, Region region)
+			throws Exception
 	{
 		capitalWeights = info.getPersister().csvToMatrix(csvFile, data.capitals, data.services,
 				region != null ? region.getPeristerContextExtra() : null);
@@ -129,7 +130,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	public void production( Cell cell, DoubleMap<Service> production )
 	{
 		UnmodifiableNumberMap<Capital> capitals = cell.getEffectiveCapitals();
-		production( capitals, production );
+		production( capitals, production, cell);
 	}
 
 	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production) {
@@ -137,7 +138,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	}
 	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production, Cell cell)
 	{
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled() && cell != null) {
 			StringBuffer buffer = new StringBuffer();
 			if (cell != null) {
 				buffer.append("Cell " + cell.getX() + "|" + cell.getY() + " ");

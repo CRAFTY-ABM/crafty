@@ -1,5 +1,6 @@
 <region id="Region">
   <!-- Initialise cells from a CSV file -->
+  	<pid>1</pid>
 	<cellInitialiser class="org.volante.abm.serialization.CellCSVReader" csvFile="csv/SmallWorldRegion1.csv" />
 	
 	<!--  all the models use default settings, an are inline -->
