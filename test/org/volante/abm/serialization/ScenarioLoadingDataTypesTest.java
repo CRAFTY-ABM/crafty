@@ -37,7 +37,7 @@ public class ScenarioLoadingDataTypesTest extends BasicTestsUtils {
 	@Test
 	public void test() throws Exception {
 		ScenarioLoader loader = persister.readXML(ScenarioLoader.class,
-				"xml/datatype-test-scenario.xml");
+				"xml/datatype-test-scenario.xml", null);
 		loader.initialise(new RunInfo());
 		NamedIndexSet<Capital> caps = loader.modelData.capitals;
 		checkDataType(caps, "ECON", 3);

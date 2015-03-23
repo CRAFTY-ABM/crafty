@@ -44,6 +44,7 @@ import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.serialization.ABMPersister;
 
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
@@ -74,6 +75,7 @@ public class Region implements Regions, PreTickAction {
 	RunInfo					rinfo			= null;
 	Institutions			institutions	= null;
 	String					id				= "UnknownRegion";
+	Map<String, String>			peristerContextExtra					= new HashMap<String, String>();
 
 	RegionalRandom			random			= null;
 	
@@ -122,6 +124,7 @@ public class Region implements Regions, PreTickAction {
 		pm.setDefaultPm(PmParameterManager.getInstance(null));
 		this.random = new RegionalRandom(this);
 		this.random.init();
+		this.peristerContextExtra.put(ABMPersister.REGION_CONTEXT_KEY, this.id);
 	}
 
 	public Region(AllocationModel allocation, CompetitivenessModel competition, DemandModel demand,
@@ -437,6 +440,7 @@ public class Region implements Regions, PreTickAction {
 
 	public void setID(String id) {
 		this.id = id;
+		this.peristerContextExtra.put(ABMPersister.REGION_CONTEXT_KEY, id);
 	}
 
 	private void updateExtent(Cell c) {
@@ -569,5 +573,9 @@ public class Region implements Regions, PreTickAction {
 	 */
 	public RegionHelper getHelper(Object id) {
 		return this.helpers.get(id);
+	}
+
+	public Map<String, String> getPeristerContextExtra() {
+		return this.peristerContextExtra;
 	}
 }

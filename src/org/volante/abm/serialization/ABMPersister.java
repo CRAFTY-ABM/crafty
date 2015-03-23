@@ -60,6 +60,8 @@ public class ABMPersister extends EasyPersister {
 	 */
 	static private Logger logger = Logger.getLogger(ABMPersister.class);
 	
+	public static final String	REGION_CONTEXT_KEY	= "r";
+
 	static ABMPersister	instance	= null;
 
 	RunInfo				rInfo		= null;
@@ -105,12 +107,6 @@ public class ABMPersister extends EasyPersister {
 		writer.writeRaster(filename, raster);
 	}
 
-	public void setRegion(Regions r) {
-		if (r != null) {
-			setContext("r", r.getID());
-		}
-	}
-
 	public void setRunInfo(RunInfo info) {
 		this.rInfo = info;
 		this.filter.setRunInfo(info);
@@ -118,10 +114,10 @@ public class ABMPersister extends EasyPersister {
 
 	@Override
 	public Map<String, LinearInterpolator> csvVerticalToCurves(String csvFile, String xCol,
-			Collection<String> columns) throws IOException {
+			Collection<String> columns, Map<String, String> extra) throws IOException {
 		// TODO check if LinkedHashMap required
 		Map<String, LinearInterpolator> map = new LinkedHashMap<String, LinearInterpolator>();
-		CsvReader reader = getCSVReader(csvFile);
+		CsvReader reader = getCSVReader(csvFile, extra);
 
 
 		String xColHeader = xCol;
@@ -154,5 +150,25 @@ public class ABMPersister extends EasyPersister {
 			}
 		}
 		return map;
+	}
+
+	/**
+	 * Does not accept the regional context key (usually 'r'). Pass the region name directly to
+	 * particular methods using the extra parameter!
+	 * 
+	 * Override to prevent general setting of region context (which may cause faults when more than
+	 * one region is simulated).
+	 * 
+	 * @see com.moseph.modelutils.serialisation.EasyPersister#setContext(java.lang.String,
+	 *      java.lang.String)
+	 */
+	public void setContext(String key, String value)
+	{
+		if (key.equals(REGION_CONTEXT_KEY)) {
+			throw new IllegalArgumentException("The regional context (" + REGION_CONTEXT_KEY
+					+ ") may not be set via this method. "
+					+ "Pass the region name directly to particular methods!");
+		}
+		super.setContext(key, value);
 	}
 }

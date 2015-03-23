@@ -34,7 +34,7 @@ public class WorldLoaderTest extends BasicTestsUtils {
 	@Test
 	public void testLoading() throws Exception {
 		WorldLoader loader = ABMPersister.getInstance().readXML(WorldLoader.class,
-				"xml/MediumWorld.xml");
+				"xml/MediumWorld.xml", null);
 		loader.initialise(new RunInfo());
 		RegionSet world = loader.getWorld();
 		for (Cell c : world.getAllCells()) {

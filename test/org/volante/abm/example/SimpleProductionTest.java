@@ -86,7 +86,7 @@ public class SimpleProductionTest extends BasicTestsUtils {
 	@Test
 	public void testDeserealisation() throws Exception {
 		SimpleProductionModel model = runInfo.getPersister().readXML(SimpleProductionModel.class,
-				"xml/LowIntensityArableProduction.xml");
+				"xml/LowIntensityArableProduction.xml", null);
 		model.initialise(modelData, runInfo, null);
 		testLowIntensityArableProduction(model);
 	}

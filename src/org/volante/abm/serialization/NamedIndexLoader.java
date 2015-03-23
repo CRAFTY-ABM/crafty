@@ -47,7 +47,8 @@ public abstract class NamedIndexLoader<S extends Named & Indexed> implements Dat
 
 	@Override
 	public NamedIndexSet<S> getDataTypes(ABMPersister persister) throws IOException {
-		CsvReader reader = persister.getCSVReader(file);
+		// TODO override persister method
+		CsvReader reader = persister.getCSVReader(file, null);
 		int index = 0;
 		List<S> datatypes = new ArrayList<S>();
 		while (reader.readRecord()) {

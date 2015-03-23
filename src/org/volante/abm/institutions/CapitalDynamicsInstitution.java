@@ -101,7 +101,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 		try {
 			Map<String, LinearInterpolator> curves = rInfo.getPersister()
 					.csvVerticalToCurves(capitalAdjustmentsCSV, tickCol,
-							modelData.capitals.names());
+							modelData.capitals.names(), this.region.getPeristerContextExtra());
 			for (Capital c : modelData.capitals) {
 				if (curves.containsKey(c.getName())) {
 					capitalFactorCurves.put(c, curves.get(c.getName()));

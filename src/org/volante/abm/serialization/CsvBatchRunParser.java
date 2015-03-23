@@ -178,7 +178,8 @@ public class CsvBatchRunParser {
 			Map<String, Map<Integer, String>> fileMap = new HashMap<String, Map<Integer, String>>();
 			CsvReader reader;
 			try {
-				reader = rInfo.getPersister().getCSVReader(filename);
+				// TODO override persister method
+				reader = rInfo.getPersister().getCSVReader(filename, null);
 				firstColumns.put(filename, reader.getHeader(0));
 
 				for (String col : reader.getHeaders()) {

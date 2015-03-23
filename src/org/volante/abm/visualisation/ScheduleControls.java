@@ -33,11 +33,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import org.volante.abm.schedule.Schedule;
-import org.volante.abm.schedule.ScheduleStatusEvent;
-import org.volante.abm.schedule.ScheduleStatusListener;
 
 
-public class ScheduleControls extends JPanel implements ScheduleStatusListener {
+public class ScheduleControls extends JPanel {
 	private static final long	serialVersionUID	= 3122750609514377601L;
 
 	JButton						step				= null;
@@ -92,12 +90,6 @@ public class ScheduleControls extends JPanel implements ScheduleStatusListener {
 
 	public void setSchedule(Schedule s) {
 		this.schedule = s;
-		schedule.addStatusListener(this);
-	}
-
-	@Override
-	public void scheduleStatus(ScheduleStatusEvent e) {
-
 	}
 
 	public AbstractAction getAction(String name, final Runnable run) {

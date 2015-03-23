@@ -1,9 +1,10 @@
 package org.volante.abm.serialization;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.volante.abm.example.*;
+import org.volante.abm.example.BasicTestsUtils;
+import org.volante.abm.example.SimpleCapital;
 import org.volante.abm.schedule.RunInfo;
 
 public class CellRasterReaderTest extends BasicTestsUtils
@@ -22,7 +23,8 @@ public class CellRasterReaderTest extends BasicTestsUtils
 	@Test
 	public void testLoading() throws Exception
 	{
-		CellRasterReader crr = runInfo.getPersister().readXML( CellRasterReader.class, "xml/HumanCapitalRasterReader.xml"  );
+		CellRasterReader crr = runInfo.getPersister().readXML(CellRasterReader.class,
+				"xml/HumanCapitalRasterReader.xml", null);
 		checkHumanCapitalReading( crr );
 	}
 	

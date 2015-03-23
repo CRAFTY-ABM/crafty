@@ -19,26 +19,17 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  */
-package org.volante.abm.serialization;
+package org.volante.abm.schedule;
+
+import org.volante.abm.update.Updater;
 
 
-import org.junit.Test;
-import org.volante.abm.data.Capital;
-import org.volante.abm.example.BasicTestsUtils;
-
-import com.moseph.modelutils.fastdata.NamedIndexSet;
-
-
-public class CSVCapitalLoaderTest extends BasicTestsUtils {
-	@Test
-	public void testBasicLoading() throws Exception {
-		CSVCapitalLoader testCap = persister
-				.readXML(CSVCapitalLoader.class, "xml/TestCapitals.xml", null);
-		NamedIndexSet<Capital> caps = testCap.getDataTypes(persister);
-		checkDataType(caps, "ECON", 3);
-		checkDataType(caps, "SOC", 2);
-		checkDataType(caps, "NAT", 1);
-		checkDataType(caps, "INF", 0);
-	}
-
+/**
+ * Executed before {@link PreTickAction}s. Introduced for {@link Updater}s.
+ * 
+ * @author Sascha Holzhauer
+ * 
+ */
+public interface PrePreTickAction extends TickAction {
+	public void prePreTick();
 }

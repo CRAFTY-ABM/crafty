@@ -74,9 +74,8 @@ public class CSVCapitalUpdater extends AbstractUpdater
 	 * Do the actual updating
 	 */
 	@Override
-	public void preTick()
+	public void prePreTick()
 	{
-		info.getPersister().setRegion( region ); //Makes sure we can use %r in filenames
 		try {
 			CsvReader file = getFileForYear();
 			if( file != null ) {
@@ -102,9 +101,11 @@ public class CSVCapitalUpdater extends AbstractUpdater
 		ABMPersister p = info.getPersister();
 		String fn = null;
 		String yearly = yearlyFilenames.get( info.getSchedule().getCurrentTick() );
-		if( yearly != null && p.csvFileOK( getClass(), yearly, X_COL, Y_COL ) ) {
+		if (yearly != null
+				&& p.csvFileOK(getClass(), yearly, region.getPeristerContextExtra(), X_COL, Y_COL)) {
 			fn = yearly;
-		} else if( yearInFilename && p.csvFileOK( getClass(), filename, X_COL, Y_COL )) {
+		} else if (yearInFilename
+				&& p.csvFileOK(getClass(), filename, region.getPeristerContextExtra(), X_COL, Y_COL)) {
 			fn = filename;
 		} else if( reapplyPreviousFile && previousFilename != null ) {
 			fn = previousFilename;
@@ -113,7 +114,7 @@ public class CSVCapitalUpdater extends AbstractUpdater
 		if( fn != null )
 		{
 			previousFilename = fn;
-			return p.getCSVReader( fn );
+			return p.getCSVReader(fn, region.getPeristerContextExtra());
 		}
 		return null;
 	}

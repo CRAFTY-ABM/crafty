@@ -66,16 +66,19 @@ public class CellCSVReader implements CellInitialiser {
 		ModelData data = rl.modelData;
 		boolean hasAgentColumn = true;
 
-		if (!rl.persister.csvFileOK("RegionLoader", csvFile, xColumn, yColumn)) {
+		if (!rl.persister.csvFileOK("RegionLoader", csvFile, rl.getRegion()
+				.getPeristerContextExtra(), xColumn, yColumn)) {
 			return;
 		}
 		log.info("Loading cell CSV from " + csvFile);
 		ModelRunner.clog("CapitalCSVFile", csvFile);
 
-		CsvReader reader = rl.persister.getCSVReader(csvFile);
+		CsvReader reader = rl.persister.getCSVReader(csvFile, rl.getRegion()
+				.getPeristerContextExtra());
 		if (!Arrays.asList(reader.getHeaders()).contains(agentColumn)) {
 			hasAgentColumn = false;
-			log.info("No Agent Column found in CSV file: " + rl.persister.getFullPath(csvFile));
+			log.info("No Agent Column found in CSV file: "
+					+ rl.persister.getFullPath(csvFile, rl.getRegion().getPeristerContextExtra()));
 		}
 		while (reader.readRecord()) {
 			// <- LOGGING
@@ -116,7 +119,8 @@ public class CellCSVReader implements CellInitialiser {
 
 		// <- LOGGING
 		if (log.isDebugEnabled()) {
-			log.debug("Finished reading CSV file " + rl.persister.getFullPath(csvFile));
+			log.debug("Finished reading CSV file "
+					+ rl.persister.getFullPath(csvFile, rl.getRegion().getPeristerContextExtra()));
 		}
 		// LOGGING ->
 	}

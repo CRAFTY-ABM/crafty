@@ -156,7 +156,9 @@ public class GiveUpGiveInAllocationTest extends BasicTestsUtils
 		assertEquals( forestry.getID(), c1.getOwnerID() );		
 		
 		// Now replace the forester with a variant forester
-		VariantPotentialAgent vForest = runInfo.getPersister().readXML( VariantPotentialAgent.class, "xml/VariantForester1.xml" );
+		VariantPotentialAgent vForest = runInfo.getPersister().readXML(VariantPotentialAgent.class,
+				"xml/VariantForester1.xml",
+				r.getPeristerContextExtra());
 		vForest.initialise(modelData, runInfo, r);
 		
 		r.setOwnership( vForest.createAgent( r, c1 ), c1 );
@@ -184,7 +186,8 @@ public class GiveUpGiveInAllocationTest extends BasicTestsUtils
 		
 		// Now give the land to a variant farmer with a higher giving up distribution [10,11]
 		// This farmer should then give up, and the land will go to the ordinary forester
-		VariantPotentialAgent vFarmer = runInfo.getPersister().readXML( VariantPotentialAgent.class, "xml/VariantFarmer1.xml" );
+		VariantPotentialAgent vFarmer = runInfo.getPersister().readXML(VariantPotentialAgent.class,
+				"xml/VariantFarmer1.xml", r.getPeristerContextExtra());
 		vFarmer.initialise(modelData, runInfo, r);
 		DefaultAgent farmer = (DefaultAgent) vFarmer.createAgent( r, c1 );
 		r.setOwnership( farmer, c1 );
