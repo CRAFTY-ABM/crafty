@@ -553,7 +553,7 @@ public class Region implements Regions, PreTickAction {
 		}
 
 		for (Service s : data.services) {
-			rinfo.getParamRepos().addParameter(this, "Deamand_" + s,
+			rinfo.getParamRepos().addParameter(this, "Demand_" + s,
 					demand.getDemand().get(s));
 		}
 	}

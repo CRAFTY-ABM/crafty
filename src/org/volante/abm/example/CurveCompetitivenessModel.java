@@ -114,11 +114,25 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 		}
 	}
 
+	/**
+	 * @see org.volante.abm.models.CompetitivenessModel#getCompetitiveness(org.volante.abm.models.DemandModel,
+	 *      com.moseph.modelutils.fastdata.UnmodifiableNumberMap)
+	 */
 	@Override
 	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
 		return getCompetitveness(demand, supply, false);
 	}
 
+	/**
+	 * Calculates per-cell residuals and calls
+	 * {@link CurveCompetitivenessModel#addUpMarginalUtilities(UnmodifiableNumberMap, UnmodifiableNumberMap, boolean)}
+	 * .
+	 * 
+	 * @param demand
+	 * @param supply
+	 * @param showWorking
+	 * @return summed marginal utilities
+	 */
 	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			boolean showWorking) {
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
@@ -148,12 +162,14 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	}
 
 	/**
-	 * Adds up marginal utilities of all services.
+	 * Adds up marginal utilities (determined by competitiveness for unmet
+	 * demand) of all services.
 	 * 
 	 * @param residualDemand
 	 * @param supply
 	 * @param showWorking
-	 * @return
+	 *            if true, log details in DEBUG mode
+	 * @return summed marginal utilities of all services
 	 */
 	public double addUpMarginalUtilities(UnmodifiableNumberMap<Service> residualDemand,
 			UnmodifiableNumberMap<Service> supply, boolean showWorking) {
