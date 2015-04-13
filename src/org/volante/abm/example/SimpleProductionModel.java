@@ -129,7 +129,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	public void production( Cell cell, DoubleMap<Service> production )
 	{
 		UnmodifiableNumberMap<Capital> capitals = cell.getEffectiveCapitals();
-		production( capitals, production );
+		production(capitals, production, cell);
 	}
 
 	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production) {
@@ -137,7 +137,7 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 	}
 	public void production( UnmodifiableNumberMap<Capital> capitals, DoubleMap<Service> production, Cell cell)
 	{
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled() && cell != null) {
 			StringBuffer buffer = new StringBuffer();
 			if (cell != null) {
 				buffer.append("Cell " + cell.getX() + "|" + cell.getY() + " ");

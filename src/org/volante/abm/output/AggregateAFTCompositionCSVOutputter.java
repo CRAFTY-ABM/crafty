@@ -45,7 +45,10 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 
 	Map<Region, Map<String, Double>>	aftData		= new HashMap<Region, Map<String, Double>>();
 
-	protected boolean							initialised	= false;
+	protected boolean					initialised	= false;
+
+	protected boolean					outputSums	= false;
+
 	/**
 	 * @see org.volante.abm.output.AbstractOutputter#getDefaultOutputName()
 	 */
@@ -91,9 +94,15 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 			}
 
 			int sum = 0;
-			for (int i = 0; i < pagentNumbers.length; i++) {
-				sum += pagentNumbers[i];
+			if (outputSums) {
+				sum = 1;
 			}
+			else {
+				for (int i = 0; i < pagentNumbers.length; i++) {
+					sum += pagentNumbers[i];
+				}
+			}
+
 			for (PotentialAgent p : r.getPotentialAgents()) {
 				aftData.get(r).put(p.getID(),
 						new Double((double) pagentNumbers[p.getSerialID()] / sum));
