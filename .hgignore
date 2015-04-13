@@ -3,4 +3,6 @@ bin/
 test-data\tmp\CSVCapitalUpdater.xml
 test-data/tmp/
 syntax: regexp
-^lib/CRAFTY\.jar$
+^lib/CRAFTY-P\.jar$
+syntax: regexp
+^\.settings/org\.eclipse\.jdt\.ui\.prefs$
