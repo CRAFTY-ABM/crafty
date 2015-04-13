@@ -1,0 +1,13 @@
+<institution class="org.volante.abm.institutions.InnovativeInstitution">	
+	<innovation class="org.volante.abm.institutions.innovation.ProductivityInnovation"
+			 id="TestInnovation">
+		<effectOnProductivityFactor>2</effectOnProductivityFactor>
+		<affectiveAFTs>Farming</affectiveAFTs>
+		<affectedAFTs>Farming</affectedAFTs>
+		<affectedServices>FOOD</affectedServices>
+		<normaliseProductivity>false</normaliseProductivity>
+	</innovation>
+	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">
+		<probability>0.5</probability>
+	</targetRecruitmentComp>
+</institution>
