@@ -78,6 +78,14 @@ public class RegionalRandom {
 		}
 
 		if (!getURService().isGeneratorRegistered(
+				RandomPa.RANDOM_SEED_RUN_GIVINGUP.name())) {
+			getURService().registerGenerator(
+					RandomPa.RANDOM_SEED_RUN_GIVINGUP.name(),
+					new MersenneTwister(((Integer) pm
+							.getParam(RandomPa.RANDOM_SEED_RUN_GIVINGUP))));
+		}
+
+		if (!getURService().isGeneratorRegistered(
 				RandomPa.RANDOM_SEED_RUN_ADOPTION.name())) {
 			getURService().registerGenerator(
 					RandomPa.RANDOM_SEED_RUN_ADOPTION.name(),

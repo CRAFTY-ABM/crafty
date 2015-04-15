@@ -102,8 +102,11 @@ public interface Agent extends MoreObservingNetworkAgent<Agent> {
 	public UnmodifiableNumberMap<Service> supply(Cell c);
 
 	/**
-	 * Adds the cell to the cells this agent manages
-	 *
+	 * 
+	 * Adds the cell to the cells this agent manages. Use
+	 * {@link Region#setOwnership(Agent, Cell...)} to add cells since this
+	 * method is called by {@link Region#setOwnership(Agent, Cell...)}!
+	 * 
 	 * @param c
 	 */
 	public void addCell(Cell c);
