@@ -68,8 +68,7 @@ public abstract class RasterOutputter extends AbstractOutputter implements CellT
 	public void writeRaster( Regions r ) 
 	{
 		String fn = tickFilename(r);
-		try
-		{
+		try {
 			outputs.runInfo.getPersister().regionsToRaster(fn, r, this, isInt(), doubleFmt, nDataString);
 		} catch (Exception e) {
 			log.error(
