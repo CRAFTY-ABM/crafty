@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
 import org.volante.abm.data.ModelData;
@@ -47,6 +48,7 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 
 	protected boolean					initialised	= false;
 
+	@Attribute(name = "outputSums", required = false)
 	protected boolean					outputSums	= false;
 
 	/**
