@@ -39,7 +39,9 @@ import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
@@ -275,6 +277,25 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				// LOGGING ->
 
 				r.setOwnership(agent, c);
+
+
+				if (r.getNetworkService() != null) {
+					if (r.getNetwork() != null) {
+
+						if (r.getGeography() != null && agent instanceof GeoAgent) {
+							((GeoAgent) agent).addToGeography();
+						}
+						r.getNetworkService().addAndLinkNode(
+								r.getNetwork(), (SocialAgent) agent);
+
+					} else {
+						if (!networkNullErrorOccurred) {
+							logger.warn("Network object not present during creation of new agent (subsequent error messages are suppressed)");
+							networkNullErrorOccurred = true;
+						}
+					}
+				}
+
 				break;
 			}
 		}

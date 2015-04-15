@@ -1,0 +1,15 @@
+<institution class="org.volante.abm.institutions.InnovativeInstitution">	
+	<innovation class="org.volante.abm.institutions.innovation.VariableCapitalLevelInnovation"
+			 id="VariableInnovation">		
+		<affectiveAFTs>NC_Cereal, C_Cereal</affectiveAFTs>
+		<affectedAFTs>NC_Cereal, C_Cereal</affectedAFTs>
+		<affectedCapitals>
+			<String>NATURAL_CROPS</String>
+		</affectedCapitals>
+		<capitalFactorCsvFile>csv/VariableCapitalEffects.csv</capitalFactorCsvFile>
+		<tickCol>Tick</tickCol>
+	</innovation>
+	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">
+		<probability>1.0</probability>
+	</targetRecruitmentComp>
+</institution>
