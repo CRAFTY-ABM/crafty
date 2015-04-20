@@ -48,7 +48,13 @@ public class CsvBatchRunParser {
 	 */
 	static private Logger											logger			= Logger.getLogger(CsvBatchRunParser.class);
 
+	static final String												LINKS_TABLE			= "/Links.csv";
+	static final String												LINKS_TABLE_DEFAULT	= "DefaultPath";
+	static final String												LINKS_TABLE_ID		= "ID";
+	static final String												LINKS_TABLE_VALUE	= "Value";
+
 	protected static Map<String, Map<String, Map<Integer, String>>>	cachedCsvData	= new HashMap<String, Map<String, Map<Integer, String>>>();
+	protected static Map<String, Map<String, String>>				cachedLinksData		= null;
 	protected static Map<String, String>							firstColumns	= new HashMap<String, String>();
 
 	/**
@@ -91,86 +97,144 @@ public class CsvBatchRunParser {
 		// LOGGING ->
 
 		String preText = text.substring(0, text.indexOf("@"));
+
 		if (!text.contains(")")) {
 			logger.error("Text to parse (" + text
 					+ ") does not contain closing parenthesis!");
 			throw new IllegalStateException("Text to parse (" + text
 					+ ") does not contain closing parenthesis!");
 		}
-		String text2parse = text.substring(text.indexOf("@") + 2, text.indexOf(")"));
-		String postText = text.substring(text.indexOf(")") + 1, text.length());
+		String text2parse = text.substring(text.indexOf("@") + 2, text.lastIndexOf(")"));
+		String postText = text.substring(text.lastIndexOf(")") + 1, text.length());
 		
-		String[] textParsed = text2parse.split(",");
-		String filename = textParsed[0].trim();
-		String secondFilename = null;
+		String parsed = null;
 
-		if (filename.contains("~")) {
-			secondFilename = filename.split("~")[1].trim();
-			filename = filename.split("~")[0].trim();
+		if (text.contains("@@") && text.indexOf("@") == text.indexOf("@@")) {
+			parsed = CsvBatchRunParser.parseLink(
+					text.substring(text.indexOf("@") + 3, text.indexOf(")")), rInfo);
+		} else {
+			String[] textParsed = text2parse.split(",");
+			String filename = textParsed[0].trim();
+			String secondFilename = null;
+
+			if (filename.contains("~")) {
+				secondFilename = filename.split("~")[1].trim();
+				filename = filename.split("~")[0].trim();
+			}
+
+			// recursive parsing:
+			filename = BatchRunParser.parseString(filename, rInfo);
+
+			filename = rInfo.getCsvParamBasedirCorrection() + filename;
+
+			String colName = textParsed[1].trim();
+
+			Map<String, Map<Integer, String>> fileMap = readCsvFile(filename, rInfo);
+			Integer run = rInfo.getCurrentRun();
+
+			if (secondFilename != null) {
+				// recursive parsing:
+				secondFilename = BatchRunParser.parseString(secondFilename, rInfo);
+				secondFilename = rInfo.getCsvParamBasedirCorrection() + secondFilename;
+
+				Map<String, Map<Integer, String>> fileMapSec = readCsvFile(secondFilename, rInfo);
+				checkCsvData(secondFilename, colName, fileMapSec, null);
+				String idCol = firstColumns.get(secondFilename);
+
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("\tID (run): " + run);
+					logger.debug("\t1st Colum: " + idCol);
+					logger.debug("\tID (2nd): " + fileMap.get(idCol).get(run));
+					logger.debug("\t2nd Colum: " + colName);
+				}
+				// LOGGING ->
+
+				checkCsvData(filename, idCol, fileMap, run);
+
+				String returnValue = preText
+						+ fileMapSec.get(colName)
+								.get(Integer.parseInt(fileMap.get(idCol).get(run)))
+						+ postText;
+
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("\tReturn value: " + returnValue);
+				}
+				// LOGGING ->
+
+				ModelRunner.clog(colName, returnValue + " (" + textParsed[0].trim() + ")");
+				return returnValue;
+			} else {
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("\tID (run): " + run);
+					logger.debug("\t2nd Colum: " + colName);
+				}
+				// LOGGING ->
+
+				checkCsvData(filename, colName, fileMap, run);
+
+				parsed = fileMap.get(colName).get(run);
+
+				ModelRunner.clog(colName, preText + parsed
+						+ postText + " ("
+						+ textParsed[0].trim() + ")");
+			}
+		}
+		String returnValue = preText + parsed
+				+ postText;
+
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("\tReturn value: " + returnValue);
+		}
+		// LOGGING ->
+
+		return returnValue;
+	}
+
+	static String parseLink(String text, RunInfo rInfo) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Parse Link: " + text);
+		}
+		// LOGGING ->
+
+		String[] textParsed = text.split(";");
+		String defaultPath = textParsed[0].trim();
+
+		String id = null;
+		if (textParsed.length > 1) {
+			id = textParsed[1].trim();
 		}
 
+		Map<String, Map<String, String>> fileMap = readLinksFile(rInfo);
 
-		filename = rInfo.getCsvParamBasedirCorrection() + filename;
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("\tDefaultPath: " + defaultPath);
+			logger.debug("\tID: " + id);
+		}
+		// LOGGING ->
 
-		String colName = textParsed[1].trim();
-
-		Map<String, Map<Integer, String>> fileMap = readCsvFile(filename, rInfo);
-		Integer run = rInfo.getCurrentRun();
-
-		if (secondFilename != null) {
-			secondFilename = rInfo.getCsvParamBasedirCorrection() + secondFilename;
-
-			Map<String, Map<Integer, String>> fileMapSec = readCsvFile(secondFilename, rInfo);
-			checkCsvData(secondFilename, colName, fileMapSec, null);
-			String idCol = firstColumns.get(secondFilename);
-
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug("\tID (run): " + run);
-				logger.debug("\t1st Colum: " + idCol);
-				logger.debug("\tID (2nd): " + fileMap.get(idCol).get(run));
-				logger.debug("\t2nd Colum: " + colName);
-			}
-			// LOGGING ->
-
-			checkCsvData(filename, idCol, fileMap, run);
-
-			String returnValue = preText
-					+ fileMapSec.get(colName).get(Integer.parseInt(fileMap.get(idCol).get(run)))
-					+ postText;
-
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug("\tReturn value: " + returnValue);
-			}
-			// LOGGING ->
-
-			ModelRunner.clog(colName, returnValue + " (" + textParsed[0].trim() + ")");
-			return returnValue;
+		String value;
+		if (checkLinkData(defaultPath, id)) {
+			value = BatchRunParser.parseString(fileMap.get(defaultPath).get(id), rInfo);
 		} else {
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug("\tID (run): " + run);
-				logger.debug("\t2nd Colum: " + colName);
-			}
-			// LOGGING ->
+			value = BatchRunParser.parseString(defaultPath, rInfo);
+		}
 
-			checkCsvData(filename, colName, fileMap, run);
-
-			ModelRunner.clog(colName, preText + fileMap.get(colName).get(run) + postText + " ("
+		ModelRunner.clog(defaultPath, value + " ("
 					+ textParsed[0].trim() + ")");
 
-			String returnValue = preText + fileMap.get(colName).get(run)
-					+ postText;
-
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug("\tReturn value: " + returnValue);
-			}
-			// LOGGING ->
-
-			return returnValue;
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("\tReturn value: " + value);
 		}
+		// LOGGING ->
+
+		return value;
 	}
 
 	protected static Map<String, Map<Integer, String>> readCsvFile(String filename, RunInfo rInfo) {
@@ -209,6 +273,33 @@ public class CsvBatchRunParser {
 		return cachedCsvData.get(filename);
 	}
 
+	protected static Map<String, Map<String, String>> readLinksFile(RunInfo rInfo) {
+		String filename = rInfo.getCsvParamBasedirCorrection() + LINKS_TABLE;
+		if (cachedLinksData == null) {
+			cachedLinksData = new HashMap<String, Map<String, String>>();
+			CsvReader reader;
+			try {
+				reader = rInfo.getPersister().getCSVReader(filename, null);
+				String defaultPath;
+				String id;
+				
+				while (reader.readRecord()) {
+					defaultPath = reader.get(LINKS_TABLE_DEFAULT);
+					id = reader.get(LINKS_TABLE_ID);
+
+					if (!cachedLinksData.containsKey(defaultPath)) {
+						cachedLinksData.put(defaultPath, new HashMap<String, String>());
+					}
+					cachedLinksData.get(defaultPath).put(id == "" ? null : id,
+							reader.get(LINKS_TABLE_VALUE));
+				}
+			} catch (IOException exception) {
+				exception.printStackTrace();
+			}
+		}
+		return cachedLinksData;
+	}
+
 	/**
 	 * @param filename
 	 * @param colName
@@ -230,5 +321,33 @@ public class CsvBatchRunParser {
 					+ "< does not contain run >" +
 					run + "<!");
 		}
+	}
+
+	/**
+	 * @param defaultPath
+	 * @param id
+	 */
+	protected static boolean checkLinkData(String defaultPath, String id) {
+		if (!cachedLinksData.containsKey(defaultPath)) {
+			logger.debug("CSV Link file does not contain key >" + defaultPath + "<. Using default!");
+			return false;
+		} else if (!cachedLinksData.get(defaultPath).containsKey(id)) {
+			logger.debug("CSV Link file does not contain id >" +
+					id + "< for defaultPath >" + defaultPath + "<. Using default!");
+			return false;
+		} else
+			return true;
+	}
+
+	/**
+	 * Empties cached CSV data
+	 */
+	protected static void reset() {
+		// <- LOGGING
+		logger.info("Reset CsvBatchRunParser.");
+		// LOGGING ->
+		cachedCsvData = new HashMap<String, Map<String, Map<Integer, String>>>();
+		firstColumns = new HashMap<String, String>();
+		cachedLinksData = null;
 	}
 }
