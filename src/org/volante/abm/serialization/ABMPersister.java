@@ -171,4 +171,9 @@ public class ABMPersister extends EasyPersister {
 		}
 		super.setContext(key, value);
 	}
+
+	public void setBaseDir(String baseDir) {
+		super.setBaseDir(baseDir);
+		CsvBatchRunParser.reset();
+	}
 }

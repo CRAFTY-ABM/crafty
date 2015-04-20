@@ -36,7 +36,7 @@ import org.volante.abm.schedule.RunInfo;
 public class AggregateDemandSupplyCSVOutputter extends AggregateCSVOutputter {
 
 	@Attribute(required = false)
-	boolean	addServices	= true;
+	boolean	addSupply	= true;
 
 	@Attribute(required = false)
 	boolean	addDemand	= true;
@@ -53,7 +53,7 @@ public class AggregateDemandSupplyCSVOutputter extends AggregateCSVOutputter {
 	public void setOutputManager(Outputs outputs) {
 		super.setOutputManager(outputs);
 
-		if (addServices) {
+		if (addSupply) {
 			for (Service s : outputs.modelData.services) {
 				addColumn(new ServiceSupplyColumn(s));
 			}

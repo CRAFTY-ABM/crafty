@@ -39,6 +39,7 @@ import org.volante.abm.schedule.RunInfo;
 public class BatchModeParseFilterTest extends BasicTestsUtils {
 
 	static final String	XML_FILE	= "xml/BatchModeParseFilterTestingAgent.xml";
+	static final String	XML_FILE_LINKS	= "xml/BatchModeLinksParseFilterTestingAgent.xml";
 
 	protected RunInfo	rInfo;
 	protected Region	region		= new Region();
@@ -60,5 +61,15 @@ public class BatchModeParseFilterTest extends BasicTestsUtils {
 		agent.initialise(modelData, rInfo, region);
 		assertEquals(0.3, agent.getGivingIn(), 0.01);
 		assertEquals(0.5, agent.getGivingUp(), 0.01);
+	}
+
+	@Test
+	public void testLinks() throws Exception {
+		ABMPersister persister = ABMPersister.getInstance();
+		SimplePotentialAgent agent = persister.readXML(SimplePotentialAgent.class, XML_FILE_LINKS,
+				region.getPeristerContextExtra());
+		agent.initialise(modelData, rInfo, region);
+		assertEquals(2.3, agent.getGivingIn(), 0.01);
+		assertEquals(1.5, agent.getGivingUp(), 0.01);
 	}
 }
