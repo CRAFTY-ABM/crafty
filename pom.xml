@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.cesr</groupId>
   <artifactId>CRAFTY_Parallel</artifactId>
-  <version>0.1.18</version>
+  <version>0.1.19</version>
   <name>CRAFTY Parallel</name>
   <description>Competition for Resources between Agent Functional Types</description>
   

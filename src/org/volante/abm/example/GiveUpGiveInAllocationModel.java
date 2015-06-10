@@ -260,9 +260,15 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				+ r.getNumCells() + " cells).");
 
 		for (Cell c : sorted) {
-			if (competitiveness.get(c) > a.getGivingUp()
+			double newAgentsGU = a.getGivingUp();
+			if (competitiveness.get(c) > newAgentsGU
 					&& c.getOwner().canTakeOver(c, competitiveness.get(c))) {
+
 				Agent agent = a.createAgent(r);
+
+				// Assign the actually considered GU threshold to the new agent
+				// to prevent strange behaviour due to differences
+				agent.setGivingUp(newAgentsGU);
 
 				for (TakeoverObserver observer : takeoverObserver) {
 					observer.setTakeover(r, c.getOwner(), agent);
