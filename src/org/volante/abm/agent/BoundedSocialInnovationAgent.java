@@ -24,6 +24,7 @@
 package org.volante.abm.agent;
 
 import org.apache.log4j.Logger;
+import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.models.ProductionModel;
@@ -35,6 +36,7 @@ import org.volante.abm.param.RandomPa;
  */
 public class BoundedSocialInnovationAgent extends DefaultSocialInnovationAgent {
 
+	@Attribute(required = false)
 	protected double givingUpProbability = 1.0;
 
 	/**
