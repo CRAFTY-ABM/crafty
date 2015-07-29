@@ -440,6 +440,7 @@ public class BasicTestsUtils
 	 * Initialises region set <code>w</code>
 	 */
 	public BasicTestsUtils() {
+		setupPersister();
 		initTestEnvironment();
 	}
 
