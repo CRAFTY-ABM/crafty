@@ -116,7 +116,9 @@ public class DefaultSchedule implements Schedule {
 
 		// Allocate land
 		for (Region r : regions.getAllRegions()) {
-			r.getAllocationModel().allocateLand(r);
+			if (this.getCurrentTick() > this.getStartTick() || !r.isSkipInitialAllocation()) {
+				r.getAllocationModel().allocateLand(r);
+			}
 		}
 
 		// Calculate supply

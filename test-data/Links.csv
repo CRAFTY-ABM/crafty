@@ -2,3 +2,5 @@ DefaultPath,ID,Value
 csv,,alternative/csv
 csv,secondA,alternative/csv
 csv,secondB,alternative/csvB
+cellInitialiser/cellInitialiser.xml,RunCSV,"@(Runs.csv, cellInitialiser/cellInitialiser.xml)"
+"",,

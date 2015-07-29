@@ -82,6 +82,8 @@ public class Region implements Regions, PreTickAction {
 	boolean requiresEffectiveCapitalData = false;
 	boolean hasCompetitivenessAdjustingInstitution = false;
 
+	boolean skipInitialAllocation = false;
+	
 	Map<Object, RegionHelper>	helpers		= new LinkedHashMap<Object, RegionHelper>();
 
 	/**
@@ -577,5 +579,13 @@ public class Region implements Regions, PreTickAction {
 
 	public Map<String, String> getPeristerContextExtra() {
 		return this.peristerContextExtra;
+	}
+
+	public boolean isSkipInitialAllocation() {
+		return skipInitialAllocation;
+	}
+
+	public void setSkipInitialAllocation(boolean skipInitialAllocation) {
+		this.skipInitialAllocation = skipInitialAllocation;
 	}
 }
