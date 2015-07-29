@@ -150,6 +150,18 @@ public class CsvBatchRunParserTest extends BasicTestsUtils {
 	}
 
 	@Test
+	public void testLinksCsvCombination() {
+		RunInfo rInfo = new RunInfo();
+
+		rInfo.setCurrentRun(1);
+
+		assertEquals(
+				"RunCellInitialiser",
+				CsvBatchRunParser.parseString("@@(cellInitialiser/cellInitialiser.xml; RunCSV)",
+						rInfo));
+	}
+
+	@Test
 	public void testParseLinkDoubleSecodoaryTable() {
 		RunInfo rInfo = new RunInfo();
 
