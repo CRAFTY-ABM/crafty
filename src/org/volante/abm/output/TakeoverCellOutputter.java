@@ -52,7 +52,8 @@ import org.volante.abm.serialization.GloballyInitialisable;
  * this way take-overs only need to be reported in case there is a
  * {@link TakeoverObserver} registered.
  * 
- * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) == length(AFTs))
+ * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) ==
+ * length(AFTs))
  * 
  * @author Sascha Holzhauer
  * 
