@@ -86,6 +86,12 @@ public class BatchRunParser {
 	}
 
 	public static String parseString(String text, RunInfo rInfo) {
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("String to parse: " + text);
+		}
+		// LOGGING ->
+
 		if (text.contains("@")) {
 			return CsvBatchRunParser.parseString(text, rInfo);
 
@@ -95,6 +101,7 @@ public class BatchRunParser {
 			return values[run];
 
 		} else if (text.contains("(")) {
+
 			int run = rInfo.getCurrentRun();
 			String[] values;
 
