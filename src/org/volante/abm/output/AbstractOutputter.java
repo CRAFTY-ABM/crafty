@@ -42,7 +42,7 @@ public abstract class AbstractOutputter implements Outputter {
 	@Attribute(required = false)
 	protected int			everyNYears	= 1;
 	@Attribute(required = false)
-	protected int			startYear	= 1;
+	protected int			startYear	= 0;
 	@Attribute(required = false)
 	protected int			endYear		= Integer.MAX_VALUE;
 	protected RunInfo		runInfo		= null;

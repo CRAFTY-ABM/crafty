@@ -144,6 +144,9 @@ public class RegionLoader {
 	@Element(required = false)
 	int								randomSeed				= Integer.MIN_VALUE;
 
+	@Element(required = false)
+	boolean skipInitialAllocation = false;
+
 	/**
 	 * The given agent ID is recognised as unmanaged and therefore no error
 	 * message is issued.
@@ -417,6 +420,7 @@ public class RegionLoader {
 		if (this.randomSeed != Integer.MIN_VALUE) {
 			PmParameterManager.getInstance(region).setParam(RandomPa.RANDOM_SEED, randomSeed);
 		}
+		region.setSkipInitialAllocation(skipInitialAllocation);
 	}
 
 	public Cell getCell(int x, int y) {
