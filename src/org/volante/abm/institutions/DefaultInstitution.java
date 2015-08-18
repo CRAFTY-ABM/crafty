@@ -53,8 +53,10 @@ public class DefaultInstitution extends AbstractInstitution {
 
 	@Override
 	public void adjustCapitals(Cell c) {
-		DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals();
+		DoubleMap<Capital> adjusted = modelData.capitalMap();
+		c.getEffectiveCapitals().copyInto(adjusted);
 		adjustments.addInto(adjusted);
+		c.setEffectiveCapitals(adjusted);
 	}
 
 	@Override

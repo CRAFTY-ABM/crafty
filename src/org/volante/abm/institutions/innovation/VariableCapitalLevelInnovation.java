@@ -49,6 +49,7 @@ import org.volante.abm.schedule.RunInfo;
 
 import com.moseph.modelutils.curve.Curve;
 import com.moseph.modelutils.curve.LinearInterpolator;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 /**
  * Adjustments take place as a {@link PreTickAction} which is after
@@ -196,14 +197,18 @@ public class VariableCapitalLevelInnovation extends Innovation {
 			@Override
 			public void preTick() {
 				for (Cell c : agent.getCells()) {
+
+					DoubleMap<Capital> adjusted = modelData.capitalMap();
+					c.getEffectiveCapitals().copyInto(adjusted);
 					for (Capital capital : affectedCapitalObjects) {
-						c.getModifiableEffectiveCapitals().put(
+						adjusted.put(
 								capital,
 								c.getBaseCapitals().getDouble(capital)
 										*
 								capitalFactorCurves.get(capital).sample(
 										rInfo.getSchedule().getCurrentTick()));
 					}
+					c.setEffectiveCapitals(adjusted);
 				}
 			}
 		};
@@ -217,10 +222,13 @@ public class VariableCapitalLevelInnovation extends Innovation {
 	public void unperform(InnovationAgent agent) {
 		this.rInfo.getSchedule().unregister(capitalAdjustmentAction);
 		for (Cell c : agent.getCells()) {
+			DoubleMap<Capital> adjusted = modelData.capitalMap();
+			c.getEffectiveCapitals().copyInto(adjusted);
 			for (Capital capital : affectedCapitalObjects) {
-				c.getModifiableEffectiveCapitals().put(capital,
+				adjusted.put(capital,
 						c.getBaseCapitals().getDouble(capital));
 			}
+			c.setEffectiveCapitals(adjusted);
 		}
 	}
 
