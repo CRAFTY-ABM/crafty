@@ -1,0 +1,23 @@
+<institution class="org.volante.abm.institutions.RepeatingInnovativeInstitution">	
+	<innovation class="org.volante.abm.institutions.innovation.RepeatingProductivityInnovation"
+			 id="RepeatingTestInnovation">
+		
+		<repComp class="org.volante.abm.decision.innovation.InnovationTestUtils$CsvProductivityInnovationRepTestComp">
+			<effectAdjustmentsCsvFile>csv/CsvProductivityInnovationRepCompTestfile.csv</effectAdjustmentsCsvFile>
+			<renewalInterval>1</renewalInterval>
+		</repComp>
+		
+		<effectOnProductivityFactor>2</effectOnProductivityFactor>
+		<affectiveAFTs>Farming</affectiveAFTs>
+		<affectedAFTs>Farming</affectedAFTs>
+		<affectedServices>FOOD</affectedServices>
+		<effectDiscountFactor>0.9</effectDiscountFactor>
+		<normaliseProductivity>false</normaliseProductivity>
+		<adoptionThreshold>0.0</adoptionThreshold>
+	</innovation>
+	<targetRecruitmentComp class="org.volante.abm.institutions.recruit.RepetitiveRecruitment">
+		<initialTargetRecruitment class="org.volante.abm.institutions.recruit.ProbabilityRandomRecruitment">
+			<probability>0.5</probability>
+		</initialTargetRecruitment>
+	</targetRecruitmentComp>
+</institution>
