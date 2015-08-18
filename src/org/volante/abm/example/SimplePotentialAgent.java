@@ -23,12 +23,16 @@
 package org.volante.abm.example;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.PotentialAgentProductionObserver;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -55,6 +59,8 @@ public class SimplePotentialAgent implements PotentialAgent, Initialisable {
 	protected RunInfo			info		= null;
 
 	protected Logger			log			= Logger.getLogger(getClass());
+
+	protected Set<PotentialAgentProductionObserver>	productionObserver	= new HashSet<PotentialAgentProductionObserver>();
 
 	public SimplePotentialAgent() {
 	}
@@ -116,13 +122,37 @@ public class SimplePotentialAgent implements PotentialAgent, Initialisable {
 		log.trace("Production: \n" + production);
 	}
 
+	/**
+	 * In case the production model is changed, a call to
+	 * {@link SimplePotentialAgent#productionModelChanged()} is mandatory!
+	 * 
+	 * TODO make {@link ProductionModel} immutable
+	 * 
+	 * @see org.volante.abm.agent.PotentialAgent#getProduction()
+	 */
 	@Override
 	public ProductionModel getProduction() {
 		return production;
 	}
 
+	public void productionModelChanged() {
+		for (PotentialAgentProductionObserver observer : this.productionObserver) {
+			observer.potentialAgentProductionChanged(this);
+		}
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s", id);
+	}
+
+	@Override
+	public void registerPotentialAgentProductionObserver(PotentialAgentProductionObserver observer) {
+		this.productionObserver.add(observer);
+	}
+
+	@Override
+	public void removePotentialAgentProductionObserver(PotentialAgentProductionObserver observer) {
+		this.productionObserver.remove(observer);
 	}
 }

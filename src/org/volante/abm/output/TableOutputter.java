@@ -133,7 +133,8 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 	 * 
 	 * @author dmrust
 	 * 
-	 * @param <Capital>
+	 * @param <T>
+	 *        column data
 	 */
 	public static class TickColumn<T> implements TableColumn<T> {
 		@Override
@@ -152,7 +153,8 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 	 * 
 	 * @author dmrust
 	 * 
-	 * @param <Capital>
+	 * @param <T>
+	 *        column data
 	 */
 	public static class RegionsColumn<T> implements TableColumn<T> {
 		@Override
@@ -166,8 +168,9 @@ public abstract class TableOutputter<T> extends AbstractOutputter {
 		}
 	}
 
-	/**
-	 * @see org.volante.abm.output.TableOutputter#filePerTick()
+
+		/**
+	 * @return true if a separate file is output per tick
 	 */
 	public boolean filePerTick() {
 		return filePerTick;
