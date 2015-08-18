@@ -63,7 +63,7 @@ import com.moseph.modelutils.Utilities.ScoreComparator;
  * @author dmrust
  * 
  */
-public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
+public class GiveUpGiveInAllocationModelOld extends SimpleAllocationModel
 		implements TakeoverMessenger {
 
 	/**
@@ -108,11 +108,10 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 
 	@Attribute(required = false)
 	public int				probabilityExponent	= 2;
+	Cell					perfectCell			= new Cell();
+	ModelData				data				= null;
 
-	protected Cell						perfectCell			= new Cell();
-	protected ModelData					data				= null;
-
-	protected Set<TakeoverObserver>		takeoverObserver	= new HashSet<TakeoverObserver>();
+	Set<TakeoverObserver>	takeoverObserver	= new HashSet<TakeoverObserver>();
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
@@ -191,24 +190,10 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 		logger.info("Number of derived take overs: " + numTakeoversDerived
 					+ " (specified percentage: " + this.percentageTakeOvers + ")");
 
-		// normalise scores:
-		double maxProb = 0.0;
-		for (double d : scores.values()) {
-			maxProb += d;
-		}
-
-		for (Map.Entry<PotentialAgent, Double> entry : scores.entrySet()) {
-			if (maxProb == 0) {
-				scores.put(entry.getKey(), 1.0 / scores.size());
-			} else {
-				scores.put(entry.getKey(), entry.getValue() / maxProb);
-			}
-		}
-
 		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
 			tryToComeIn(
-					sample(scores, false, r.getRandom().getURService(),
+					sample(scores, true, r.getRandom().getURService(),
 							RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()), r);
 		}
 	}
@@ -268,9 +253,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				break;
 		}
 
-		logger.debug("Try " + a.getID() + " to take over on mostly " + sorted.size()
-				+ " cells (region "
-				+ r.getID() + " has "
+		logger.debug("Allocate " + sorted.size() + " cells (region " + r.getID() + " has "
 				+ r.getNumCells() + " cells).");
 
 		for (Cell c : sorted) {
@@ -288,7 +271,6 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				// <- LOGGING
 				if (logger.isDebugEnabled()) {
 					logger.debug("Ownership from :" + c.getOwner() + " --> " + agent);
-					logger.debug("Take over cell " + sorted.indexOf(c) + " of " + sorted.size());
 				}
 				// LOGGING ->
 

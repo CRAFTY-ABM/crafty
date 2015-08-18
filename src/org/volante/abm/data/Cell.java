@@ -23,6 +23,9 @@
 package org.volante.abm.data;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.volante.abm.agent.Agent;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.Initialisable;
@@ -63,6 +66,8 @@ public class Cell implements Initialisable {
 	int					y					= 0;
 	boolean				initialised			= false;
 
+	Set<CellCapitalObserver> cellCapitalObservers = new HashSet<CellCapitalObserver>();
+
 	public Cell() {
 	}
 
@@ -92,21 +97,6 @@ public class Cell implements Initialisable {
 		supply = data.serviceMap();
 	}
 
-	/**
-	 * NOTE: When using this method, call
-	 * {@link Region#setRequiresEffectiveCapitalData()}!
-	 * 
-	 * @return modifiable effective capitals
-	 */
-	public DoubleMap<Capital> getModifiableEffectiveCapitals() {
-		if (region.doesRequireEffectiveCapitalData() && baseCapitals == effectiveCapitals) {
-			effectiveCapitals = region.data.capitalMap(); // Start with them
-															// being the same
-			initEffectiveCapitals();
-		}
-		return effectiveCapitals;
-	}
-
 	public UnmodifiableNumberMap<Capital> getEffectiveCapitals() {
 		return effectiveCapitals;
 	}
@@ -123,8 +113,21 @@ public class Cell implements Initialisable {
 		baseCapitals.copyFrom(c);
 	}
 
+	/**
+	 * NOTE: When using this method, call {@link Region#setRequiresEffectiveCapitalData()}!
+	 * 
+	 * @param c
+	 */
 	public void setEffectiveCapitals(UnmodifiableNumberMap<Capital> c) {
+		if (region.doesRequireEffectiveCapitalData() && baseCapitals == effectiveCapitals) {
+			effectiveCapitals = region.data.capitalMap();
+		}
 		effectiveCapitals.copyFrom(c);
+
+		// notify observers:
+		for (CellCapitalObserver observer : this.cellCapitalObservers) {
+			observer.cellCapitalChanged(this);
+		}
 	}
 
 	public void initEffectiveCapitals() {
@@ -200,5 +203,13 @@ public class Cell implements Initialisable {
 
 	public boolean isInitialised() {
 		return initialised;
+	}
+
+	public void registerCellCapitalObserver(CellCapitalObserver observer) {
+		this.cellCapitalObservers.add(observer);
+	}
+
+	public void removeCellCapitalObserver(CellCapitalObserver observer) {
+		this.cellCapitalObservers.remove(observer);
 	}
 }
