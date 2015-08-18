@@ -31,7 +31,9 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
 import org.volante.abm.data.ModelData;
@@ -45,9 +47,12 @@ import com.moseph.modelutils.fastdata.DoubleMap;
 
 
 /**
- * Base class for AllocationModels which do some kind of iterative optimization to allocate land
+ * Base class for AllocationModels which do some kind of iterative optimization
+ * to allocate land
  * 
  * @author dmrust
+ * @param <T>
+ *            solution to find and apply
  * 
  */
 public abstract class OptimizationAllocationModel<T> implements AllocationModel {
@@ -94,9 +99,19 @@ public abstract class OptimizationAllocationModel<T> implements AllocationModel 
 			PotentialAgent p = getAgentForCell(c, solution);
 
 			if (p != null) {
+
 				// TODO
 				Agent agent = p.createAgent(region);
 				region.setOwnership(agent, c);
+				if (region.getNetworkService() != null) {
+					if (region.getNetwork() != null) {
+						if (region.getGeography() != null && agent instanceof GeoAgent) {
+							((GeoAgent) agent).addToGeography();
+						}
+						region.getNetworkService().addAndLinkNode(region.getNetwork(),
+ (SocialAgent) agent);
+					}
+				}
 			}
 		}
 	}
