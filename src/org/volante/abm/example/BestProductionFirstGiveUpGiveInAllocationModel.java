@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
@@ -43,7 +42,6 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.Service;
 import org.volante.abm.models.utils.CellVolatilityObserver;
-import org.volante.abm.models.utils.GivingInStatisticsMessenger;
 import org.volante.abm.models.utils.ProductionWeightReporter;
 import org.volante.abm.models.utils.TakeoverObserver;
 import org.volante.abm.output.GivingInStatisticsObserver;
@@ -58,8 +56,7 @@ import org.volante.abm.schedule.RunInfo;
  * 
  */
 public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveInAllocationModel
-		implements CellCapitalObserver, PotentialAgentProductionObserver,
-		GivingInStatisticsMessenger {
+		implements CellCapitalObserver, PotentialAgentProductionObserver {
 
 	/**
 	 * Logger
@@ -69,8 +66,6 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 	protected Region						region;
 
 	Map<PotentialAgent, SortedList<Cell>>	cellProductions	= new HashMap<PotentialAgent, SortedList<Cell>>();
-
-	protected Set<GivingInStatisticsObserver>	statisticsObserver	= new HashSet<GivingInStatisticsObserver>();
 
 	/**
 	 * Applied to sampled indices from the list of sorted cells. A curve object can be assigned to
@@ -124,16 +119,6 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 		}
 	}
 
-
-	public void allocateLand(Region r) {
-		super.allocateLand(r);
-		if (r.getRinfo().getSchedule().getCurrentTick() == r.getRinfo().getSchedule()
-				.getStartTick()) {
-			for (GivingInStatisticsObserver o : statisticsObserver) {
-				o.initGivingInStatistic(r);
-			}
-		}
-	}
 	/**
 	 * Tries to create one of the given agents if it can take over a cell
 	 * 
@@ -240,10 +225,5 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 					}
 
 				}));
-	}
-
-	@Override
-	public void registerGivingInStatisticOberserver(GivingInStatisticsObserver observer) {
-		this.statisticsObserver.add(observer);
 	}
 }

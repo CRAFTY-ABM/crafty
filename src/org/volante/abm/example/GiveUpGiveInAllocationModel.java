@@ -47,8 +47,10 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.models.utils.CellVolatilityObserver;
+import org.volante.abm.models.utils.GivingInStatisticsMessenger;
 import org.volante.abm.models.utils.TakeoverMessenger;
 import org.volante.abm.models.utils.TakeoverObserver;
+import org.volante.abm.output.GivingInStatisticsObserver;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.BatchRunParser;
@@ -66,7 +68,7 @@ import com.moseph.modelutils.Utilities.ScoreComparator;
  * 
  */
 public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
-		implements TakeoverMessenger {
+		implements TakeoverMessenger, GivingInStatisticsMessenger {
 
 	/**
 	 * Logger
@@ -115,6 +117,8 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 	protected ModelData					data				= null;
 
 	protected Set<TakeoverObserver>		takeoverObserver	= new HashSet<TakeoverObserver>();
+
+	protected Set<GivingInStatisticsObserver>	statisticsObserver	= new HashSet<GivingInStatisticsObserver>();
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
@@ -176,6 +180,9 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 			for (TakeoverObserver o : takeoverObserver) {
 				o.initTakeOvers(r);
 			}
+			for (GivingInStatisticsObserver o : statisticsObserver) {
+				o.initGivingInStatistic(r);
+			}
 		}
 
 		super.allocateLand(r); // Puts the best agent on any unmanaged cells
@@ -206,6 +213,10 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				scores.put(entry.getKey(), entry.getValue() / maxProb);
 			}
 		}
+
+		// <- LOGGING
+		logger.info("Apply Try-to-come-in-mode " + tryToComeInMode);
+		// LOGGING ->
 
 		for (int i = 0; i < numTakeoversDerived; i++) {
 			// Resample this each time to deal with changes in supply affecting competitiveness
@@ -253,7 +264,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				});
 
 		List<Cell> sorted = new ArrayList<Cell>(competitiveness.keySet());
-		
+
 		switch(tryToComeInMode) {
 		case SORTED_CELLS:
 				Collections.sort(sorted, new ScoreComparator<Cell>(competitiveness));
@@ -300,6 +311,10 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 				}
 				// LOGGING ->
 
+				for (GivingInStatisticsObserver observer : this.statisticsObserver) {
+					observer.setNumberSearchedCells(r, a, sorted.indexOf(c) + 1);
+				}
+
 				r.setOwnership(agent, c);
 
 
@@ -334,5 +349,11 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 			logger.debug("Register TakeoverObserver " + observer);
 		}
 		// LOGGING ->
+	}
+
+
+	@Override
+	public void registerGivingInStatisticOberserver(GivingInStatisticsObserver observer) {
+		this.statisticsObserver.add(observer);
 	}
 }
