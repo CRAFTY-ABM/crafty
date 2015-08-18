@@ -33,12 +33,13 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 import org.volante.abm.data.RegionSet;
+import org.volante.abm.example.RegionalDemandModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.output.Outputs;
 import org.volante.abm.schedule.ScheduleStatusEvent.ScheduleStage;
 
 
-public class DefaultSchedule implements Schedule {
-
+public class DefaultSchedule implements WorldSyncSchedule {
 	static int						idCounter		= 0;
 
 	protected int					id				= idCounter++;
@@ -56,8 +57,11 @@ public class DefaultSchedule implements Schedule {
 
 	Outputs							output			= new Outputs();
 	private RunInfo					info			= null;
+	protected ModelData				mData			= null;
 
 	List<ScheduleStatusListener>	listeners		= new ArrayList<ScheduleStatusListener>();
+
+	WorldSynchronisationModel		worldSyncModel;
 
 	/*
 	 * Constructors
@@ -73,8 +77,14 @@ public class DefaultSchedule implements Schedule {
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.info = info;
+		this.mData = data;
 		output = info.getOutputs();
 		info.setSchedule(this);
+	}
+
+	@Override
+	public void setWorldSyncModel(WorldSynchronisationModel worldSyncModel) {
+		this.worldSyncModel = worldSyncModel;
 	}
 
 	@Override
@@ -140,6 +150,19 @@ public class DefaultSchedule implements Schedule {
 		// Allow the demand model to update for global supply supply for each region
 		for (Region r : regions.getAllRegions()) {
 			r.getDemandModel().updateSupply();
+		}
+
+		// in order to recalculate residuals (which is done during updateSupply()) and to calculate
+		// competitiveness, the market-level residuals must be known:
+		this.worldSyncModel.synchronizeNumOfCells(regions);
+		this.worldSyncModel.synchronizeDemand(regions);
+		this.worldSyncModel.synchronizeSupply(regions);
+
+		for (Region r : regions.getAllRegions()) {
+			if (r.getDemandModel() instanceof RegionalDemandModel) {
+				((RegionalDemandModel) r.getDemandModel())
+						.recalculateResidual();
+			}
 		}
 
 		for (Agent a : regions.getAllAgents()) {

@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import mpi.MPI;
+
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
@@ -54,6 +56,8 @@ public class WorldLoader {
 	List<String> regionCSV = new ArrayList<String>();
 	
 	@Attribute(required=false)
+	String					pidColumn			= "pid";
+	@Attribute(required = false)
 	String idColumn = "ID";
 	@Attribute(required=false)
 	String competitionColumn = "Competition";
@@ -103,7 +107,22 @@ public class WorldLoader {
 	{
 		RegionSet rs = new RegionSet();
 		for( RegionLoader rl : loaders ) {
-			rs.addRegion( loadRegion( rl ) );
+			try {
+				Class.forName("mpi.MPI");
+				if (MPI.COMM_WORLD.Rank() == rl.getUid()) {
+					Region r = loadRegion(rl);
+
+					logger.info("Run region " + r + " on rank " + MPI.COMM_WORLD.Rank());
+
+					rs.addRegion(r);
+				}
+			} catch (ClassNotFoundException exception) {
+				Region r = loadRegion(rl);
+
+				logger.info("No MPI. Region " + r + " loaded.");
+
+				rs.addRegion(r);
+			}
 		}
 		return rs;
 	}
@@ -136,6 +155,7 @@ public class WorldLoader {
 	RegionLoader loaderFromCSV( CsvReader reader ) throws IOException
 	{
 		RegionLoader rl = new RegionLoader(
+				BatchRunParser.parseString(reader.get(pidColumn), info),
 				BatchRunParser.parseString(reader.get(idColumn), info),
 				BatchRunParser.parseString(reader.get(competitionColumn), info),
 				BatchRunParser.parseString(reader.get(allocationColumn), info),
