@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
@@ -43,17 +44,23 @@ import org.volante.abm.output.TakeoverCellOutputter.RegionPotentialAgent;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.GloballyInitialisable;
 
+import com.csvreader.CsvWriter;
+
 
 /**
- * Uses Observer pattern: Registers at those {@link AllocationModel}s that
- * implement {@link TakeoverMessenger}. This is useful since the component that
- * knows about take-overs is an exchangeable component and this way not every
- * {@link AllocationModel} is required to implement the service. Furthermore,
- * this way take-overs only need to be reported in case there is a
+ * Uses Observer pattern: Registers at those {@link AllocationModel}s that implement
+ * {@link TakeoverMessenger}. This is useful since the component that knows about take-overs is an
+ * exchangeable component and this way not every {@link AllocationModel} is required to implement
+ * the service. Furthermore, this way take-overs only need to be reported in case there is a
  * {@link TakeoverObserver} registered.
  * 
- * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) ==
- * length(AFTs))
+ * NOTE: There is one instance of {@link TakeoverCellOutputter} that handles all regions, even if
+ * <code>perRegion == true</code>.
+ * 
+ * NOTE: If <code>perRegion == false</code> there are columns for each AFT per region, even if
+ * regions share the same set of AFTs.
+ * 
+ * NOTE: Assumes that AFT IDs do not leave out any number (i.e. max(AFT-ID) == length(AFTs))
  * 
  * @author Sascha Holzhauer
  * 
@@ -85,6 +92,35 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		}
 	}
 
+	public void startFile(String filename, Regions regions) throws IOException {
+		endFile(regions);
+		writers.put(regions, new CsvWriter(filename));
+
+		Set<Region> regionsSet = new HashSet<Region>();
+		for (Region reg : regions.getAllRegions()) {
+			regionsSet.add(reg);
+		}
+
+		String[] headers = new String[columns.size()];
+
+		int columnnum = -1;
+		for (int i = 0; i < columns.size(); i++) {
+
+			if (!(columns.get(i) instanceof TakeOverColumn)
+					|| regionsSet.contains(((TakeOverColumn) columns.get(i)).getRegion())) {
+				columnnum++;
+				headers[columnnum] = columns.get(i).getHeader();
+			}
+		}
+
+		String[] outputShort = new String[columnnum + 1];
+		for (int i = 0; i <= columnnum; i++) {
+			outputShort[i] = headers[i];
+		}
+
+		writers.get(regions).writeRecord(headers);
+	}
+
 	/**
 	 * @see org.volante.abm.output.AbstractOutputter#setOutputManager(org.volante.abm.output.Outputs)
 	 */
@@ -100,7 +136,7 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 			addColumn(new RegionsColumn<RegionPotentialAgent>());
 		}
 
-		addColumn(new TakeOverAfTColumn());
+		addColumn(new TakeOverAftColumn());
 	}
 
 	public void initTakeOvers(Region region) {
@@ -110,7 +146,9 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 			for (int i = maxAftID + 1; i < region.getPotentialAgents().size(); i++) {
 				for (PotentialAgent pa : region.getPotentialAgents()) {
 					if (pa.getSerialID() == i) {
-						addColumn(new TakeOverColumn(pa.getID(), i));
+						addColumn(new TakeOverColumn(pa.getID()
+								+ (this.perRegion ? "" : "[" + region.getID() + "]"), i,
+								region));
 					}
 				}
 			}
@@ -153,9 +191,41 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 	 *      org.volante.abm.data.Regions)
 	 */
 	public void writeData(Iterable<RegionPotentialAgent> data, Regions r) throws IOException {
-		super.writeData(data, r);
-		// reset:
-		for (int[][] nums : numTakeOvers.values()) {
+		String[] output = new String[columns.size()];
+		Set<Region> regions = new HashSet<Region>();
+		for (Region reg : r.getAllRegions()) {
+			regions.add(reg);
+		}
+
+		for (RegionPotentialAgent d : data) {
+			if (regions.contains(d.getRegion())) {
+				int columnnum = -1;
+				for (int i = 0; i < columns.size(); i++) {
+					// filter out TakeOverColumns that are not among requested regions (important
+					// for region-specific files):
+					if (!(columns.get(i) instanceof TakeOverColumn)
+							|| regions.contains(((TakeOverColumn) columns.get(i)).getRegion())) {
+						columnnum++;
+						output[columnnum] = columns.get(i).getValue(d, modelData, runInfo,
+										(columns.get(i) instanceof TakeOverColumn ? ((TakeOverColumn) columns
+												.get(i)).getRegion() :
+												r));
+					}
+				}
+
+				String[] outputShort = new String[columnnum + 1];
+				for (int i = 0; i <= columnnum; i++) {
+					outputShort[i] = output[i];
+				}
+
+				writers.get(r).writeRecord(outputShort);
+				writers.get(r).flush();
+			}
+		}
+		
+		// reset particular region:
+		for (Region reg : r.getAllRegions()) {
+			int[][] nums = numTakeOvers.get(reg);
 			for (int i = 0; i < nums.length; i++) {
 				for (int j = 0; j < nums[i].length; j++) {
 					nums[i][j] = 0;
@@ -182,9 +252,9 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		}
 	}
 
-	public class TakeOverAfTColumn implements TableColumn<RegionPotentialAgent> {
+	public class TakeOverAftColumn implements TableColumn<RegionPotentialAgent> {
 
-		public TakeOverAfTColumn() {
+		public TakeOverAftColumn() {
 		}
 
 		@Override
@@ -195,17 +265,25 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		@Override
 		public String getValue(RegionPotentialAgent pragent, ModelData data, RunInfo info,
 				Regions rs) {
-			return pragent.getPotentialAgent().getID();
+			return pragent.getPotentialAgent().getID()
+					+ (TakeoverCellOutputter.this.perRegion ? "" : "["
+							+ pragent.getRegion().getID() + "]");
 		}
 	}
 
 	public class TakeOverColumn implements TableColumn<RegionPotentialAgent> {
 		String	aftName	= "";
 		int		id;
+		Region	region;
 
-		public TakeOverColumn(String aftName, int id) {
+		public TakeOverColumn(String aftName, int id, Region region) {
 			this.aftName = aftName;
 			this.id = id;
+			this.region = region;
+		}
+
+		public Region getRegion() {
+			return this.region;
 		}
 
 		@Override
@@ -216,7 +294,8 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		@Override
 		public String getValue(RegionPotentialAgent pragent, ModelData data, RunInfo info,
 				Regions rs) {
-			if (numTakeOvers.containsKey(pragent.getRegion())
+			if (pragent.getRegion() == rs.getAllRegions().iterator().next() &&
+					numTakeOvers.containsKey(pragent.getRegion())
 					&& numTakeOvers.get(pragent.getRegion()).length > id) {
 				return "" + numTakeOvers.get(pragent.getRegion())[pragent.getPotentialAgent()
 						.getSerialID()][id];

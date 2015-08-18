@@ -76,7 +76,8 @@ public class SimpleAllocationModel implements AllocationModel,
 	public void allocateLand( Region r )
 	{
 		// <- LOGGING
-		logger.info("Allocate land for region " + r + " (" + r.getAvailable().size() + " cells)...");
+		logger.info("Allocate land for region " + r + " (allocating " + r.getAvailable().size()
+				+ " cells)...");
 		// LOGGING ->
 
 		for( Cell c : new ArrayList<Cell>( r.getAvailable() ) ) {

@@ -61,7 +61,8 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 	@Override
 	public void adjustCapitals(Cell c) {
 		int tick = rInfo.getSchedule().getCurrentTick();
-		DoubleMap<Capital> adjusted = c.getModifiableEffectiveCapitals();
+		DoubleMap<Capital> adjusted = modelData.capitalMap();
+		c.getEffectiveCapitals().copyInto(adjusted);
 		
 		for (Capital capital : modelData.capitals) {
 			if (capitalFactorCurves.containsKey(capital)) {
@@ -69,6 +70,7 @@ public class CapitalDynamicsInstitution extends AbstractInstitution {
 						* capitalFactorCurves.get(capital).sample(tick));
 			}
 		}
+		c.setEffectiveCapitals(adjusted);
 	}
 
 	/**

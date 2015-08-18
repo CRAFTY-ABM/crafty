@@ -54,11 +54,23 @@ public class InstitutionsTest extends BasicTestsUtils
 		c21.setBaseCapitals( capitals(3,0,0,0,0,0,0) );
 		c22.setBaseCapitals( capitals(4,0,0,0,0,0,0) );
 		
+		assertEqualMaps(capitals(1, 0, 0, 0, 0, 0, 0), c11.getBaseCapitals());
+		assertEqualMaps(capitals(2, 0, 0, 0, 0, 0, 0), c12.getBaseCapitals());
+		assertEqualMaps(capitals(3, 0, 0, 0, 0, 0, 0), c21.getBaseCapitals());
+		assertEqualMaps(capitals(4, 0, 0, 0, 0, 0, 0), c22.getBaseCapitals());
+
+		assertEqualMaps(capitals(1, 0, 0, 0, 0, 0, 0), c11.getEffectiveCapitals());
+		assertEqualMaps(capitals(2, 0, 0, 0, 0, 0, 0), c12.getEffectiveCapitals());
+		assertEqualMaps(capitals(3, 0, 0, 0, 0, 0, 0), c21.getEffectiveCapitals());
+		assertEqualMaps(capitals(4, 0, 0, 0, 0, 0, 0), c22.getEffectiveCapitals());
+
 		runInfo.getSchedule().tick();
+
 		assertEqualMaps( capitals(1,0,0,0,0,0,0), c11.getBaseCapitals() );
 		assertEqualMaps( capitals(2,0,0,0,0,0,0), c12.getBaseCapitals() );
 		assertEqualMaps( capitals(3,0,0,0,0,0,0), c21.getBaseCapitals() );
 		assertEqualMaps( capitals(4,0,0,0,0,0,0), c22.getBaseCapitals() );
+
 		assertEqualMaps( capitals(2,1,1,1,1,1,1), c11.getEffectiveCapitals() );
 		assertEqualMaps( capitals(3,1,1,1,1,1,1), c12.getEffectiveCapitals() );
 		assertEqualMaps( capitals(4,1,1,1,1,1,1), c21.getEffectiveCapitals() );

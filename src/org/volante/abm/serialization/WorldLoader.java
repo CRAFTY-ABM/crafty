@@ -77,6 +77,9 @@ public class WorldLoader {
 	@Attribute(required=false)
 	String agentColumn = "Agent Initialisers";
 	
+	@Attribute(required = false)
+	String					skipInitialAllocationColumn	= "Skip Inital Allocation";
+
 	ABMPersister persister = ABMPersister.getInstance();
 	ModelData modelData = new ModelData();
 	RunInfo					info				= null;
@@ -151,7 +154,7 @@ public class WorldLoader {
 	
 	RegionLoader loaderFromCSV( CsvReader reader ) throws IOException
 	{
-		return new RegionLoader(
+		RegionLoader rl = new RegionLoader(
 				BatchRunParser.parseString(reader.get(pidColumn), info),
 				BatchRunParser.parseString(reader.get(idColumn), info),
 				BatchRunParser.parseString(reader.get(competitionColumn), info),
@@ -162,6 +165,12 @@ public class WorldLoader {
 				null,
 				BatchRunParser.parseString(reader.get(socNetColumn), info),
 				BatchRunParser.parseString(reader.get(institutionsColumn), info));
+
+		if (!reader.get(this.skipInitialAllocationColumn).equals("")) {
+			rl.skipInitialAllocation = Boolean.parseBoolean(reader
+					.get(this.skipInitialAllocationColumn));
+		}
+		return rl;
 	}
 	
 	public void setModelData( ModelData data ) { this.modelData = data; }

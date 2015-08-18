@@ -60,6 +60,10 @@ public interface PotentialAgent extends Initialisable {
 
 	public ProductionModel getProduction();
 
+	public void registerPotentialAgentProductionObserver(PotentialAgentProductionObserver observer);
+
+	public void removePotentialAgentProductionObserver(PotentialAgentProductionObserver observer);
+
 	public static final int				UNKNOWN_SERIAL		= -1;
 
 	public static final PotentialAgent	NOT_MANAGED_TYPE	= new PotentialAgent()
@@ -112,6 +116,16 @@ public interface PotentialAgent extends Initialisable {
 																	return null;
 																}
 
-															};
+																@Override
+																public void registerPotentialAgentProductionObserver(
+																		PotentialAgentProductionObserver observer) {
+																	// nothing to do
+																}
 
+																@Override
+																public void removePotentialAgentProductionObserver(
+																		PotentialAgentProductionObserver observer) {
+																	// nothing to do
+																}
+															};
 }

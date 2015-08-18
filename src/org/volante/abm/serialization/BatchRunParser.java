@@ -98,6 +98,13 @@ public class BatchRunParser {
 		} else if (text.contains("|")) {
 			int run = rInfo.getCurrentRun();
 			String[] values = text.split("\\|");
+
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Returning: " + values[run]);
+			}
+			// LOGGING ->
+
 			return values[run];
 
 		} else if (text.contains("(")) {
@@ -108,9 +115,21 @@ public class BatchRunParser {
 			// parse parameters for all run configurations:
 			values = parseRStringArray(text, rInfo);
 
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Returning: " + values[run]);
+			}
+			// LOGGING ->
+
 			return values[run];
 
 		} else {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Returning: " + text);
+			}
+			// LOGGING ->
+
 			return text;
 		}
 	}
