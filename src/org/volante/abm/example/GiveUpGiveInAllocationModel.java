@@ -252,6 +252,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 			return; // In the rare case that all have 0 competitiveness, a can be null
 		}
 
+		// RANU improve performance by using distribution instance
 		Map<Cell, Double> competitiveness = scoreMap(
 				sampleN(r.getCells(), numSearchedCells, r.getRandom().getURService(),
 						RandomPa.RANDOM_SEED_RUN_ALLOCATION.name()),
@@ -304,6 +305,7 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 					o.increaseVolatility(c);
 				}
 
+				// LOGGING ->
 				// <- LOGGING
 				if (logger.isDebugEnabled()) {
 					logger.debug("Ownership from :" + c.getOwner() + " --> " + agent);
@@ -317,15 +319,15 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 
 				r.setOwnership(agent, c);
 
-
 				if (r.getNetworkService() != null) {
 					if (r.getNetwork() != null) {
 
-						if (r.getGeography() != null && agent instanceof GeoAgent) {
+						if (r.getGeography() != null
+								&& agent instanceof GeoAgent) {
 							((GeoAgent) agent).addToGeography();
 						}
-						r.getNetworkService().addAndLinkNode(
-								r.getNetwork(), (SocialAgent) agent);
+						r.getNetworkService().addAndLinkNode(r.getNetwork(),
+								(SocialAgent) agent);
 
 					} else {
 						if (!networkNullErrorOccurred) {
@@ -334,7 +336,6 @@ public class GiveUpGiveInAllocationModel extends SimpleAllocationModel
 						}
 					}
 				}
-
 				break;
 			}
 		}
