@@ -24,7 +24,7 @@ package org.volante.abm.data;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.volante.abm.agent.Agent;
@@ -41,7 +41,7 @@ import com.google.common.collect.Iterables;
  * 
  */
 public class RegionSet implements Regions {
-	protected Set<Regions> regions = new HashSet<Regions>();
+	protected Set<Regions>	regions	= new LinkedHashSet<Regions>();
 	Extent extent = new Extent();
 	String id = "Unknown";
 

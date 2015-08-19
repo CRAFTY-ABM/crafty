@@ -24,7 +24,7 @@ package org.volante.abm.serialization;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -118,7 +118,7 @@ public class WorldLoader {
 	
 	Set<RegionLoader> allLoaders( String csvFile ) throws IOException
 	{
-		Set<RegionLoader> loaders = new HashSet<RegionLoader>();
+		Set<RegionLoader> loaders = new LinkedHashSet<RegionLoader>();
 		// TODO override persister method
 		CsvReader reader = persister.getCSVReader(csvFile, null);
 
