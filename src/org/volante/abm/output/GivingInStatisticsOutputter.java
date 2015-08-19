@@ -60,6 +60,10 @@ public class GivingInStatisticsOutputter extends TableOutputter<Integer> impleme
 	@Attribute(required = false)
 	boolean										addTick				= true;
 
+	/**
+	 * Only considered when <code>perRegion==false</code> (otherwise, regions are considered in
+	 * column headers).
+	 */
 	@Attribute(required = false)
 	boolean										addRegion			= true;
 
@@ -86,6 +90,10 @@ public class GivingInStatisticsOutputter extends TableOutputter<Integer> impleme
 
 		if (addTick) {
 			addColumn(new TickColumn<Integer>());
+		}
+
+		if (addRegion && perRegion) {
+			addColumn(new RegionsColumn<Integer>());
 		}
 
 		addColumn(new NumberColumn());
@@ -250,7 +258,7 @@ public class GivingInStatisticsOutputter extends TableOutputter<Integer> impleme
 
 		@Override
 		public String getHeader() {
-			return ("" + this.aftName + (GivingInStatisticsOutputter.this.perRegion ? "["
+			return ("" + this.aftName + (!GivingInStatisticsOutputter.this.perRegion ? "["
 					+ region.getID() + "]" : ""));
 		}
 
