@@ -48,9 +48,12 @@ import org.volante.abm.data.Service;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
+import org.volante.abm.models.WorldSynchronisationModel;
 import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.schedule.WorldSyncSchedule;
 import org.volante.abm.serialization.ABMPersister;
+import org.volante.abm.testutils.NullWorldSynchronisationModel;
 
 import cern.jet.random.engine.RandomEngine;
 
@@ -510,6 +513,10 @@ public class BasicTestsUtils
 
 		a1 = new DefaultAgent("A1", modelData);
 		a2 = new DefaultAgent("A2", modelData);
+
+		WorldSynchronisationModel worldSyncModel = new NullWorldSynchronisationModel();
+		((WorldSyncSchedule) runInfo.getSchedule())
+				.setWorldSyncModel(worldSyncModel);
 
 	}
 

@@ -27,7 +27,7 @@
 	    <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" locale="ENGLISH, GERMANY"/>
 	 </tstamp>
 	
-	<echo>CRAFTY Social Revision: ${ant4hg.log.revision}</echo>
+	<echo>CRAFTY Parallel Revision: ${ant4hg.log.revision}</echo>
 	<echo>Time stamp ${TODAY}</echo>
 	
 	<echo>Write build info to file ${basedir}\..\..\src\org\volante\abm\serialization\CVersionInfo.java</echo>
@@ -59,7 +59,7 @@ package org.volante.abm.serialization;
 
 
 /**
- * CRAFTY Social Version Information
+ * CRAFTY Parallel Version Information
  */
 public class CVersionInfo {
 

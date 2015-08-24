@@ -11,7 +11,7 @@
  	<property name="src_java_dir" location="../../" />
  	<property name="src_doc_dir" location="../../target/doc" />
  	<property name="src_doc_dir" location="../../target/doc/javadoc"/>
- 	<property name="project" value="CRAFTY_Social" />
+ 	<property name="project" value="CRAFTY_Parallel" />
  	<property name="project_unix" value="crafty-abm" />
  	
  	<property name="user" value="s-holzhauer"/>
