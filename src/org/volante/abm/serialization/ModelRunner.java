@@ -128,9 +128,6 @@ public class ModelRunner
 
 					doRun(filename, start, end, rInfo, interactive);
 				}
-				rInfo.getOutputs().removeClosingOutputThreads();
-				PmParameterManager.reset();
-				MManager.reset();
 			}
 		}
 	}
@@ -144,6 +141,7 @@ public class ModelRunner
 		} else {
 			noninteractiveRun(loader, start == Integer.MIN_VALUE ? loader.startTick : start,
 					end == Integer.MIN_VALUE ? loader.endTick : end);
+			finalActions(rInfo);
 		}
 	}
 
@@ -166,7 +164,7 @@ public class ModelRunner
 		}
 	}
 
-	public static void interactiveRun( ScenarioLoader loader )
+	public static void interactiveRun(final ScenarioLoader loader)
 	{
 		logger.info("Setting up interactive run");
 		ScheduleThread thread = new ScheduleThread( loader.schedule );
@@ -179,6 +177,12 @@ public class ModelRunner
 		controls.add( sc );
 		controls.pack();
 		controls.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+		controls.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				ModelRunner.finalActions(loader.info);
+			}
+		});
 		controls.setVisible( true );
 	}
 
@@ -278,5 +282,11 @@ public class ModelRunner
 				.isRequired(false)
 				.create("se"));
 		return options;
+	}
+
+	protected static void finalActions(RunInfo rInfo) {
+		rInfo.getOutputs().removeClosingOutputThreads();
+		PmParameterManager.reset();
+		MManager.reset();
 	}
 }

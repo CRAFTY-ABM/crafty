@@ -111,7 +111,7 @@ public class SocialNetworkLoader {
 			@ElementMap(inline = true, entry = "Character", attribute = true, required = false, key = "param", valueType = Character.class),
 			@ElementMap(inline = true, entry = "Boolean", attribute = true, required = false, key = "param", valueType = Boolean.class),
 			@ElementMap(inline = true, entry = "String", attribute = true, required = false, key = "param", valueType = String.class) })
-	Map<String, Object>		params					= new HashMap<String, Object>();
+	Map<String, Object> params = new HashMap<>();
 
 	@Element(required = false, name = "DYN_EDGE_WEIGHT_UPDATER")
 	String					edgeWeightUpdaterClass	= "de.cesr.more.manipulate.agent.MPseudoEgoNetworkProcessor";
@@ -130,7 +130,7 @@ public class SocialNetworkLoader {
 	int						initTick				= Integer.MIN_VALUE;
 
 	@ElementList(entry = "measure", required = false, name = "nodemeasures")
-	List<CraftyNodeMeasure> nodeMeasures = new ArrayList<CraftyNodeMeasure>();
+	List<CraftyNodeMeasure> nodeMeasures = new ArrayList<>();
 
 	Region					region;
 
@@ -237,7 +237,7 @@ public class SocialNetworkLoader {
 			@Override
 			public void preTick() {
 				if (info.getSchedule().getCurrentTick() == tick) {
-					Collection<SocialAgent> socialAgentSet = new LinkedHashSet<SocialAgent>();
+					Collection<SocialAgent> socialAgentSet = new LinkedHashSet<>();
 					for (Agent agent : region.getAgents()) {
 						socialAgentSet.add((SocialAgent) agent);
 					}
