@@ -31,11 +31,11 @@ public class CVersionInfo {
 	/**
  	 * current revision number
      */
-	public static final String REVISION_NUMBER="50";
+	public static final String REVISION_NUMBER="52";
 
 	/**
      * time stamp of last commit action
      */
-	public static final String TIMESTAMP="2015-08-18 21:08:47";
+	public static final String TIMESTAMP="2015-08-24 17:13:49";
 }
 	

@@ -94,7 +94,7 @@ public class Institutions implements Institution, PreTickAction {
 	 * @see DefaultSchedule#tick()
 	 */
 	public void updateCapitals() {
-		log.info("Adjusting capitals for Region");
+		log.info("Adjusting capitals for Region " + region);
 		for (Cell c : region.getAllCells()) {
 			adjustCapitals(c);
 		}
