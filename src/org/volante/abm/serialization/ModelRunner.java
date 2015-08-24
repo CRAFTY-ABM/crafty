@@ -1,15 +1,15 @@
 /**
  * This file is part of
- * 
+ *
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software 
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *  
+ *
  * CRAFTY is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -23,6 +23,8 @@ package org.volante.abm.serialization;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+
+import mpi.MPI;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -38,6 +40,7 @@ import org.volante.abm.visualisation.ScheduleControls;
 import org.volante.abm.visualisation.TimeDisplay;
 
 import de.cesr.more.basic.MManager;
+import de.cesr.more.util.MVersionInfo;
 import de.cesr.parma.core.PmParameterManager;
 
 
@@ -62,8 +65,20 @@ public class ModelRunner
 
 	public static void main( String[] args ) throws Exception
 	{
+		logger.info("Start CRAFTY parallel");
+
+		String[] realArgs = null;
+		try {
+			Class.forName("mpi.MPI");
+			realArgs = MPI.Init(args);
+
+		} catch (ClassNotFoundException e) {
+			logger.error("No MPI in classpath!");
+			realArgs = args;
+		}
+
 		CommandLineParser parser = new BasicParser();
-		CommandLine cmd = parser.parse(manageOptions(), args);
+		CommandLine cmd = parser.parse(manageOptions(), realArgs);
 
 		if (cmd.hasOption('h')) {
 			HelpFormatter formatter = new HelpFormatter();
@@ -91,8 +106,11 @@ public class ModelRunner
 		clog("StartTick", "" + (start == Integer.MIN_VALUE ? "<ScenarioFile>" : start));
 		clog("EndTick", "" + (end == Integer.MIN_VALUE ? "<ScenarioFile>" : end));
 
-		clog("CRAFY_SocialRevision", CVersionInfo.REVISION_NUMBER);
-		clog("CRAFY_SocialBuildDate", CVersionInfo.TIMESTAMP);
+		clog("CRAFY_Parallel Revision", CVersionInfo.REVISION_NUMBER);
+		clog("CRAFY_Parallel BuildDate", CVersionInfo.TIMESTAMP);
+
+		clog("MoRe Revision", MVersionInfo.revisionNumber);
+		clog("MoRe BuildDate", MVersionInfo.timeStamp);
 
 		if (end < start) {
 			logger.error("End tick must not be larger than start tick!");
@@ -129,6 +147,17 @@ public class ModelRunner
 					doRun(filename, start, end, rInfo, interactive);
 				}
 			}
+		}
+
+		try {
+			Class.forName("mpi.MPI");
+			MPI.Finalize();
+		} catch (ClassNotFoundException e) {
+			logger.error("No MPI in classpath!");
+		} catch (Exception exception) {
+			logger.error("Error during MPI finilization: "
+					+ exception.getMessage());
+			exception.printStackTrace();
 		}
 	}
 

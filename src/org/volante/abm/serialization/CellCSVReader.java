@@ -87,6 +87,7 @@ public class CellCSVReader implements CellInitialiser {
 			}
 			// LOGGING ->
 
+
 			int x = Integer.parseInt(reader.get(xColumn));
 			if (xTransformer != null) {
 				x = xTransformer.transform(x);
