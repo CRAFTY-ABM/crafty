@@ -268,13 +268,8 @@ public class ScenarioLoader {
 
 		log.info("Final extent: " + regions.getExtent());
 		regions.initialise(modelData, info, null);
-		if (regions.getAllRegions().iterator().hasNext()) {
-			outputs.initialise(modelData, info, regions.getAllRegions()
-					.iterator().next()); // TODO: fix initialisation
-		}
-		else {
-			outputs.initialise(modelData, info, null); // TODO: fix
-		}
+		outputs.initialise(modelData, info, regions);
+
 		// initialisation
 		if (displays == null) {
 			displays = new DefaultModelDisplays();
