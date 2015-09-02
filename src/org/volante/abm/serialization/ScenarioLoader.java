@@ -41,6 +41,8 @@ import org.volante.abm.schedule.Schedule;
 import org.volante.abm.visualisation.DefaultModelDisplays;
 import org.volante.abm.visualisation.ModelDisplays;
 
+import de.cesr.more.basic.MManager;
+
 /**
  * The scenario loader is responsible for setting up the following things:
  * <ul>
@@ -95,16 +97,17 @@ public class ScenarioLoader {
 	String					runID			= "SET_INTERNAL";
 
 	/**
-	 * After the scenario configuration file has been parsed, this string is appended to the
-	 * persister's basedir. This is useful is a configuration adapts some parameters and points to
-	 * the super directory otherwise.
+	 * After the scenario configuration file has been parsed, this string is
+	 * appended to the persister's basedir. This is useful if a configuration
+	 * adapts some parameters and points to the super directory otherwise.
 	 */
 	@Attribute(name = "basedirAdaptation", required = false)
 	String					basedirAdaptation			= "";
 	
 	/**
-	 * This is appended to the adapted basedir to enable pointings to parameters in batch model CSV
-	 * parameter files e.g. in the same directory as the scenario file.
+	 * This is appended to the adapted basedir when looking up CSV parameter
+	 * files from parameters in batch mode (usually points to the same directory
+	 * as the scenario file).
 	 */
 	@Attribute(name = "csvParamBasedirCorrection", required = false)
 	String					csvParamBasedirCorrection	= "";
@@ -162,6 +165,8 @@ public class ScenarioLoader {
 	public void initialise(RunInfo info) throws Exception {
 		this.setSchedule(info.getSchedule());
 
+		MManager.init();
+		
 		this.scenario = BatchRunParser.parseString(scenario, info);
 
 		this.info = info;
