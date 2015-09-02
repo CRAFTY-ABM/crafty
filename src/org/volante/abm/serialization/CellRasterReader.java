@@ -32,6 +32,7 @@ import org.volante.abm.data.ModelData;
 import org.volante.abm.serialization.RegionLoader.CellInitialiser;
 
 import com.moseph.gis.raster.Raster;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 
 /**
@@ -72,7 +73,10 @@ public class CellRasterReader implements CellInitialiser {
 							r.totalMemory(), r.freeMemory(), r.totalMemory() - r.freeMemory()));
 				}
 				Cell cell = rl.getCell(xPos, yPos);
-				cell.getModifiableBaseCapitals().putDouble(capital, val);
+				DoubleMap<Capital> adjusted = data.capitalMap();
+				cell.getBaseCapitals().copyInto(adjusted);
+				adjusted.putDouble(capital, val);
+				cell.setBaseCapitals(adjusted);
 			}
 		}
 	}

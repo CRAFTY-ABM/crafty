@@ -35,6 +35,7 @@ import org.volante.abm.serialization.RegionLoader.CellInitialiser;
 import org.volante.abm.serialization.transform.IntTransformer;
 
 import com.csvreader.CsvReader;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 
 /**
@@ -99,17 +100,23 @@ public class CellCSVReader implements CellInitialiser {
 			}
 
 			Cell c = rl.getCell(x, y);
+
+			DoubleMap<Capital> adjusted = data.capitalMap();
+			c.getBaseCapitals().copyInto(adjusted);
+
 			for (Capital cap : data.capitals) {
 				String s = reader.get(cap.getName());
 				if (s != null) {
 					try {
-						c.getModifiableBaseCapitals().putDouble(cap, Double.parseDouble(s));
+						adjusted.putDouble(cap, Double.parseDouble(s));
 					} catch (Exception exception) {
 						log.error("Exception in row " + reader.getCurrentRecord() + " ("
 								+ exception.getMessage() + ") for capital " + cap.getName());
 					}
 				}
 			}
+			c.setBaseCapitals(adjusted);
+
 			if (hasAgentColumn) {
 				String ag = reader.get(agentColumn);
 				if (ag != null) {

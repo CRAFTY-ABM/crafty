@@ -700,7 +700,10 @@ public class BasicTestsUtils
 	public static void setCapitals(Cell[] cells, double[]... capitals)
 	{
 		for (int i = 0; i < cells.length; i++) {
-			cells[i].getModifiableBaseCapitals().put(capitals[i]);
+			DoubleMap<Capital> adjusted = modelData.capitalMap();
+			cells[i].getBaseCapitals().copyInto(adjusted);
+			adjusted.put(capitals[i]);
+			cells[i].setBaseCapitals(adjusted);
 		}
 	}
 
