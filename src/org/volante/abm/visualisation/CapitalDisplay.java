@@ -36,6 +36,8 @@ import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
 
+import com.moseph.modelutils.fastdata.DoubleMap;
+
 
 public class CapitalDisplay extends DatatypeDisplay<Capital> implements Display, ActionListener {
 
@@ -84,7 +86,11 @@ public class CapitalDisplay extends DatatypeDisplay<Capital> implements Display,
 			for (int y = 0; y < 255; y++) {
 				Cell c = new Cell(x, y);
 				c.initialise(data, null, r);
-				c.getModifiableBaseCapitals().putDouble(capital, x + y);
+
+				DoubleMap<Capital> adjusted = data.capitalMap();
+				c.getBaseCapitals().copyInto(adjusted);
+				adjusted.putDouble(capital, x + y);
+				c.setBaseCapitals(adjusted);
 				r.addCell(c);
 			}
 		}

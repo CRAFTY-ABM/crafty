@@ -41,6 +41,7 @@ import org.volante.abm.serialization.ABMPersister;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Table;
 import com.moseph.modelutils.distribution.Distribution;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 public class CSVCapitalUpdater extends AbstractUpdater
 {
@@ -136,6 +137,9 @@ public class CSVCapitalUpdater extends AbstractUpdater
 				log.warn("Update for unknown cell:" + file.get(X_COL) + ", " + file.get(Y_COL));
 				continue; //Go to next line
 			}
+			DoubleMap<Capital> adjusted = data.capitalMap();
+			cell.getBaseCapitals().copyInto(adjusted);
+
 			for( Capital c : data.capitals ) //Set each capital in turn
 			{
 				String cap = file.get( c.getName());
@@ -146,9 +150,10 @@ public class CSVCapitalUpdater extends AbstractUpdater
 					if( distributions.containsKey( c )) {
 						val += distributions.get( c ).sample();
 					}
-					cell.getModifiableBaseCapitals().putDouble( c, val );
+					adjusted.putDouble(c, val);
 				}
 			}
+			cell.setBaseCapitals(adjusted);
 		}
 	}
 	

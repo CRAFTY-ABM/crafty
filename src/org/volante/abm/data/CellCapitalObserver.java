@@ -29,6 +29,6 @@ package org.volante.abm.data;
  */
 public interface CellCapitalObserver {
 
-	public void cellCapitalChanged(Cell cell);
+	public void cellCapitalChanged(Cell cell, boolean remove);
 
 }
