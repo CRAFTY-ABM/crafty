@@ -33,6 +33,8 @@ import org.volante.abm.models.ProductionModel;
 
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
+import de.cesr.more.basic.agent.MoreObservingNetworkAgent;
+
 
 
 /**
@@ -41,7 +43,8 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * @author dmrust
  *
  */
-public interface Agent {
+public interface Agent extends MoreObservingNetworkAgent<Agent> {
+
 	/**
 	 * Returns all the cells the agent manages
 	 *
@@ -99,8 +102,11 @@ public interface Agent {
 	public UnmodifiableNumberMap<Service> supply(Cell c);
 
 	/**
-	 * Adds the cell to the cells this agent manages
-	 *
+	 * 
+	 * Adds the cell to the cells this agent manages. Use
+	 * {@link Region#setOwnership(Agent, Cell...)} to add cells since this
+	 * method is called by {@link Region#setOwnership(Agent, Cell...)}!
+	 * 
 	 * @param c
 	 */
 	public void addCell(Cell c);
@@ -163,7 +169,8 @@ public interface Agent {
 	public void tickStartUpdate();
 
 	/**
-	 * Called at the ending of each tick to allow the agent to do any internal housekeeping
+	 * Called at the ending of each tick to allow the agent to do any internal
+	 * housekeeping
 	 */
 	public void tickEndUpdate();
 
@@ -316,7 +323,13 @@ public interface Agent {
 
 														@Override
 														public void setGivingIn(double threshold) {
-															// Nothing to do
+															// do nothing
+														}
+
+														@Override
+														public void receiveNotification(
+																de.cesr.more.basic.agent.MoreObservingNetworkAgent.NetworkObservation observation,
+																Agent object) {
 														}
 													};
 

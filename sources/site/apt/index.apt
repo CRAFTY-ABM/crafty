@@ -1,0 +1,32 @@
+	----------------
+	CRAFTY
+	----------------
+	Sascha Holzhauer
+	----------------
+	2015-07-07
+	
+Documentation
+
+	The elaborated documentation is at {{{https://www.wiki.ed.ac.uk/display/CRAFTY/Home}this wiki}}.
+
+Versions
+	
+	Currently, there are several editions/branches maintained:
+	
+*----------------+----------------+
+CRAFTY_Trunk     |Basic version. Mainly maintained for backward compatibility                
+*----------------+----------------+
+CRAFTY_Social    |Supports social networks and social interaction 
+*----------------+----------------+
+CRAFTY_Parallel  |Supports cluster runs and includes code of CRAFTY_Social
+*----------------+----------------+
+CRAFTY_CoBRA     |COmponent Based Role Agents for cognitive agents and comprehensive modelling of institutions
+*----------------+----------------+
+	JavaDoc and the wiki usually relate to the CRAFTY_Social version. The section "Special Versions Documentation"
+	contains more information about particular versions' features and documentation.
+	
+Related Software
+
+	* There is an R packages {{{https://bitbucket.org/geoslurg/craftyr}craftyr}} to support generation 
+	of batch runs and do post-processing. See the {{{https://www.wiki.ed.ac.uk/display/CRAFTY/Post-Processing}wiki}} for
+	installation instructions.

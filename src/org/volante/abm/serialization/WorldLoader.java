@@ -68,6 +68,9 @@ public class WorldLoader {
 	@Attribute(required = false)
 	String cellColumn = "Cell Initialisers";
 	@Attribute(required=false)
+	String socNetColumn = "Social Network";
+
+	@Attribute(required=false)
 	String agentColumn = "Agent Initialisers";
 	
 	@Attribute(required = false)
@@ -140,6 +143,7 @@ public class WorldLoader {
 				BatchRunParser.parseString(reader.get(potentialColumn), info),
 				BatchRunParser.parseString(reader.get(cellColumn), info),
 				null,
+				BatchRunParser.parseString(reader.get(socNetColumn), info),
 				BatchRunParser.parseString(reader.get(institutionsColumn), info));
 
 		if (!reader.get(this.skipInitialAllocationColumn).equals("")) {
