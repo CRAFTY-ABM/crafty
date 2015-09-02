@@ -54,6 +54,7 @@ import org.volante.abm.serialization.BatchRunParser;
 import com.moseph.modelutils.Utilities;
 import com.moseph.modelutils.Utilities.Score;
 import com.moseph.modelutils.Utilities.ScoreComparator;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 
 /**
@@ -158,9 +159,12 @@ public class GiveUpGiveInAllocationModelOld extends SimpleAllocationModel
 
 		this.data = data;
 		perfectCell.initialise(data, info, r);
+
+		DoubleMap<Capital> adjusted = r.getModelData().capitalMap();
 		for (Capital c : data.capitals) {
-			perfectCell.getModifiableBaseCapitals().putDouble(c, 1);
+			adjusted.putDouble(c, 1);
 		}
+		perfectCell.setBaseCapitals(adjusted);
 	};
 
 	/**

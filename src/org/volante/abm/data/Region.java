@@ -463,7 +463,7 @@ public class Region implements Regions, PreTickAction {
 		for (Cell c : cells) {
 			// <- LOGGING
 			if (log.isDebugEnabled()) {
-				log.error("Update extent by cell " + c);
+				log.debug("Update extent by cell " + c);
 			}
 			// LOGGING ->
 
