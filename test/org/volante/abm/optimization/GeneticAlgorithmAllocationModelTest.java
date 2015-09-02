@@ -48,6 +48,7 @@ import org.volante.abm.param.RandomPa;
 import cern.jet.random.engine.RandomEngine;
 
 import com.google.common.collect.Multiset;
+import com.moseph.modelutils.fastdata.DoubleMap;
 
 public class GeneticAlgorithmAllocationModelTest extends BasicTestsUtils
 {
@@ -158,9 +159,12 @@ public class GeneticAlgorithmAllocationModelTest extends BasicTestsUtils
 		RandomEngine rEngine = r1.getRandom().getURService()
 				.getGenerator(RandomPa.RANDOM_SEED_INIT.name());
 		for( Cell c : cells ) {
+			DoubleMap<Capital> adjusted = modelData.capitalMap();
+			c.getBaseCapitals().copyInto(adjusted);
 			for( Capital cap : SimpleCapital.simpleCapitals ) {
-				c.getModifiableBaseCapitals().putDouble( cap, rEngine.nextDouble() );
+				adjusted.putDouble(cap, rEngine.nextDouble());
 			}
+			c.setBaseCapitals(adjusted);
 		}
 		
 		double initial = alloc.getCurrentFitness();

@@ -101,16 +101,23 @@ public class Cell implements Initialisable {
 		return effectiveCapitals;
 	}
 
-	public DoubleMap<Capital> getModifiableBaseCapitals() {
-		return baseCapitals;
-	}
-
 	public UnmodifiableNumberMap<Capital> getBaseCapitals() {
 		return baseCapitals;
 	}
 
 	public void setBaseCapitals(UnmodifiableNumberMap<Capital> c) {
+		if (baseCapitals == effectiveCapitals) {
+			for (CellCapitalObserver observer : this.cellCapitalObservers) {
+				observer.cellCapitalChanged(this, true);
+			}
+		}
+
 		baseCapitals.copyFrom(c);
+		if (baseCapitals == effectiveCapitals) {
+			for (CellCapitalObserver observer : this.cellCapitalObservers) {
+				observer.cellCapitalChanged(this, false);
+			}
+		}
 	}
 
 	/**
@@ -122,11 +129,17 @@ public class Cell implements Initialisable {
 		if (region.doesRequireEffectiveCapitalData() && baseCapitals == effectiveCapitals) {
 			effectiveCapitals = region.data.capitalMap();
 		}
+
+		// notify observers:
+		for (CellCapitalObserver observer : this.cellCapitalObservers) {
+			observer.cellCapitalChanged(this, true);
+		}
+
 		effectiveCapitals.copyFrom(c);
 
 		// notify observers:
 		for (CellCapitalObserver observer : this.cellCapitalObservers) {
-			observer.cellCapitalChanged(this);
+			observer.cellCapitalChanged(this, false);
 		}
 	}
 

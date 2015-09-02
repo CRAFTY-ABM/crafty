@@ -23,12 +23,15 @@
 package org.volante.abm.example;
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 
 import org.apache.log4j.Logger;
@@ -61,7 +64,7 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 	/**
 	 * Logger
 	 */
-	static private Logger	logger				= Logger.getLogger(BestProductionFirstGiveUpGiveInAllocationModel.class);
+	static private Logger					logger			= Logger.getLogger(BestProductionFirstGiveUpGiveInAllocationModel.class);
 
 	protected Region						region;
 
@@ -73,10 +76,13 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 	 * provided with the index to select or not.
 	 */
 	@Element(required = false)
-	protected IterativeCellSamplerFactory		samplerFactory		= new IterativeCellSamplerFactory();
+	protected IterativeCellSamplerFactory	samplerFactory	= new IterativeCellSamplerFactory();
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Region r) {
+		// <- LOGGING
+		logger.info("Init...");
+		// LOGGING ->
 		super.initialise(data, info, r);
 		this.region = r;
 		this.initCellProductions();
@@ -105,14 +111,20 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 			}
 			// LOGGING ->
 
-			cellProductions.put(pa, new SortedList<Cell>(FXCollections.<Cell> observableArrayList(
-					new HashSet<Cell>(this.region.getCells())),
-					new Comparator<Cell>() {
+			cellProductions.put(
+					pa,
+					new SortedList<Cell>(FXCollections.<Cell> observableArrayList(this.region
+							.getCells()),
+							new Comparator<Cell>() {
 						@Override
 						public int compare(Cell cell1, Cell cell2) {
-							return (-1) * Double.compare(
-									pa.getPotentialSupply(cell1).getDouble(mainService),
-									pa.getPotentialSupply(cell2).getDouble(mainService));
+									return (-1)
+											* Double.compare(
+													pa.getPotentialSupply(cell1).getDouble(
+															mainService),
+													pa
+															.getPotentialSupply(cell2).getDouble(
+																	mainService));
 						}
 
 					}));
@@ -141,7 +153,7 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 
 		Cell c;
 		Double competitiveness;
-		
+
 		boolean takenover = false;
 		while (!takenover && cellsampler.hasMoreToSample()) {
 			c = cellProductions.get(a).get(cellsampler.sample());
@@ -149,14 +161,13 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 
 			if (logger.isDebugEnabled()) {
 				logger.debug(cellsampler.numSampled() + "th sampled cell: " + c + " (owners["
-						+ c.getOwnerID() +
-						"] competitiveness:" + r.getCompetitiveness(c) + " / challenger (" + a
-						+ "): " +
-						competitiveness + ")");
+						+ c.getOwnerID()
+						+ "] competitiveness:" + r.getCompetitiveness(c) + " / challenger (" + a
+						+ "): "
+						+ competitiveness + ")");
 			}
 
-			if (competitiveness > a.getGivingUp()
-					&& c.getOwner().canTakeOver(c, competitiveness)) {
+			if (competitiveness > a.getGivingUp() && c.getOwner().canTakeOver(c, competitiveness)) {
 				Agent agent = a.createAgent(r);
 
 				for (TakeoverObserver observer : takeoverObserver) {
@@ -170,8 +181,7 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 				if (logger.isDebugEnabled()) {
 					logger.debug("Ownership from :" + c.getOwner() + " --> " + agent);
 					logger.debug("Take over " + cellsampler.numSampled() + "th cell (" + c
-							+ ") of "
-							+ numSearchedCells);
+							+ ") of " + numSearchedCells);
 				}
 				// LOGGING ->
 
@@ -197,10 +207,13 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 	}
 
 	@Override
-	public void cellCapitalChanged(Cell cell) {
+	public void cellCapitalChanged(Cell cell, boolean remove) {
 		for (final PotentialAgent pa : this.region.getPotentialAgents()) {
-			cellProductions.get(pa).remove(cell);
-			cellProductions.get(pa).add(cell);
+			if (remove) {
+				cellProductions.get(pa).getSource().remove(cell);
+			} else {
+				((ObservableList<Cell>) cellProductions.get(pa).getSource()).add(cell);
+			}
 		}
 	}
 
@@ -208,22 +221,27 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 	public void potentialAgentProductionChanged(final PotentialAgent pa) {
 		final Service mainService;
 		if (pa.getProduction() instanceof ProductionWeightReporter) {
-			mainService = ((ProductionWeightReporter) pa.getProduction())
-					.getProductionWeights().getMax();
+			mainService = ((ProductionWeightReporter) pa.getProduction()).getProductionWeights()
+					.getMax();
 		} else {
 			mainService = null;
 		}
 
-		cellProductions.put(pa, new SortedList<Cell>(FXCollections.<Cell> observableArrayList(
-				new HashSet<Cell>(this.region.getCells())),
-				new Comparator<Cell>() {
-					@Override
-					public int compare(Cell cell1, Cell cell2) {
-						return Double.compare(
-								pa.getPotentialSupply(cell1).getDouble(mainService),
-								pa.getPotentialSupply(cell2).getDouble(mainService));
-					}
+		cellProductions.put(
+				pa,
+				new SortedList<Cell>(FXCollections.<Cell> observableArrayList(this.region
+						.getCells()),
+						new Comparator<Cell>() {
+							@Override
+							public int compare(Cell cell1, Cell cell2) {
+								return (-1)
+										* Double.compare(
+												pa.getPotentialSupply(cell1).getDouble(mainService),
+												pa
+														.getPotentialSupply(cell2).getDouble(
+																mainService));
+							}
 
-				}));
+						}));
 	}
 }

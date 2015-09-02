@@ -188,10 +188,12 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	@Override
 	public void perform(InnovationAgent agent) {
 		for (Cell c : agent.getCells()) {
-			DoubleMap<Capital> capitals = c.getModifiableBaseCapitals();
-			capitals.put(this.affectedCapitalObject,
-					capitals.get(affectedCapitalObject)
+			DoubleMap<Capital> adjusted = modelData.capitalMap();
+			c.getBaseCapitals().copyInto(adjusted);
+
+			adjusted.put(this.affectedCapitalObject, adjusted.get(affectedCapitalObject)
 							* this.effectOnCapitalFactor);
+			c.setBaseCapitals(adjusted);
 		}
 	}
 
@@ -201,10 +203,12 @@ public class RepeatingCapitalLevelInnovation extends Innovation implements
 	@Override
 	public void unperform(InnovationAgent agent) {
 		for (Cell c : agent.getCells()) {
-			DoubleMap<Capital> capitals = c.getModifiableBaseCapitals();
-			capitals.put(this.affectedCapitalObject,
-					capitals.get(affectedCapitalObject)
+			DoubleMap<Capital> adjusted = modelData.capitalMap();
+			c.getBaseCapitals().copyInto(adjusted);
+
+			adjusted.put(this.affectedCapitalObject, adjusted.get(affectedCapitalObject)
 							/ this.effectOnCapitalFactor);
+			c.setBaseCapitals(adjusted);
 		}
 	}
 

@@ -63,7 +63,7 @@ public class SimpleAllocationModel implements AllocationModel,
 	static private Logger	logger	= Logger.getLogger(SimpleAllocationModel.class);
 
 
-	Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
+	protected Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
 
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
