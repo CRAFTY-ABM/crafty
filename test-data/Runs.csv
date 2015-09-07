@@ -1,2 +1,3 @@
-Run, cellInitialiser/cellInitialiser.xml
-1, RunCellInitialiser
+Run,cellInitialiser/cellInitialiser.xml,agentID
+1,RunCellInitialiser,1
+42,RunCellInitialiser,99
