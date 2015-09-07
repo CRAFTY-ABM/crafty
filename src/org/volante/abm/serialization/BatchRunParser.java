@@ -92,6 +92,24 @@ public class BatchRunParser {
 		}
 		// LOGGING ->
 
+		String after = parseStringBasic(text, rInfo);
+		if (text.equals(after)) {
+			return after;
+		} else {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Recursive invocation..");
+			}
+			// LOGGING ->
+			return parseString(after, rInfo);
+		}
+	}
+
+	/**
+	 * @param text
+	 * @param rInfo
+	 */
+	protected static String parseStringBasic(String text, RunInfo rInfo) {
 		if (text.contains("@")) {
 			return CsvBatchRunParser.parseString(text, rInfo);
 
