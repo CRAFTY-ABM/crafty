@@ -104,8 +104,10 @@ public class CsvBatchRunParser {
 			throw new IllegalStateException("Text to parse (" + text
 					+ ") does not contain closing parenthesis!");
 		}
-		String text2parse = text.substring(text.indexOf("@") + 2, text.lastIndexOf(")"));
-		String postText = text.substring(text.lastIndexOf(")") + 1, text.length());
+
+		int closing = getClosingParenthesisIndex(text.toCharArray(), text.indexOf("@") + 2);
+		String text2parse = text.substring(text.indexOf("@") + 2, closing);
+		String postText = text.substring(closing + 1, text.length());
 		
 		String parsed = null;
 
@@ -349,5 +351,25 @@ public class CsvBatchRunParser {
 		cachedCsvData = new HashMap<String, Map<String, Map<Integer, String>>>();
 		firstColumns = new HashMap<String, String>();
 		cachedLinksData = null;
+	}
+
+	/**
+	 * @param text
+	 * @param openPos
+	 * @return index of closing parenthesis
+	 */
+	protected static int getClosingParenthesisIndex(char[] text, int openPos) {
+		int closePos = openPos;
+		int counter = 1;
+		while (counter > 0) {
+			char c = text[++closePos];
+			if (c == '(') {
+				counter++;
+			}
+			else if (c == ')') {
+				counter--;
+			}
+		}
+		return closePos;
 	}
 }
