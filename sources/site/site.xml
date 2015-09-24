@@ -3,9 +3,14 @@
   name="CRAFTY Social">
   <publishDate position="right"/>
   <version position="right"/>
+  <bannerLeft>
+    <src>images/CRAFTYLogo.png</src>
+    <height>100px</height>
+    <href>http://crafty-abm.sourceforge.net/</href>
+  </bannerLeft>
   <bannerRight>
-    <src>images/UoE_Geosciences.jpeg</src>
-    <height>150px</height>
+    <src>images/UoE_Geosciences.png</src>
+    <height>100px</height>
     <href>http://www.ed.ac.uk/schools-departments/geosciences/</href>
   </bannerRight>
   <body>
@@ -28,6 +33,7 @@
     </menu>
     
    <menu name="Related Projects">
+   	  <item name="craftyr" href="https://bitbucket.org/geoslurg/craftyr" target="new"/>
       <item name="MoRe" href="http://more4abm.sourceforge.net" target="new"/>
       <item name="LARA" href="http://lara-framework.sourceforge.net" target="new"/>
       <item name="ParMa" href="http://parma.sourceforge.net" target="new"/>
