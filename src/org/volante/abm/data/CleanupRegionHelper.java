@@ -19,17 +19,23 @@
  *
  * School of Geoscience, University of Edinburgh, Edinburgh, UK
  * 
- * Created by Sascha Holzhauer on 14 Aug 2015
+ * Created by Sascha Holzhauer on 23 Sep 2015
  */
 package org.volante.abm.data;
 
+
+import java.util.Set;
+
+import org.volante.abm.agent.Agent;
+
+
 /**
+ * 
  * @author Sascha Holzhauer
- *
+ * 
  */
-public interface CellCapitalObserver {
+public interface CleanupRegionHelper extends RegionHelper {
 
-	public void cellCapitalChanged(Cell cell, boolean remove);
+	public void cleanUp(Region region, Set<Agent> agentsToRemove);
 
-	public void regionCapitalChanged();
 }

@@ -45,6 +45,7 @@ import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.param.GeoPa;
+import org.volante.abm.schedule.PrePreTickAction;
 import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.ABMPersister;
@@ -65,7 +66,7 @@ import de.cesr.more.building.network.MoreNetworkService;
 import de.cesr.parma.core.PmParameterManager;
 
 
-public class Region implements Regions, PreTickAction {
+public class Region implements Regions, PreTickAction, PrePreTickAction {
 
 	/**
 	 * Logger
@@ -382,6 +383,12 @@ public class Region implements Regions, PreTickAction {
 	}
 
 	public void cleanupAgents() {
+		for (RegionHelper helper : this.helpers.values()) {
+			if (helper instanceof CleanupRegionHelper) {
+				((CleanupRegionHelper) helper).cleanUp(this, agentsToRemove);
+			}
+		}
+
 		for (Agent a : agentsToRemove) {
 			log.trace(" removing agent " + a.getID() + " at " + a.getCells());
 
@@ -720,5 +727,17 @@ public class Region implements Regions, PreTickAction {
 
 	public void setSkipInitialAllocation(boolean skipInitialAllocation) {
 		this.skipInitialAllocation = skipInitialAllocation;
+	}
+
+	/**
+	 * @see org.volante.abm.schedule.PrePreTickAction#prePreTick()
+	 */
+	@Override
+	public void prePreTick() {
+		if (this.requiresEffectiveCapitalData) {
+			if (this.getAllocationModel() instanceof CellCapitalObserver) {
+				((CellCapitalObserver) this.getAllocationModel()).regionCapitalChanged();
+			}
+		}
 	}
 }
