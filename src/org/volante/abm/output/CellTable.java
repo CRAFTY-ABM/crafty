@@ -22,23 +22,29 @@
 package org.volante.abm.output;
 
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.volante.abm.data.Capital;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
+import org.volante.abm.data.Region;
 import org.volante.abm.data.Regions;
 import org.volante.abm.data.Service;
 import org.volante.abm.example.SimpleProductionModel;
+import org.volante.abm.output.PreAllocationStorageCleanupRegionHelper.PreAllocData;
 import org.volante.abm.schedule.RunInfo;
+import org.volante.abm.serialization.GloballyInitialisable;
 
 
-public class CellTable extends TableOutputter<Cell> {
+public class CellTable extends TableOutputter<Cell> implements GloballyInitialisable {
 	@Attribute(required = false)
 	boolean			addTick				= true;
 	
@@ -68,17 +74,39 @@ public class CellTable extends TableOutputter<Cell> {
 	
 	@Attribute(required = false)
 	boolean			addCompetitiveness	= true;
+
+	@Attribute(required = false)
+	boolean			addPreAllocCompetitiveness	= false;
+
+	@Attribute(required = false)
+	boolean													addPreAllocLandUse			= false;
 	
 	@Attribute(required = false)
 	boolean			addGiThreshold				= false;
 
+	@Attribute(required = false)
+	boolean			addPreAllocGuThreshold				= false;
+
 	@ElementList(required = false, inline = true, entry = "addServiceProductivity")
-	List<String>	addServiceProductivities	= new ArrayList<String>();
+	List<String>											addServiceProductivities	= new ArrayList<>();
 
 	@Attribute(required = false)
 	String			doubleFormat		= "0.000";
 
 	DecimalFormat	doubleFmt			= null;
+
+	Map<Region, PreAllocationStorageCleanupRegionHelper>	cleanupHelpers				= new HashMap<>();
+
+	@Override
+	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
+		if (addPreAllocCompetitiveness | addPreAllocLandUse) {
+			for (Region r : regions.getAllRegions()) {
+				PreAllocationStorageCleanupRegionHelper helper = new PreAllocationStorageCleanupRegionHelper();
+				cleanupHelpers.put(r, helper);
+				r.registerHelper(this, helper);
+			}
+		}
+	}
 
 	@Override
 	public void setOutputManager(Outputs outputs) {
@@ -128,19 +156,44 @@ public class CellTable extends TableOutputter<Cell> {
 			addColumn(new CellCompetitivenessColumn());
 		}
 
+		if (addPreAllocCompetitiveness) {
+			addColumn(new CellPreAllocCompetitivenessColumn());
+		}
+
+		if (addPreAllocLandUse) {
+			addColumn(new CellPreAllocLandUseIndexColumn());
+		}
+
 		if (addGiThreshold) {
 			addColumn(new CellGiThresholdColumn());
 		}
+
+		if (addPreAllocGuThreshold) {
+			addColumn(new CellPreAllocGuThresholdColumn());
+		}
 	}
 
+	/**
+	 * @see org.volante.abm.output.TableOutputter#getData(org.volante.abm.data.Regions)
+	 */
 	@Override
 	public Iterable<Cell> getData(Regions r) {
 		return r.getAllCells();
 	}
 
+	/**
+	 * @see org.volante.abm.output.AbstractOutputter#getDefaultOutputName()
+	 */
 	@Override
 	public String getDefaultOutputName() {
 		return "Cell";
+	}
+
+	public void writeData(Iterable<Cell> data, Regions r) throws IOException {
+		super.writeData(data, r);
+		for (PreAllocationStorageCleanupRegionHelper helper : cleanupHelpers.values()) {
+			helper.clear();
+		}
 	}
 
 	public static class CellXColumn implements TableColumn<Cell> {
@@ -287,6 +340,33 @@ public class CellTable extends TableOutputter<Cell> {
 		}
 	}
 
+	public class CellPreAllocCompetitivenessColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "PreAllocCompetitiveness";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			PreAllocData preAllocData = cleanupHelpers.get(r).getPreAllocData(t);
+			return doubleFmt.format((preAllocData != null ? preAllocData.competitiveness
+					: Double.NaN));
+		}
+	}
+
+	public class CellPreAllocLandUseIndexColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "PreAllocLandUseIndex";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			PreAllocData preAllocData = cleanupHelpers.get(r).getPreAllocData(t);
+			return "" + (preAllocData != null ? preAllocData.agentId : "None");
+		}
+	}
+
 	public class CellGiThresholdColumn implements TableColumn<Cell> {
 		@Override
 		public String getHeader() {
@@ -296,6 +376,19 @@ public class CellTable extends TableOutputter<Cell> {
 		@Override
 		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
 			return doubleFmt.format(t.getOwner().getGivingIn());
+		}
+	}
+
+	public class CellPreAllocGuThresholdColumn implements TableColumn<Cell> {
+		@Override
+		public String getHeader() {
+			return "PreAllocGivingUpThreshold";
+		}
+
+		@Override
+		public String getValue(Cell t, ModelData data, RunInfo info, Regions r) {
+			PreAllocData preAllocData = cleanupHelpers.get(r).getPreAllocData(t);
+			return doubleFmt.format(preAllocData != null ? preAllocData.guThreshold : Double.NaN);
 		}
 	}
 }
