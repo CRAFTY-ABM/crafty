@@ -6,3 +6,5 @@ syntax: regexp
 ^lib/CRAFTY-P\.jar$
 syntax: regexp
 ^\.settings/org\.eclipse\.jdt\.ui\.prefs$
+syntax: regexp
+^lib/mpi\.jar$

@@ -30,8 +30,6 @@ import org.volante.abm.data.Region;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.update.AgentTypeUpdater.CapitalUpdateFunction;
 
-import com.moseph.modelutils.fastdata.DoubleMap;
-
 
 /**
  * Expresses change of value as a proportion of difference with top value (for +ve numbers) or
@@ -66,15 +64,14 @@ public class ProportionalChangeFunction implements CapitalUpdateFunction {
 	}
 
 	/**
+	 * TODO This function did nothing. What should it do?
+	 * 
 	 * Applies the function to the cell. If you want to do something more complex (i.e. involving
 	 * cell values) override this.
 	 */
 	@Override
 	public void apply(Cell c) {
-		DoubleMap<Capital> adjusted = c.getRegion().getModelData().capitalMap();
-		c.getBaseCapitals().copyInto(adjusted);
-		adjusted.put(capital, c.getBaseCapitals().getDouble(capital));
-		c.setBaseCapitals(adjusted);
+		// nothing
 	}
 
 	/**
