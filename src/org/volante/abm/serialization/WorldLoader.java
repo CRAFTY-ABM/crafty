@@ -72,9 +72,6 @@ public class WorldLoader {
 
 	@Attribute(required=false)
 	String agentColumn = "Agent Initialisers";
-	
-	@Attribute(required = false)
-	String					skipInitialAllocationColumn	= "Skip Inital Allocation";
 
 	ABMPersister persister = ABMPersister.getInstance();
 	ModelData modelData = new ModelData();
@@ -145,11 +142,6 @@ public class WorldLoader {
 				null,
 				BatchRunParser.parseString(reader.get(socNetColumn), info),
 				BatchRunParser.parseString(reader.get(institutionsColumn), info));
-
-		if (!reader.get(this.skipInitialAllocationColumn).equals("")) {
-			rl.skipInitialAllocation = Boolean.parseBoolean(reader
-					.get(this.skipInitialAllocationColumn));
-		}
 		return rl;
 	}
 	

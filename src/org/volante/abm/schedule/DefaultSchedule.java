@@ -107,26 +107,28 @@ public class DefaultSchedule implements Schedule {
 			r.perceiveSocialNetwork();
 		}
 
-		// Recalculate agent competitiveness and give up
-		log.info("Update agents' competitiveness and consider giving up ...");
 		for (Agent a : regions.getAllAgents()) {
-			if (a instanceof InnovationAgent) {
-				((InnovationAgent) a).considerInnovationsNextStep();
+			a.tickStartUpdate();
+		}
+		
+		if (this.getCurrentTick() > this.getStartTick()) {
+			log.info("Update agents' competitiveness and consider giving up ...");
+			for (Agent a : regions.getAllAgents()) {
+				if (a instanceof InnovationAgent) {
+					((InnovationAgent) a).considerInnovationsNextStep();
+				}
+				a.updateCompetitiveness();
+				a.considerGivingUp();
 			}
 
-			a.tickStartUpdate();
-			a.updateCompetitiveness();
-			a.considerGivingUp();
-		}
+			// Remove any unneeded agents
+			for (Region r : regions.getAllRegions()) {
+				r.cleanupAgents();
+			}
 
-		// Remove any unneeded agents
-		for (Region r : regions.getAllRegions()) {
-			r.cleanupAgents();
-		}
-
-		// Allocate land
-		for (Region r : regions.getAllRegions()) {
-			if (this.getCurrentTick() > this.getStartTick() || !r.isSkipInitialAllocation()) {
+			// Allocate land
+			log.info("Allocate unmanged cells ...");
+			for (Region r : regions.getAllRegions()) {
 				r.getAllocationModel().allocateLand(r);
 			}
 		}

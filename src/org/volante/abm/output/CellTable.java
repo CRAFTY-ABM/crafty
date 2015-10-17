@@ -24,7 +24,7 @@ package org.volante.abm.output;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +91,10 @@ public class CellTable extends TableOutputter<Cell> implements GloballyInitialis
 	List<String>											addServiceProductivities	= new ArrayList<>();
 
 	@Attribute(required = false)
-	String			doubleFormat		= "0.000";
+	String													doubleFormat				= "0.000";
+
+	@Attribute(required = false)
+	int														maxIntegerDigits			= 10;
 
 	DecimalFormat	doubleFmt			= null;
 
@@ -112,10 +115,11 @@ public class CellTable extends TableOutputter<Cell> implements GloballyInitialis
 	public void setOutputManager(Outputs outputs) {
 		super.setOutputManager(outputs);
 
-		DecimalFormatSymbols decimalSymbols = new DecimalFormat()
-				.getDecimalFormatSymbols();
-		decimalSymbols.setDecimalSeparator('.');
-		doubleFmt = new DecimalFormat(doubleFormat, decimalSymbols);
+		NumberFormat f = NumberFormat.getInstance();
+		if (f instanceof DecimalFormat) {
+			((DecimalFormat) f).applyPattern(doubleFormat);
+			((DecimalFormat) f).setMaximumIntegerDigits(maxIntegerDigits);
+		}
 
 		if (addTick) {
 			addColumn(new TickColumn<Cell>());
