@@ -125,7 +125,7 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 
 	@Override
 	public DoubleMap<Service> getResidualDemand(Cell c) {
-		return perCellResidual;
+		return getAveragedPerCellResidualDemand();
 	}
 
 	@Override
@@ -198,9 +198,13 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 		log.info("Marginal Utilities: " + getMarginalUtilities().prettyPrint());
 	}
 
-	// TODO check
-	// Generally shouldn't use the competition model directly as it ignores institutions, but it's
-	// OK here.
+	/**
+	 * Generally shouldn't use the competition model directly as it ignores institutions, but it's OK here.
+	 * 
+	 * Currently only used for informational purposes.
+	 * 
+	 * @see org.volante.abm.models.DemandModel#getMarginalUtilities()
+	 */
 	@Override
 	@SuppressWarnings("deprecation")
 	public DoubleMap<Service> getMarginalUtilities() {
@@ -241,5 +245,13 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	@Override
 	public RegionalDemandDisplay getDisplay() {
 		return new RegionalDemandDisplay(this);
+	}
+
+	/**
+	 * @see org.volante.abm.models.DemandModel#getAveragedPerCellResidualDemand()
+	 */
+	@Override
+	public DoubleMap<Service> getAveragedPerCellResidualDemand() {
+		return perCellResidual;
 	}
 }

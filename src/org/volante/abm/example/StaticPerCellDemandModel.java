@@ -134,4 +134,13 @@ public class StaticPerCellDemandModel implements DemandModel {
 	public StaticPerCellDemandDisplay getDisplay() {
 		return new StaticPerCellDemandDisplay(this);
 	}
+
+	/**
+	 * @see org.volante.abm.models.DemandModel#getAveragedPerCellResidualDemand()
+	 */
+	@Override
+	public DoubleMap<Service> getAveragedPerCellResidualDemand() {
+		log.fatal("Average per cell demand not implemented in StaticPerCellDemandModel");
+		return null;
+	}
 }

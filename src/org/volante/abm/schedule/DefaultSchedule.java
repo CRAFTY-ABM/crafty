@@ -100,23 +100,25 @@ public class DefaultSchedule implements Schedule {
 			}
 		}
 
-		// Recalculate agent competitiveness and give up
-		log.info("Update agents' competitiveness and consider giving up ...");
 		for (Agent a : regions.getAllAgents()) {
-
 			a.tickStartUpdate();
-			a.updateCompetitiveness();
-			a.considerGivingUp();
 		}
+		
+		if (this.getCurrentTick() > this.getStartTick()) {
+			log.info("Update agents' competitiveness and consider giving up ...");
+			for (Agent a : regions.getAllAgents()) {
+				a.updateCompetitiveness();
+				a.considerGivingUp();
+			}
 
-		// Remove any unneeded agents
-		for (Region r : regions.getAllRegions()) {
-			r.cleanupAgents();
-		}
+			// Remove any unneeded agents
+			for (Region r : regions.getAllRegions()) {
+				r.cleanupAgents();
+			}
 
-		// Allocate land
-		for (Region r : regions.getAllRegions()) {
-			if (this.getCurrentTick() > this.getStartTick() || !r.isSkipInitialAllocation()) {
+			// Allocate land
+			log.info("Allocate unmanged cells ...");
+			for (Region r : regions.getAllRegions()) {
 				r.getAllocationModel().allocateLand(r);
 			}
 		}

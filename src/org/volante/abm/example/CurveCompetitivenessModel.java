@@ -124,9 +124,8 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	}
 
 	/**
-	 * Calculates per-cell residuals and calls
-	 * {@link CurveCompetitivenessModel#addUpMarginalUtilities(UnmodifiableNumberMap, UnmodifiableNumberMap, boolean)}
-	 * .
+	 * Calculates (averaged) per-cell residuals and calls
+	 * {@link CurveCompetitivenessModel#addUpMarginalUtilities(UnmodifiableNumberMap, UnmodifiableNumberMap, boolean)} .
 	 * 
 	 * @param demand
 	 * @param supply
@@ -135,8 +134,7 @@ public class CurveCompetitivenessModel implements CompetitivenessModel {
 	 */
 	public double getCompetitveness(DemandModel demand, UnmodifiableNumberMap<Service> supply,
 			boolean showWorking) {
-		DoubleMap<Service> residual = demand.getResidualDemand().copy();
-		residual.multiplyInto(1.0 / region.getNumCells(), residual);
+		DoubleMap<Service> residual = demand.getAveragedPerCellResidualDemand().copy();
 
 		if (showWorking) {
 			log.info("Using residual: " + residual.prettyPrint());
