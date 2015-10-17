@@ -493,6 +493,12 @@ public class Region implements Regions, PreTickAction {
 		return competition.getCompetitiveness(demand, c.getSupply(), c);
 	}
 
+	/**
+	 * Applied e.g. in optimisation allocation model
+	 * 
+	 * @param supply
+	 * @return competitiveness of the given supply
+	 */
 	public double getUnadjustedCompetitiveness(UnmodifiableNumberMap<Service> supply) {
 		if (competition == null || demand == null) {
 			return Double.NaN;
@@ -718,13 +724,5 @@ public class Region implements Regions, PreTickAction {
 
 	public Map<String, String> getPeristerContextExtra() {
 		return this.peristerContextExtra;
-	}
-
-	public boolean isSkipInitialAllocation() {
-		return skipInitialAllocation;
-	}
-
-	public void setSkipInitialAllocation(boolean skipInitialAllocation) {
-		this.skipInitialAllocation = skipInitialAllocation;
 	}
 }
