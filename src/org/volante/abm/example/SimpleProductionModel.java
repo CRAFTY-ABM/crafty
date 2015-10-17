@@ -4,7 +4,7 @@
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
  * Copyright (C) 2014 School of GeoScience, University of Edinburgh, Edinburgh, UK
- * 
+ *
  * CRAFTY is free software: You can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software 
  * Foundation, either version 3 of the License, or (at your option) any later
@@ -94,7 +94,8 @@ public class SimpleProductionModel implements ProductionModel, ProductionWeightR
 		}
 	}
 	
-	void initWeightsFromCSV(ModelData data, RunInfo info, Region region) throws Exception
+	void initWeightsFromCSV(ModelData data, RunInfo info, Region region)
+			throws Exception
 	{
 		capitalWeights = info.getPersister().csvToMatrix(csvFile, data.capitals, data.services,
 				region != null ? region.getPeristerContextExtra() : null);

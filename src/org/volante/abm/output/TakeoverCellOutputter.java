@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.PotentialAgent;
@@ -69,6 +70,11 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		GloballyInitialisable,
 		TakeoverObserver {
 
+	/**
+	 * Logger
+	 */
+	static private Logger logger = Logger.getLogger(TakeoverCellOutputter.class);
+
 	@Attribute(required = false)
 	boolean					addTick			= true;
 
@@ -86,6 +92,14 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
 		for (Region r : regions.getAllRegions()) {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("TakeoverCellOutputter: Init (register takeover observer for) region " + r
+						+ "(allocation model: " + r.getAllocationModel()
+						+ ")");
+			}
+			// LOGGING ->
+
 			if (r.getAllocationModel() instanceof TakeoverMessenger) {
 				((TakeoverMessenger) r.getAllocationModel()).registerTakeoverOberserver(this);
 			}
@@ -197,6 +211,12 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 			regions.add(reg);
 		}
 
+		// <- LOGGING
+		if (logger.isDebugEnabled()) {
+			logger.debug("Write data for regions " + regions);
+		}
+		// LOGGING ->
+
 		for (RegionPotentialAgent d : data) {
 			if (regions.contains(d.getRegion())) {
 				int columnnum = -1;
@@ -225,6 +245,12 @@ public class TakeoverCellOutputter extends TableOutputter<RegionPotentialAgent> 
 		
 		// reset particular region:
 		for (Region reg : r.getAllRegions()) {
+			// <- LOGGING
+			if (logger.isDebugEnabled()) {
+				logger.debug("Reset region " + reg);
+			}
+			// LOGGING ->
+
 			int[][] nums = numTakeOvers.get(reg);
 			for (int i = 0; i < nums.length; i++) {
 				for (int j = 0; j < nums[i].length; j++) {
