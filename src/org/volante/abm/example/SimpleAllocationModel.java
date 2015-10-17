@@ -101,6 +101,7 @@ public class SimpleAllocationModel implements AllocationModel,
 			// TODO Check institutions for allowance
 
 			double s = r.getCompetitiveness( a, c );
+
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
 				logger.debug(a + "> competitiveness: " + s);
