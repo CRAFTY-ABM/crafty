@@ -41,12 +41,12 @@ public interface PotentialAgent extends Initialisable {
 	public UnmodifiableNumberMap<Service> getPotentialSupply(Cell cell);
 
 	/**
-	 * Create a new agent from this potential agent in the given region and assign it as owner of
-	 * the given cells.
+	 * Create a new agent from this potential agent in the given region and
+	 * assign it as owner of the given cells.
 	 * 
 	 * @param region
 	 * @param cells
-	 * @return
+	 * @return agent
 	 */
 	public Agent createAgent(Region region, Cell... cells);
 
