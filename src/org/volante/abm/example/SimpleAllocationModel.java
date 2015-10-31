@@ -32,7 +32,9 @@ import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -67,14 +69,15 @@ public class SimpleAllocationModel implements AllocationModel,
 	static private Logger	logger	= Logger.getLogger(SimpleAllocationModel.class);
 
 
-	Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
+	protected Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
 
 	@Attribute(required = false)
 	double						proportionToAllocate	= 1;
 
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
-	
+
+	protected boolean networkNullErrorOccurred = false;
 	/**
 	 * Creates a copy of the best performing potential agent on each empty cell
 	 */
@@ -110,6 +113,8 @@ public class SimpleAllocationModel implements AllocationModel,
 		PotentialAgent p = null;
 		for( PotentialAgent a : potential )
 		{
+			// TODO Check institutions for allowance
+
 			double s = r.getCompetitiveness( a, c );
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
@@ -138,9 +143,30 @@ public class SimpleAllocationModel implements AllocationModel,
 			// LOGGING ->
 
 			r.setOwnership(agent, c);
-			
+
 			for (CellVolatilityObserver o : cellVolatilityObserver) {
 				o.increaseVolatility(c);
+			}
+
+			if (r.getNetworkService() != null) {
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linking agent " + agent);
+				}
+				// LOGGING ->
+
+				if (r.getNetwork() != null) {
+					if (r.getGeography() != null && agent instanceof GeoAgent) {
+						((GeoAgent) agent).addToGeography();
+					}
+					r.getNetworkService().addAndLinkNode(r.getNetwork(),
+							(SocialAgent) agent);
+				} else {
+					if (!networkNullErrorOccurred) {
+						logger.warn("Network object not present during creation of new agent (subsequent error messages are suppressed)");
+						networkNullErrorOccurred = true;
+					}
+				}
 			}
 		}
 	}
