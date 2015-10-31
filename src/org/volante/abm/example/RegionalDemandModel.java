@@ -254,4 +254,12 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	public DoubleMap<Service> getAveragedPerCellResidualDemand() {
 		return perCellResidual;
 	}
+
+	/**
+	 * @see org.volante.abm.models.DemandModel#getAveragedPerCellDemand()
+	 */
+	@Override
+	public DoubleMap<Service> getAveragedPerCellDemand() {
+		return perCellDemand;
+	}
 }

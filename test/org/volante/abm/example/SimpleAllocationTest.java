@@ -9,9 +9,14 @@ import org.junit.Test;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.DefaultAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.data.Cell;
 
 public class SimpleAllocationTest extends BasicTestsUtils
 {
+	
+	static final String	PROPORTION_ALLOCATION_XML	= "xml/SimpleProportionAllocation.xml";
+	static final double	PROPORTION					= 0.3;
+	
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testSimpleAllocation() throws Exception
@@ -47,5 +52,35 @@ public class SimpleAllocationTest extends BasicTestsUtils
 		demandR1.setResidual( c11, services(0, 8, 0, 0) );
 		r1.getAllocationModel().allocateLand( r1 );
 		assertEquals( forestry.getID(), c11.getOwner().getID() ); //Make sure that demand for food gives a farmer
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testProportionalAllocation() {
+		
+		persister = runInfo.getPersister();
+		try {
+			this.allocation = persister.read(SimpleAllocationModel.class,
+				persister.getFullPath(PROPORTION_ALLOCATION_XML, this.r1.getPeristerContextExtra()));
+			this.allocation.initialise(modelData, runInfo, r1);
+			r1.setAllocationModel(this.allocation);
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+		log.info("Test simple allocation of proportion of available cells...");
+
+		assertEquals(potentialAgents, r1.getPotentialAgents());
+
+		int numCellsTotal = r1.getNumCells();
+		for (Cell c : r1.getAllCells()) {
+			c.setBaseCapitals(cellCapitalsA);
+			r1.setAvailable(c);
+			demandR1.setResidual(c, services(0, 8, 0, 0));
+		}
+		assertEquals(numCellsTotal, r1.getAvailable().size());
+		
+		r1.getAllocationModel().allocateLand(r1);
+		assertEquals((int) Math.ceil(numCellsTotal * (1 - PROPORTION)), r1.getAvailable().size());
 	}
 }

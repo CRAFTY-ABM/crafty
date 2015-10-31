@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -139,7 +140,12 @@ public class ABMPersister extends EasyPersister {
 		}
 		columHeader.remove(xCol);
 
+		List<String> headers = Arrays.asList(reader.getHeaders());
 		for (String s : columHeader) {
+			if (!headers.contains(s)) {
+				logger.error("The requested column (" + s
+						+ ") is not present (" + csvFile + ").");
+			}
 			map.put(s, new LinearInterpolator());
 		}
 
