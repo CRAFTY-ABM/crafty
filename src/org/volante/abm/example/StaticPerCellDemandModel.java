@@ -140,7 +140,21 @@ public class StaticPerCellDemandModel implements DemandModel {
 	 */
 	@Override
 	public DoubleMap<Service> getAveragedPerCellResidualDemand() {
-		log.fatal("Average per cell demand not implemented in StaticPerCellDemandModel");
+		log.fatal("Average per cell demand residual not implemented in StaticPerCellDemandModel");
 		return null;
+	}
+
+	/**
+	 * @see org.volante.abm.models.DemandModel#getAveragedPerCellDemand()
+	 */
+	@Override
+	public DoubleMap<Service> getAveragedPerCellDemand() {
+		DoubleMap<Service> demandsum = data.serviceMap();
+		for (Cell c : demand.keySet()) {
+			demand.get(c).addInto(demandsum);
+		}
+		demandsum.multiplyInto(1.0 / demand.size(), demandsum);
+
+		return demandsum;
 	}
 }
