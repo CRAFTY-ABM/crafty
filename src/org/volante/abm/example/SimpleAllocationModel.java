@@ -67,7 +67,7 @@ public class SimpleAllocationModel implements AllocationModel,
 	static private Logger	logger	= Logger.getLogger(SimpleAllocationModel.class);
 
 
-	Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
+	protected Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
 
 	@Attribute(required = false)
 	double						proportionToAllocate	= 1;
@@ -95,7 +95,9 @@ public class SimpleAllocationModel implements AllocationModel,
 		for (Cell c : cells2allocate) {
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
-				logger.debug("Create best agent for cell " + c + " of region " + r + " ...");
+				logger.debug("Create best agent for cell " + c + " of region "
+						+ r + " (current owner: " + c.getOwner()
+						+ ")...");
 			}
 			// LOGGING ->
 
@@ -110,18 +112,21 @@ public class SimpleAllocationModel implements AllocationModel,
 		PotentialAgent p = null;
 		for( PotentialAgent a : potential )
 		{
-			double s = r.getCompetitiveness( a, c );
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug(a + "> competitiveness: " + s);
-			}
-			// LOGGING ->
-
-			if( s > max )
-			{
-				if (s > a.getGivingUp()) {
-					max = s;
-					p = a;
+			if (!r.hasInstitutions() || r.getInstitutions().isAllowed(a, c)) {
+				double s = r.getCompetitiveness( a, c );
+	
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug(a + "> competitiveness: " + s);
+				}
+				// LOGGING ->
+	
+				if( s > max )
+				{
+					if (s > a.getGivingUp()) {
+						max = s;
+						p = a;
+					}
 				}
 			}
 		}
@@ -138,7 +143,7 @@ public class SimpleAllocationModel implements AllocationModel,
 			// LOGGING ->
 
 			r.setOwnership(agent, c);
-			
+
 			for (CellVolatilityObserver o : cellVolatilityObserver) {
 				o.increaseVolatility(c);
 			}

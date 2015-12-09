@@ -23,6 +23,7 @@
 package org.volante.abm.example;
 
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Service;
 
@@ -37,6 +38,11 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  * 
  */
 public class NormalisedCurveCompetitivenessModel extends CurveCompetitivenessModel {
+
+	/**
+	 * Logger
+	 */
+	static private Logger log = Logger.getLogger(NormalisedCurveCompetitivenessModel.class);
 
 	@Attribute(required = false)
 	boolean	normaliseCellResidual	= true;
@@ -59,15 +65,12 @@ public class NormalisedCurveCompetitivenessModel extends CurveCompetitivenessMod
 			UnmodifiableNumberMap<Service> supply, boolean showWorking) {
 		double sum = 0;
 
-		// determine maximum demand across services for normalisation:
-		double maxdemandpercell = -Double.MAX_VALUE;
-		for (Service s : this.data.services) {
-			maxdemandpercell = Math.max(maxdemandpercell, region.getDemandModel()
-					.getAveragedPerCellDemand().get(s));
-		}
-
 		for (Service s : supply.getKeySet()) {
 			Curve c = curves.get(s); /* Gets the curve parameters for this service */
+
+			double perCellDemand = region.getDemandModel().getAveragedPerCellDemand().get(s);
+			perCellDemand = perCellDemand == 0 ? Double.MIN_VALUE : perCellDemand;
+
 			if (c == null) {
 				String message = "Missing curve for: " + s.getName() + " got: " + curves.keySet();
 				log.fatal(message);
@@ -75,7 +78,7 @@ public class NormalisedCurveCompetitivenessModel extends CurveCompetitivenessMod
 			}
 			double res = residualDemand.getDouble(s);
 			if (normaliseCellResidual) {
-				res /= maxdemandpercell;
+				res /= perCellDemand;
 			}
 			double marginal = c.sample(res); /*
 											 * Get the corresponding 'value' (y-value) for this
@@ -83,20 +86,24 @@ public class NormalisedCurveCompetitivenessModel extends CurveCompetitivenessMod
 											 */
 			double amount = supply.getDouble(s);
 			if (this.normaliseCellSupply) {
-				amount /= maxdemandpercell;
+				amount /= perCellDemand;
 			}
 
 			if (removeNegative && marginal < 0) {
 				marginal = 0;
 			}
-			double comp = marginal * amount;
-			if (showWorking) {
-				log.debug(String.format("Service: %10s, Residual: %5f, Marginal: %5f, Amount: %5f",
-						s.getName(), res, marginal, amount));
-				log.debug("Curve: " + c.toString());
+
+			double comp = (marginal == 0 || amount == 0 ? 0 : marginal * amount);
+
+			if (log.isTraceEnabled()) {
+				log.trace(String.format(
+						"\t\tService %10s: Residual (%5f) > Marginal (%5f; Curve: %s) * Amount (%5f) = %5f",
+						s.getName(), res, marginal, c.toString(), amount, marginal * amount));
 			}
 			sum += comp;
 		}
+		log.trace("Competitiveness sum: " + sum);
+
 		return sum;
 	}
 }

@@ -99,10 +99,9 @@ public class Outputs implements GloballyInitialisable {
 		for (Outputter o : outputs) {
 			log.info("Loading Output: " + o.getClass());
 			o.setOutputManager(this);
+			o.initialise(); // Outputs do their own scheduling in initialise();
 			if (o instanceof GloballyInitialisable) {
 				((GloballyInitialisable) o).initialise(data, info, regions);
-			} else {
-				o.initialise(); // Outputs do their own scheduling in initialise();
 			}
 			o.open();
 		}

@@ -123,6 +123,11 @@ public class RegionLoader {
 	@ElementList(inline = true, required = false, entry = "institutionFile")
 	List<String>					institutionFiles		= new ArrayList<String>();
 
+	@ElementList(inline = true, required = false, entry = "initialiser")
+	List<Initialisable> initialisers = new ArrayList<Initialisable>();
+	@ElementList(inline = true, required = false, entry = "initialiserFile")
+	List<String> initialiserFiles = new ArrayList<String>();
+	
 	@Element(required = false)
 	int								randomSeed				= Integer.MIN_VALUE;
 
@@ -198,6 +203,7 @@ public class RegionLoader {
 		region.setID(id);
 
 		readPmParameters();
+		initInitialisers();
 		loadAgentTypes();
 		loadModels();
 		initialiseCells();
@@ -304,6 +310,19 @@ public class RegionLoader {
 		runInfo.getSchedule().register(region);
 	}
 
+	/**
+	 * 
+	 */
+	private void initInitialisers() throws Exception {
+		for (String initialiserFile : initialiserFiles) {
+			initialisers.addAll(persister.readXML(InitialiserList.class, initialiserFile,
+					this.region.getPeristerContextExtra()).initialisers);
+		}
+		for (Initialisable i : initialisers) {
+			i.initialise(modelData, runInfo, region);
+		}
+	}
+
 	private void loadUpdaters() throws Exception {
 		for (String updaterFile : updaterFiles) {
 			updaters.add(persister.readXML(Updater.class, updaterFile,
@@ -375,6 +394,15 @@ public class RegionLoader {
 		}
 	}
 
+	/**
+	 * In case there is not yet a cell at the given coordinates, it instantiates
+	 * and initialises a new cell. Add it adds it to region at given coordinates.
+	 * Furthermore, sets initial ownership to {@link Agent#NOT_MANAGED}.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return new cell object
+	 */
 	public Cell getCell(int x, int y) {
 		if (cellTable.contains(x, y)) {
 			return cellTable.get(x, y);
