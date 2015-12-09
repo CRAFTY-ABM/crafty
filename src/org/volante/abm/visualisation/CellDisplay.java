@@ -37,6 +37,7 @@ import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.Extent;
 import org.volante.abm.data.ModelData;
@@ -57,7 +58,10 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	private static final long	serialVersionUID	= 7844559478600001796L;
 	BufferedImage				image				= null;
 	Extent						extent				= null;
-	Color						background			= Color.white;
+
+	@Element(required = false)
+	Color bgColorCells = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+
 	int							regionHeight		= 0;
 	int							regionWidth			= 0;
 	Cell[][]					cells				= null;
@@ -148,7 +152,7 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 	public void update() {
 		super.update();
 		Graphics g = image.getGraphics();
-		g.setColor(Color.black);
+		g.setColor(bgColorCells);
 		g.fillRect(0, 0, regionWidth, regionHeight);
 		for (Cell c : region.getAllCells()) {
 			cells[extent.xInd(c.getX())][extent.yInd(c.getY())] = c;
@@ -348,6 +352,8 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		frame.getContentPane().setBackground(Color.cyan);
+
 		CellDisplay ce = new CellDisplay()
 		{
 			private static final long	serialVersionUID	= 202623092558423513L;
@@ -360,9 +366,10 @@ public abstract class CellDisplay extends AbstractDisplay implements KeyListener
 		};
 		ce.initialise(null, null, r);
 		ce.setSelectedCell(sel);
-		ce.update();
 
-		frame.add(ce.getDisplay());
+		JComponent panel = ce.getDisplay();
+
+		frame.add(panel);
 		frame.setSize(new Dimension(500, 600));
 		frame.setVisible(true);
 	}

@@ -63,8 +63,6 @@ public class ParameterCSVOutputter extends TableOutputter<Region> implements Glo
 
 	@Override
 	public void initialise(ModelData data, RunInfo info, Regions regions) throws Exception {
-		super.initialise();
-
 		everyNYears = Integer.MAX_VALUE;
 		DecimalFormatSymbols decimalSymbols = new DecimalFormat()
 				.getDecimalFormatSymbols();

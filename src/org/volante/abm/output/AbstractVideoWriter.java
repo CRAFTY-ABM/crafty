@@ -29,6 +29,7 @@ import static org.monte.media.FormatKeys.MediaTypeKey;
 import static org.monte.media.VideoFormatKeys.DepthKey;
 import static org.monte.media.VideoFormatKeys.ENCODING_AVI_PNG;
 import static org.monte.media.VideoFormatKeys.HeightKey;
+import static org.monte.media.VideoFormatKeys.QualityKey;
 import static org.monte.media.VideoFormatKeys.WidthKey;
 
 import java.awt.Color;
@@ -46,6 +47,7 @@ import org.monte.media.FormatKeys.MediaType;
 import org.monte.media.avi.AVIWriter;
 import org.monte.media.math.Rational;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
 import org.volante.abm.output.Outputs.CloseableOutput;
@@ -83,11 +85,32 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	@Attribute(required = false)
 	int					height			= 500;
 
+	@Attribute(required = false)
+	float quality = 1.0f;
+
 	/**
 	 * Should the current tick be added to the images?
 	 */
 	@Attribute(required = false)
 	boolean				addTick			= true;
+
+	@Attribute(required = false)
+	float tickSize = 36.0f;
+
+	@Attribute(required = false)
+	String tickPrefix = "t=";
+
+	/**
+	 * If < 0 it's subtracted from width
+	 */
+	@Attribute(required = false)
+	protected int tickLocationX = 2;
+
+	/**
+	 * If < 0 it's subtracted from height
+	 */
+	@Attribute(required = false)
+	protected int tickLocationY = -2;
 
 	@Attribute(required = false)
 	protected int		everyNYears		= 1;
@@ -96,7 +119,9 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	@Attribute(required = false)
 	protected int		endYear			= Integer.MAX_VALUE;
 
-	Color				tickColor		= new Color(0.0f, 0.6f, 0.3f, 0.5f);
+	@Element(required = false)
+	Color tickColor = new Color(0.0f, 0.6f, 0.3f, 0.5f);
+
 	NumberFormat		tickFormat		= new DecimalFormat("000");
 
 	protected AVIWriter	out;
@@ -105,18 +130,19 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 	protected Outputs	outputs;
 	protected RunInfo	info;
 	protected ModelData	data;
+	protected Regions regions;
 
 	@Override
 	public void open() {
 		try {
-			fn = outputs.getOutputFilename(output, ".avi"); // Construct proper output filename
+			fn = outputs.getOutputFilename(output, ".avi", this.regions); // Construct proper output filename
 			File file = new File(fn);
 			Format format = new Format(MediaTypeKey, MediaType.VIDEO, //
 					EncodingKey, ENCODING_AVI_PNG,
 					FrameRateKey, new Rational(frameRate, 1),//
 					WidthKey, width, //
 					HeightKey, height,//
-					DepthKey, 24);
+					DepthKey, 24, QualityKey, quality);
 			out = new AVIWriter(file);
 			log.info("Starting video file: " + fn + " using " + out + " on file: " + file + ", w:"
 					+ width + ",p_rest:" + height);
@@ -143,10 +169,10 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 					if (addTick) {
 						Graphics2D g = image.createGraphics();
 						g.setColor(tickColor);
-						g.setFont(g.getFont().deriveFont(36.0f).deriveFont(Font.BOLD));
-						g.drawString("t=" + tickFormat.format(info.getSchedule().getCurrentTick()),
-								2,
-								height - 2);
+						g.setFont(g.getFont().deriveFont(tickSize).deriveFont(Font.BOLD));
+						g.drawString(tickPrefix + tickFormat.format(info.getSchedule().getCurrentTick()),
+								tickLocationX < 0 ? width + tickLocationX : tickLocationX, tickLocationY < 0 ? height
+										+ tickLocationY : tickLocationY);
 						g.dispose();
 					}
 					out.write(0, image, 1);
@@ -180,6 +206,7 @@ public abstract class AbstractVideoWriter implements CloseableOutput, Outputter,
 		outputs.registerClosableOutput(this);
 		this.info = info;
 		this.data = data;
+		this.regions = regions;
 	}
 
 	@Override
