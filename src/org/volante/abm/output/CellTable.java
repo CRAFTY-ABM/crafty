@@ -24,6 +24,7 @@ package org.volante.abm.output;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,6 +120,11 @@ public class CellTable extends TableOutputter<Cell> implements GloballyInitialis
 		if (f instanceof DecimalFormat) {
 			((DecimalFormat) f).applyPattern(doubleFormat);
 			((DecimalFormat) f).setMaximumIntegerDigits(maxIntegerDigits);
+			doubleFmt = (DecimalFormat) f;
+		} else {
+			DecimalFormatSymbols decimalSymbols = new DecimalFormat().getDecimalFormatSymbols();
+			decimalSymbols.setDecimalSeparator('.');
+			doubleFmt = new DecimalFormat(doubleFormat, decimalSymbols);
 		}
 
 		if (addTick) {

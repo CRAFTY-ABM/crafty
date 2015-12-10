@@ -141,6 +141,11 @@ public class RegionLoader {
 	@ElementList(inline = true, required = false, entry = "institutionFile")
 	List<String>					institutionFiles		= new ArrayList<String>();
 
+	@ElementList(inline = true, required = false, entry = "initialiser")
+	List<Initialisable> initialisers = new ArrayList<Initialisable>();
+	@ElementList(inline = true, required = false, entry = "initialiserFile")
+	List<String> initialiserFiles = new ArrayList<String>();
+	
 	@Element(required = false)
 	int								randomSeed				= Integer.MIN_VALUE;
 
@@ -221,6 +226,7 @@ public class RegionLoader {
 		region.setID(id);
 
 		readPmParameters();
+		initInitialisers();
 		loadAgentTypes();
 		loadModels();
 		loadSocialNetworks();
@@ -345,6 +351,19 @@ public class RegionLoader {
 			runInfo.getSchedule().register((TickAction) competition);
 		}
 		runInfo.getSchedule().register(region);
+	}
+
+	/**
+	 * 
+	 */
+	private void initInitialisers() throws Exception {
+		for (String initialiserFile : initialiserFiles) {
+			initialisers.addAll(persister.readXML(InitialiserList.class, initialiserFile,
+					this.region.getPeristerContextExtra()).initialisers);
+		}
+		for (Initialisable i : initialisers) {
+			i.initialise(modelData, runInfo, region);
+		}
 	}
 
 	private void loadUpdaters() throws Exception {

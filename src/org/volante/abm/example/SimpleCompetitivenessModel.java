@@ -22,6 +22,10 @@
  */
 package org.volante.abm.example;
 
+
+import java.text.DecimalFormat;
+
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
@@ -35,68 +39,101 @@ import org.volante.abm.visualisation.SimpleCompetitivenessDisplay;
 import com.moseph.modelutils.fastdata.DoubleMap;
 import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
 
+
 /**
  * A simple model of competitiveness
+ * 
  * @author dmrust
- *
+ * 
  */
-public class SimpleCompetitivenessModel implements CompetitivenessModel
-{
+public class SimpleCompetitivenessModel implements CompetitivenessModel {
 	/**
-	 * If set to true, then the current supply will be added back to the residual demand, so 
-	 * competitiveness is calculated as if the cell is currently empty
+	 * Logger
 	 */
-	@Attribute(required=false)
+	static private Logger logger = Logger.getLogger(SimpleCompetitivenessModel.class);
+
+	/**
+	 * If set to true, then the current supply will be added back to the residual demand, so competitiveness is
+	 * calculated as if the cell is currently empty
+	 */
+	@Attribute(required = false)
 	boolean removeCurrentLevel = false;
-	
+
 	/**
 	 * If set to true, all negative demand (i.e. oversupply) is removed from the dot product
 	 */
-	@Attribute(required=false)
+	@Attribute(required = false)
 	boolean removeNegative = false;
-	
-	Region	region				= null;
+
+	@Attribute(required = false)
+	String doubleFormat = "0.000";
+
+	Region region = null;
 
 	public void initialise(ModelData data, RunInfo info, Region extent) throws Exception {
 		this.region = extent;
 	}
-	
+
 	@Override
-	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply)
-	{
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply) {
 		DoubleMap<Service> residual = demand.getResidualDemand().copy();
 		residual.multiplyInto(1.0 / region.getNumCells(), residual);
 
 		return addUpMarginalUtilities(residual, supply);
 	}
-	
+
 	@Override
-	public double getCompetitiveness( DemandModel demand, UnmodifiableNumberMap<Service> supply, Cell cell )
-	{
-		DoubleMap<Service> residual = demand.getResidualDemand( cell ).copy();
-		if( removeCurrentLevel ) {
-			cell.getSupply().addInto( residual );
+	public double getCompetitiveness(DemandModel demand, UnmodifiableNumberMap<Service> supply, Cell cell) {
+		DoubleMap<Service> residual = demand.getResidualDemand(cell).copy();
+		if (removeCurrentLevel) {
+			cell.getSupply().addInto(residual);
 		}
-		return addUpMarginalUtilities( residual, supply );
-	}
-	
-	@Override
-	public double addUpMarginalUtilities( UnmodifiableNumberMap<Service> residual, UnmodifiableNumberMap<Service> supply )
-	{
-		if( ! removeNegative ) {
-			return supply.dotProduct( residual );
-		}
-		DoubleMap<Service> res = (DoubleMap<Service>)residual;
-		res.setMin( 0 );
-		return supply.dotProduct( res );
+		return addUpMarginalUtilities(residual, supply);
 	}
 
+	@Override
+	public double addUpMarginalUtilities(UnmodifiableNumberMap<Service> residual, UnmodifiableNumberMap<Service> supply) {
+		if (!removeNegative) {
+			// <- LOGGING
+			if (logger.isTraceEnabled()) {
+				logger.trace("\t\t" + supply.prettyPrintDotProduct(residual, new DecimalFormat(doubleFormat)));
+			}
+			// LOGGING ->
+			return supply.dotProduct(residual);
+		}
+		DoubleMap<Service> res = (DoubleMap<Service>) residual;
+		res.setMin(0);
+		
+		double marginalUtilities = supply.dotProduct(res);
+		
+		// <- LOGGING
+		if (logger.isTraceEnabled()) {
+			logger.trace(System.getProperty("line.separator")
+					+ supply.prettyPrintDotProduct(res, new DecimalFormat(doubleFormat)));
+		}
+		// LOGGING ->
 
-	public boolean isRemoveCurrentLevel() { return removeCurrentLevel; }
-	public void setRemoveCurrentLevel( boolean removeCurrentLevel ) { this.removeCurrentLevel = removeCurrentLevel; }
-	public boolean isRemoveNegative() { return removeNegative; }
-	public void setRemoveNegative( boolean removeNegative ) { this.removeNegative = removeNegative; }
+		return marginalUtilities;
+	}
+
+	public boolean isRemoveCurrentLevel() {
+		return removeCurrentLevel;
+	}
+
+	public void setRemoveCurrentLevel(boolean removeCurrentLevel) {
+		this.removeCurrentLevel = removeCurrentLevel;
+	}
+
+	public boolean isRemoveNegative() {
+		return removeNegative;
+	}
+
+	public void setRemoveNegative(boolean removeNegative) {
+		this.removeNegative = removeNegative;
+	}
 
 	@Override
-	public CompetitivenessDisplay getDisplay() { return new SimpleCompetitivenessDisplay( this ); }
+	public CompetitivenessDisplay getDisplay() {
+		return new SimpleCompetitivenessDisplay(this);
+	}
 }
