@@ -69,7 +69,7 @@ public interface DemandModel extends Initialisable, Displayable {
 	public DoubleMap<Service> getResidualDemand(Cell c);
 
 	/**
-	 * @return residual demand map for given cell averaged over region or world.
+	 * @return residual demand map per cell averaged over region or world.
 	 */
 	public DoubleMap<Service> getAveragedPerCellResidualDemand();
 

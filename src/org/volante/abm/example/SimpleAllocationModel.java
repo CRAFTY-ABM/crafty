@@ -98,7 +98,9 @@ public class SimpleAllocationModel implements AllocationModel,
 		for (Cell c : cells2allocate) {
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
-				logger.debug("Create best agent for cell " + c + " of region " + r + " ...");
+				logger.debug("Create best agent for cell " + c + " of region "
+						+ r + " (current owner: " + c.getOwner()
+						+ ")...");
 			}
 			// LOGGING ->
 
@@ -113,20 +115,21 @@ public class SimpleAllocationModel implements AllocationModel,
 		PotentialAgent p = null;
 		for( PotentialAgent a : potential )
 		{
-			// TODO Check institutions for allowance
-
-			double s = r.getCompetitiveness( a, c );
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug(a + "> competitiveness: " + s);
-			}
-			// LOGGING ->
-
-			if( s > max )
-			{
-				if (s > a.getGivingUp()) {
-					max = s;
-					p = a;
+			if (!r.hasInstitutions() || r.getInstitutions().isAllowed(a, c)) {
+				double s = r.getCompetitiveness( a, c );
+	
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug(a + "> competitiveness: " + s);
+				}
+				// LOGGING ->
+	
+				if( s > max )
+				{
+					if (s > a.getGivingUp()) {
+						max = s;
+						p = a;
+					}
 				}
 			}
 		}

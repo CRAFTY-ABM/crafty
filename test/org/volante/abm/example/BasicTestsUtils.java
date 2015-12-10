@@ -795,6 +795,32 @@ public class BasicTestsUtils
 	}
 
 	/**
+	 * Sets up a very basic world containing one region with the given cells. As models the
+	 * {@link SimpleAllocationModel}, {@link SimpleCompetitivenessModel}, and
+	 * {@link RegionalDemandModel} are applied. Schedule is initialised.
+	 * 
+	 * @param r
+	 *        region
+	 * @param cells
+	 * @return region
+	 * @throws Exception
+	 */
+	public Region setupBasicWorld(Region r, Cell... cells)
+			throws Exception {
+		r.setID("CustomRegion");
+		r.cellsCreated();
+		r.setAllocationModel(new SimpleAllocationModel());
+		r.setCompetitivenessModel(new SimpleCompetitivenessModel());
+		r.setDemandModel(new RegionalDemandModel());
+		r.initialise(modelData, runInfo, null);
+
+		runInfo.getSchedule().setRegions(new RegionSet(r));
+		runInfo.getSchedule().initialise(modelData, runInfo, r);
+
+		return r;
+	}
+
+	/**
 	 * 
 	 * Creates a very basic world applying the given models.
 	 * 

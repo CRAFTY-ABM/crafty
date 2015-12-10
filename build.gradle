@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-version =  '0.1.18'
+version =  '0.1.30'
 
 sourceSets {
 	main {
@@ -63,7 +63,6 @@ dependencies {
 	compile group: 'net.sf.jung', name: 'jung-io', version: '2.0.1'
 	compile group: 'de.cesr', name: 'lara-base', version: '0.1.0+'
 	compile group: 'log4j', name: 'log4j', version: '1.2.17+'
-	compile group: 'com.moseph', name: 'modellingUtilities', version: '1.0'
 	compile group: 'org.monte', name: 'monte-cc', version: '0.7.5'
 	compile group: 'de.cesr', name: 'more', version: '0.9.3+'
 	compile group: 'org.edu.lurg', name: 'mpi', version: '0.1.0+'

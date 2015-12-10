@@ -21,6 +21,8 @@
  */
 package org.volante.abm.output;
 
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
@@ -43,6 +45,8 @@ public class DisplayVideoWriter extends AbstractVideoWriter
 	Display		display				= null;
 	JComponent	toPaint				= null;
 	
+	@Element(required = false)
+	Color bgColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	@Override
 	public BufferedImage getImage( Regions r )
@@ -70,6 +74,8 @@ public class DisplayVideoWriter extends AbstractVideoWriter
 		}
 		toPaint.setPreferredSize( new Dimension( width, height ) );
 		toPaint.setSize( new Dimension( width, height ) );
-	}
 
+		toPaint.setBackground(bgColor);
+		toPaint.setOpaque(false);
+	}
 }
