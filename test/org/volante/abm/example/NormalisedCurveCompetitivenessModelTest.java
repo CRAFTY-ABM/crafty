@@ -77,7 +77,7 @@ public class NormalisedCurveCompetitivenessModelTest extends BasicTestsUtils {
 
 		// Each bit is supply * marginal utility (which is offset + slope*residual)
 		double expected = (1.1 / 2) * (5 + 18.0 / 2) +
-				(1.2 / 2) * (4 + 10.0 / 2);
+ (1.2 / (5.0 / 9)) * (4 + 10.0 / (5.0 / 9));
 		assertEquals("Checking that competitiveness is calculated based on residual",
 				expected, comp.getCompetitiveness(demand, services(1.1, 1.2, 0, 0), c11),
 				0.00001);
