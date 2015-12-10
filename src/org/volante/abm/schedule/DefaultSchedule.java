@@ -121,20 +121,15 @@ public class DefaultSchedule implements WorldSyncSchedule {
 			a.tickStartUpdate();
 		}
 		
+		this.worldSyncModel.synchronizeNumOfCells(regions);
+		this.worldSyncModel.synchronizeDemand(regions);
+
 		if (this.getCurrentTick() > this.getStartTick()) {
 			log.info("Update agents' competitiveness and consider giving up ...");
 			for (Agent a : regions.getAllAgents()) {
 				if (a instanceof InnovationAgent) {
 					((InnovationAgent) a).considerInnovationsNextStep();
 				}
-				a.updateCompetitiveness();
-				a.considerGivingUp();
-			}
-		}
-		
-		if (this.getCurrentTick() > this.getStartTick()) {
-			log.info("Update agents' competitiveness and consider giving up ...");
-			for (Agent a : regions.getAllAgents()) {
 				a.updateCompetitiveness();
 				a.considerGivingUp();
 			}
@@ -157,15 +152,14 @@ public class DefaultSchedule implements WorldSyncSchedule {
 			a.updateSupply();
 		}
 
-		// Allow the demand model to update for global supply supply for each region
+		// Allow the demand model to update for global supply for each region
 		for (Region r : regions.getAllRegions()) {
 			r.getDemandModel().updateSupply();
 		}
 
 		// in order to recalculate residuals (which is done during updateSupply()) and to calculate
 		// competitiveness, the market-level residuals must be known:
-		this.worldSyncModel.synchronizeNumOfCells(regions);
-		this.worldSyncModel.synchronizeDemand(regions);
+
 		this.worldSyncModel.synchronizeSupply(regions);
 
 		for (Region r : regions.getAllRegions()) {

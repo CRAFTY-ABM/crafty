@@ -23,11 +23,13 @@
 package org.volante.abm.example;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import org.volante.abm.agent.Agent;
 import org.volante.abm.agent.GeoAgent;
@@ -39,8 +41,12 @@ import org.volante.abm.data.Region;
 import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.utils.CellVolatilityMessenger;
 import org.volante.abm.models.utils.CellVolatilityObserver;
+import org.volante.abm.param.RandomPa;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.visualisation.SimpleAllocationDisplay;
+
+import com.moseph.modelutils.Utilities;
+
 
 /**
  * A very simple kind of allocation. Any abandoned cells get the most
@@ -65,6 +71,9 @@ public class SimpleAllocationModel implements AllocationModel,
 
 	protected Set<CellVolatilityObserver> cellVolatilityObserver = new HashSet<CellVolatilityObserver>();
 
+	@Attribute(required = false)
+	double						proportionToAllocate	= 1;
+
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
 
@@ -80,10 +89,18 @@ public class SimpleAllocationModel implements AllocationModel,
 				+ " cells)...");
 		// LOGGING ->
 
-		for( Cell c : new ArrayList<Cell>( r.getAvailable() ) ) {
+		// Determine random subset of available cells:
+		Collection<Cell> cells2allocate = Utilities.sampleN(r.getAvailable(),
+				(int) (r.getAvailable().size() * proportionToAllocate), r.getRandom()
+						.getURService(),
+				RandomPa.RANDOM_SEED_RUN_ALLOCATION.name());
+
+		for (Cell c : cells2allocate) {
 			// <- LOGGING
 			if (logger.isDebugEnabled()) {
-				logger.debug("Create best agent for cell " + c + " of region " + r + " ...");
+				logger.debug("Create best agent for cell " + c + " of region "
+						+ r + " (current owner: " + c.getOwner()
+						+ ")...");
 			}
 			// LOGGING ->
 
@@ -98,21 +115,21 @@ public class SimpleAllocationModel implements AllocationModel,
 		PotentialAgent p = null;
 		for( PotentialAgent a : potential )
 		{
-			// TODO Check institutions for allowance
-
-			double s = r.getCompetitiveness( a, c );
-
-			// <- LOGGING
-			if (logger.isDebugEnabled()) {
-				logger.debug(a + "> competitiveness: " + s);
-			}
-			// LOGGING ->
-
-			if( s > max )
-			{
-				if (s > a.getGivingUp()) {
-					max = s;
-					p = a;
+			if (!r.hasInstitutions() || r.getInstitutions().isAllowed(a, c)) {
+				double s = r.getCompetitiveness( a, c );
+	
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug(a + "> competitiveness: " + s);
+				}
+				// LOGGING ->
+	
+				if( s > max )
+				{
+					if (s > a.getGivingUp()) {
+						max = s;
+						p = a;
+					}
 				}
 			}
 		}

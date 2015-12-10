@@ -166,7 +166,7 @@ public class BestByCellAllocationTest extends BasicTestsUtils
 		double initial = alloc.getCurrentFitness();
 		alloc.allocateLand( r );
 		double after = alloc.getCurrentFitness();
-		logger.error("Before: " + initial + " -> After: " + after);
+		logger.info("Before: " + initial + " -> After: " + after);
 		assertTrue( "GA improves fitness...", after >= initial );
 		Multiset<PotentialAgent> randomSet = countAgents( r );
 		logger.info(randomSet);

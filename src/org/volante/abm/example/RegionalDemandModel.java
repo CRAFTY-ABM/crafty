@@ -55,7 +55,10 @@ import com.moseph.modelutils.fastdata.UnmodifiableNumberMap;
  *
  */
 public class RegionalDemandModel implements DemandModel, PreTickAction, PostTickAction {
-	Region							region;
+
+	Logger log = Logger.getLogger(getClass());
+
+	protected Region region;
 	
 	/**
 	 * If true, the demand will be updated every time an agent changes as owner of a cell.
@@ -82,8 +85,6 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	 */
 	@Attribute(required = false)
 	String							yearCol				= "Year";
-
-	Logger							log					= Logger.getLogger(getClass());
 
 	Map<Service, Curve>				demandCurves		= new HashMap<Service, Curve>();
 
@@ -182,7 +183,12 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 		log.info("Loading demand from tick: " + tick);
 		for (Service s : demand.getKeys()) {
 			if (demandCurves.containsKey(s)) {
-				demand.put(s, demandCurves.get(s).sample(tick));
+				double demandvalue = demandCurves.get(s).sample(tick);
+				demand.put(s, demandvalue);
+				if (demandvalue <= 0.0) {
+					log.warn("Demand for " + s + " is set to " + demandvalue
+							+ ". This likely leads to infinite competitiveness if an FR produces " + s + "!");
+				}
 			}
 		}
 		log.info("Demand: " + demand.prettyPrint());
@@ -253,5 +259,13 @@ public class RegionalDemandModel implements DemandModel, PreTickAction, PostTick
 	@Override
 	public DoubleMap<Service> getAveragedPerCellResidualDemand() {
 		return perCellResidual;
+	}
+
+	/**
+	 * @see org.volante.abm.models.DemandModel#getAveragedPerCellDemand()
+	 */
+	@Override
+	public DoubleMap<Service> getAveragedPerCellDemand() {
+		return perCellDemand;
 	}
 }

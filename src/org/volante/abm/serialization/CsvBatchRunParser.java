@@ -116,6 +116,11 @@ public class CsvBatchRunParser {
 					text.substring(text.indexOf("@") + 3, text.indexOf(")")), rInfo);
 		} else {
 			String[] textParsed = text2parse.split(",");
+
+			if (textParsed.length < 2) {
+				logger.error("Text to parse (" + text + ") does not contain ','!");
+			}
+
 			String filename = textParsed[0].trim();
 			String secondFilename = null;
 

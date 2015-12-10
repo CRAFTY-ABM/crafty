@@ -23,6 +23,7 @@ package org.volante.abm.visualisation;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -34,6 +35,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Regions;
@@ -48,6 +50,9 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 
 	@Attribute
 	String						title				= "Unknown";
+
+	@Element(required = false)
+	Color bgColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 	@Override
 	public void postTick() {
@@ -104,6 +109,9 @@ public abstract class AbstractDisplay extends JPanel implements Display {
 		if (p != null) {
 			panel.add(p, BorderLayout.EAST);
 		}
+
+		panel.setBackground(bgColor);
+
 		return panel;
 	}
 

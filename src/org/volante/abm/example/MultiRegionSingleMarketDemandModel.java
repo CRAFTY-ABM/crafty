@@ -118,7 +118,18 @@ public class MultiRegionSingleMarketDemandModel extends RegionalDemandModel impl
 	 */
 	@Override
 	public void recalculateResidual() {
+		// TODO why called so often?
+
 		if (this.runInfo.getSchedule().getCurrentTick() > this.runInfo.getSchedule().getStartTick()) {
+			// new supply, old demand (to not press ahead too much)!
+			// if (!adjustmentTriggered) {
+			// DoubleMap<Service> perCellSupply = this.modelData.serviceMap();
+			// worldSupply.multiplyInto(1.0 / this.worldNumCells, perCellSupply);
+			// ((CurveCompetitivenessModel) this.region.getCompetitionModel()).adjustCurves(perCellDemand,
+			// perCellSupply);
+			// this.adjustmentTriggered = true;
+			// }
+
 			worldDemand.multiplyInto(1.0 / this.worldNumCells, perCellDemand);
 			worldDemand.subtractInto(worldSupply, worldResidual);
 			worldResidual.multiplyInto(1.0 / this.worldNumCells, perCellResidual);
