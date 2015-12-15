@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-version =  '0.1.30'
+version =  '0.1.31'
 
 sourceSets {
 	main {
