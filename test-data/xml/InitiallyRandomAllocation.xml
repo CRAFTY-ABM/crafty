@@ -1,0 +1,5 @@
+<allocation class="org.volante.abm.example.InitiallyRandomAllocationModel">
+	<regularAllocModel class="org.volante.abm.example.SimpleAllocationModel" proportionToAllocate="0.3"/>
+	<proportion aft="Farming">0.5</proportion>
+	<proportion aft="Forestry">0.5</proportion>
+</allocation>
