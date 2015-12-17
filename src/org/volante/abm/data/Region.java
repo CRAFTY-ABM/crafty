@@ -427,6 +427,12 @@ public class Region implements Regions, PreTickAction {
 	 */
 	public void setInitialOwnership(Agent a, Cell... cells) {
 		for (Cell c : cells) {
+			Agent cur = c.getOwner();
+			cur.removeCell(c);
+			if (cur.toRemove()) {
+				agents.remove(cur);
+			}
+
 			a.addCell(c);
 			c.setOwner(a);
 			if (a != Agent.NOT_MANAGED) {

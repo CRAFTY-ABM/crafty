@@ -37,7 +37,7 @@ import org.volante.abm.schedule.RunInfo;
 
 
 /**
- * Creates one column per AFT-ID (across regions, too).
+ * Creates one column per AFT-ID (across regions, too). Does not consider {@link Agent#NOT_MANAGED}.
  * 
  * @author Sascha Holzhauer
  * 
@@ -92,7 +92,9 @@ public class AggregateAFTCompositionCSVOutputter extends AggregateCSVOutputter {
 
 			int[] pagentNumbers = new int[r.getPotentialAgents().size()];
 			for (Agent a : r.getAgents()) {
-				pagentNumbers[a.getType().getSerialID()]++;
+				if (a != Agent.NOT_MANAGED) {
+					pagentNumbers[a.getType().getSerialID()]++;
+				}
 			}
 
 			int sum = 0;
