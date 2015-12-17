@@ -45,6 +45,7 @@ import org.volante.abm.models.AllocationModel;
 import org.volante.abm.models.CompetitivenessModel;
 import org.volante.abm.models.DemandModel;
 import org.volante.abm.param.GeoPa;
+import org.volante.abm.schedule.PrePreTickAction;
 import org.volante.abm.schedule.PreTickAction;
 import org.volante.abm.schedule.RunInfo;
 import org.volante.abm.serialization.ABMPersister;
@@ -65,7 +66,7 @@ import de.cesr.more.building.network.MoreNetworkService;
 import de.cesr.parma.core.PmParameterManager;
 
 
-public class Region implements Regions, PreTickAction {
+public class Region implements Regions, PreTickAction, PrePreTickAction {
 
 	/**
 	 * Logger
@@ -730,5 +731,17 @@ public class Region implements Regions, PreTickAction {
 
 	public Map<String, String> getPeristerContextExtra() {
 		return this.peristerContextExtra;
+	}
+
+	/**
+	 * @see org.volante.abm.schedule.PrePreTickAction#prePreTick()
+	 */
+	@Override
+	public void prePreTick() {
+		if (this.requiresEffectiveCapitalData) {
+			if (this.getAllocationModel() instanceof CellCapitalObserver) {
+				((CellCapitalObserver) this.getAllocationModel()).regionCapitalChanged();
+			}
+		}
 	}
 }
