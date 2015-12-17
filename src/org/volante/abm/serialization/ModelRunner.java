@@ -1,5 +1,5 @@
 /**
- * This file is part of
+ * This file is part of 
  * 
  * CRAFTY - Competition for Resources between Agent Functional TYpes
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * School of Geoscience, University of Edinburgh, Edinburgh, UK
+ * School of Geoscience, University of Edinburgh, Edinburgh, UK CurrentRun
  */
 package org.volante.abm.serialization;
 
@@ -37,6 +37,7 @@ import org.volante.abm.schedule.ScheduleThread;
 import org.volante.abm.visualisation.ScheduleControls;
 import org.volante.abm.visualisation.TimeDisplay;
 
+import de.cesr.more.basic.MManager;
 import de.cesr.parma.core.PmParameterManager;
 
 
@@ -134,7 +135,7 @@ public class ModelRunner
 	public static void doRun(String filename, int start,
 			int end, RunInfo rInfo, boolean interactive) throws Exception
 	{
-		ScenarioLoader loader = setupRun(filename, rInfo);
+		ScenarioLoader loader = setupRun(filename, start, end, rInfo);
 		if (interactive) {
 			interactiveRun(loader);
 		} else {
@@ -144,7 +145,7 @@ public class ModelRunner
 		}
 	}
 
-	public static void noninteractiveRun(ScenarioLoader loader, int start, int end)
+	public static void noninteractiveRun( ScenarioLoader loader, int start, int end )
 	{
 		logger.info(String.format("Running from %s to %s\n",
 				(start == Integer.MIN_VALUE ? "<ScenarioFile>" : start + ""),
@@ -185,13 +186,15 @@ public class ModelRunner
 		controls.setVisible( true );
 	}
 
-	public static ScenarioLoader setupRun(String filename, RunInfo rInfo) throws Exception
+	public static ScenarioLoader setupRun(String filename,
+			int start, int end, RunInfo rInfo) throws Exception
 	{
 		// TODO override persister method
 		ScenarioLoader loader = ABMPersister.getInstance().readXML(ScenarioLoader.class, filename,
 				null);
 		loader.setRunID(rInfo.getCurrentRun() + "-" + rInfo.getCurrentRandomSeed());
 		loader.initialise(rInfo);
+		loader.schedule.setRegions(loader.regions);
 		loader.schedule.setRegions(loader.regions);
 		return loader;
 	}
@@ -285,5 +288,6 @@ public class ModelRunner
 	protected static void finalActions(RunInfo rInfo) {
 		rInfo.getOutputs().removeClosingOutputThreads();
 		PmParameterManager.reset();
+		MManager.reset();
 	}
 }

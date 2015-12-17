@@ -70,8 +70,6 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 
 	Map<PotentialAgent, SortedList<Cell>>	cellProductions	= new HashMap<PotentialAgent, SortedList<Cell>>();
 
-	static int								counter			= 0;
-
 	/**
 	 * Applied to sampled indices from the list of sorted cells. A curve object can be assigned to
 	 * the factory used to sample probabilities for selection of indices. The curve object is
@@ -130,56 +128,7 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 						}
 
 					}));
-			storeInitialCellSet("Initial_Fx" + pa.getID());
 		}
-
-		// // <- LOGGING
-		// PotentialAgent a = region.getPotentialAgents().iterator().next();
-		// Service mainService = ((ProductionWeightReporter)
-		// a.getProduction()).getProductionWeights().getMax();
-		// StringBuffer buffer = new StringBuffer();
-		// SortedList<Cell> slist = cellProductions.get(a);
-		// for (int i = 0; i < slist.size(); i++) {
-		// // buffer.append(slist.get(i).getOwnerID() + "] competitiveness:"
-		// // + region.getCompetitiveness(slist.get(i)) + System.getProperty("line.separator"));
-		// //
-		// buffer.append(slist.get(i) + "] production:" +
-		// a.getPotentialSupply(slist.get(i)).getDouble(mainService)
-		// + System.getProperty("line.separator"));
-		// }
-		// logger.info("Order: " + buffer.toString());
-		// // LOGGING ->
-	}
-
-	/**
-	 * Only output when logger in DEBUG level (or below)
-	 */
-	private void storeInitialCellSet(String id) {
-		counter++;
-
-		// <- LOGGING
-		if (logger.isDebugEnabled()) {
-			logger.debug("Output initial cell set for " + id + "(" + counter + ")");
-
-			StringBuffer buffer = new StringBuffer();
-
-			for (Cell c : region.getAllCells()) {
-				buffer.append(c.getX() + "," + c.getY() + ","
-						+ c.getOwner().getType().getSerialID()
-						+ System.getProperty("line.separator"));
-			}
-			FileWriter fw;
-			try {
-				fw = new FileWriter("./output/" + id + "_" + String.format("%2d", counter) + ".csv");
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(buffer.toString());
-				bw.flush();
-				bw.close();
-			} catch (IOException exception) {
-				exception.printStackTrace();
-			}
-		}
-		// LOGGING ->
 	}
 
 	/**
@@ -192,13 +141,15 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 		if (a == null) {
 			return; // In the rare case that all have 0 competitiveness, a can be null
 		}
-
-		IterativeCellSampler cellsampler =
-				this.samplerFactory.getIterativeCellSampler(r.getNumCells(), numSearchedCells, r);
+		
+		IterativeCellSampler cellsampler = this.samplerFactory.getIterativeCellSampler(
+				r.getNumCells(),
+				numSearchedCells, r);
 
 		logger.debug("Try " + a.getID() + " to take over on mostly " + numSearchedCells
-				+ " cells (region " + r.getID()
-				+ " has " + r.getNumCells() + " cells).");
+				+ " cells (region "
+				+ r.getID() + " has "
+				+ r.getNumCells() + " cells).");
 
 		Cell c;
 		Double competitiveness;
@@ -257,29 +208,6 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 
 	@Override
 	public void cellCapitalChanged(Cell cell, boolean remove) {
-		// <- LOGGING
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cell capital changed: " + cell);
-		}
-		// LOGGING ->
-
-		// // <- LOGGING
-		// PotentialAgent a = region.getPotentialAgents().iterator().next();
-		// Service mainService = ((ProductionWeightReporter)
-		// a.getProduction()).getProductionWeights().getMax();
-		// StringBuffer buffer = new StringBuffer();
-		// SortedList<Cell> slist = cellProductions.get(a);
-		// for (int i = 0; i < slist.size(); i++) {
-		// // buffer.append(slist.get(i).getOwnerID() + "] competitiveness:"
-		// // + region.getCompetitiveness(slist.get(i)) + System.getProperty("line.separator"));
-		// //
-		// buffer.append(slist.get(i) + "] production:" +
-		// a.getPotentialSupply(slist.get(i)).getDouble(mainService)
-		// + System.getProperty("line.separator"));
-		// }
-		// logger.info("Order: " + buffer.toString());
-		// // LOGGING ->
-
 		for (final PotentialAgent pa : this.region.getPotentialAgents()) {
 			if (remove) {
 				cellProductions.get(pa).getSource().remove(cell);
