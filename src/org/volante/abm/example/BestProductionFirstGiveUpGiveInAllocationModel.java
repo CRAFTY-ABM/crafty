@@ -23,9 +23,6 @@
 package org.volante.abm.example;
 
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -243,5 +240,15 @@ public class BestProductionFirstGiveUpGiveInAllocationModel extends GiveUpGiveIn
 							}
 
 						}));
+	}
+
+	/**
+	 * @see org.volante.abm.data.CellCapitalObserver#regionCapitalChanged()
+	 */
+	@Override
+	public void regionCapitalChanged() {
+		for (PotentialAgent pa : this.region.getPotentialAgents()) {
+			potentialAgentProductionChanged(pa);
+		}
 	}
 }
