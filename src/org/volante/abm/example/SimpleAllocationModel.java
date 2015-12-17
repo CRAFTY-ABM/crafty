@@ -32,7 +32,9 @@ import org.apache.log4j.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import org.volante.abm.agent.Agent;
+import org.volante.abm.agent.GeoAgent;
 import org.volante.abm.agent.PotentialAgent;
+import org.volante.abm.agent.SocialAgent;
 import org.volante.abm.data.Cell;
 import org.volante.abm.data.ModelData;
 import org.volante.abm.data.Region;
@@ -74,7 +76,8 @@ public class SimpleAllocationModel implements AllocationModel,
 
 	@Override
 	public void initialise( ModelData data, RunInfo info, Region r ){};
-	
+
+	protected boolean networkNullErrorOccurred = false;
 	/**
 	 * Creates a copy of the best performing potential agent on each empty cell
 	 */
@@ -146,6 +149,27 @@ public class SimpleAllocationModel implements AllocationModel,
 
 			for (CellVolatilityObserver o : cellVolatilityObserver) {
 				o.increaseVolatility(c);
+			}
+
+			if (r.getNetworkService() != null) {
+				// <- LOGGING
+				if (logger.isDebugEnabled()) {
+					logger.debug("Linking agent " + agent);
+				}
+				// LOGGING ->
+
+				if (r.getNetwork() != null) {
+					if (r.getGeography() != null && agent instanceof GeoAgent) {
+						((GeoAgent) agent).addToGeography();
+					}
+					r.getNetworkService().addAndLinkNode(r.getNetwork(),
+							(SocialAgent) agent);
+				} else {
+					if (!networkNullErrorOccurred) {
+						logger.warn("Network object not present during creation of new agent (subsequent error messages are suppressed)");
+						networkNullErrorOccurred = true;
+					}
+				}
 			}
 		}
 	}

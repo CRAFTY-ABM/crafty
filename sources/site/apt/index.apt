@@ -1,0 +1,33 @@
+	----------------
+	CRAFTY
+	----------------
+	Sascha Holzhauer
+	----------------
+	2015-10-17
+	
+Documentation
+
+	The elaborated documentation is at {{{https://www.wiki.ed.ac.uk/display/CRAFTY/Home}this wiki}}.
+
+Versions
+	
+	Currently, there are several editions/branches maintained (repositories at bitbucket contain the latest development including patches, template downloads usually contain the latest minor version including libraries):
+	
+*----------------+----------------+----------------------------------------------------+--+--+--+
+CRAFTY_Trunk     |Basic version. Mainly maintained for backward compatibility | {{{https://sourceforge.net/projects/crafty-abm/files/latest-release//CRAFTY_TemplateBasic.zip)}Download Template}} |{{{https://bitbucket.org/geoslurg/crafty_template)}Template at Bitbucket}} | {{{https://bitbucket.org/mo_seph/crafty)}CRAFTY at Bitbucket}} |
+*----------------+----------------+----------------------------------------------------+--+--+--+
+CRAFTY_Social    |Supports social networks and social interaction |{{{https://sourceforge.net/projects/crafty-abm/files/latest-release//CRAFTY_TemplateSocial.zip)}Download Template}} |{{{https://bitbucket.org/geoslurg/crafty_template/branch/social)}Template at Bitbucket}} |{{{https://bitbucket.org/mo_seph/crafty/branch/SocialAgentsDicide)}CRAFTY_Social at Bitbucket}} | {{{http://crafty-abm.sourceforge.net/apidocs/}JavaDoc}}
+*----------------+----------------+----------------------------------------------------+--+--+--+
+CRAFTY_Parallel  |Supports cluster runs and includes code of CRAFTY_Social | see CRAFTY_Social | see CRAFTY_Social |{{{https://bitbucket.org/mo_seph/crafty/branch/CraftyParallel)}CRAFTY_Parallel at Bitbucket}} |
+*----------------+----------------+----------------------------------------------------+--+--+--+
+CRAFTY_CoBRA     |COmponent Based Role Agents for cognitive agents and comprehensive modelling of institutions |{{{https://sourceforge.net/projects/crafty-abm/files/latest-release//CRAFTY_TemplateCoBRA.zip)}Download Template}} |{{{https://bitbucket.org/geoslurg/crafty_template/branch/cobra)}Template at Bitbucket}} |{{{https://bitbucket.org/geoslurg/crafty_cobra}CRAFTY_CoBRA at Bitbucket}} | {{{http://crafty-abm.sourceforge.net/crafty-cobra/apidocs/}JavaDoc}}
+*----------------+----------------+----------------------------------------------------+--+--+--+
+	
+	JavaDoc and the wiki usually relate to the CRAFTY_Social version. The section 'Special Versions Documentation'
+	contains more information about particular versions' features and documentation.
+	
+Related Software
+
+	* There is an R packages {{{https://bitbucket.org/geoslurg/craftyr}craftyr}} to support generation 
+	of batch runs and do post-processing. See the {{{https://www.wiki.ed.ac.uk/display/CRAFTY/Post-Processing}wiki}} for
+	installation instructions.
