@@ -46,6 +46,10 @@ public class AbstractInstitution implements Institution
 	public void adjustCapitals( Cell c )
 	{}
 
+	/**
+	 * @see org.volante.abm.institutions.Institution#adjustCompetitiveness(org.volante.abm.agent.PotentialAgent,
+	 *      org.volante.abm.data.Cell, com.moseph.modelutils.fastdata.UnmodifiableNumberMap, double)
+	 */
 	@Override
 	public double adjustCompetitiveness( PotentialAgent agent, Cell location, UnmodifiableNumberMap<Service> provision, double competitiveness )
 	{ return competitiveness; }
