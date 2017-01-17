@@ -30,6 +30,8 @@ import org.volante.abm.agent.Agent;
 
 
 /**
+ * Helps the clean up components when an agents is removed from the region ({@link Region#removeAgent(LandUseAgent)}
+ * called).
  * 
  * @author Sascha Holzhauer
  * 
